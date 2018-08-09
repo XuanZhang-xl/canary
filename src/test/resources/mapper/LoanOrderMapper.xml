@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xl.canary.mapper.LoanOrderMapper">
+
+    <select id="fetchLoanOrders" resultType="com.xl.canary.entity.LoanOrderEntity" parameterType="com.xl.canary.bean.condition.LoanOrderCondition">
+        select * from t_canary_loan_order WHERE 1 = 1
+        <if test="orderId != null and orderId !=''">
+            AND order_id = #{orderId}
+        </if>
+        <if test="userCode != null and userCode !=''">
+            AND user_code = #{userCode}
+        </if>
+        <if test="lentTimeBegin != null">
+            AND lent_time &gt; #{lentTimeBegin}
+        </if>
+        <if test="lentTimeEnd != null">
+            AND lent_time &lt; #{lentTimeEnd}
+        </if>
+    </select>
+
+</mapper>
