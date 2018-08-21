@@ -1,5 +1,5 @@
 /*
- **************************账户表*************************
+ **************************订单表*************************
  */
 DROP TABLE IF EXISTS t_canary_loan_order;
 CREATE TABLE t_canary_loan_order (
@@ -8,27 +8,114 @@ CREATE TABLE t_canary_loan_order (
   `user_code` varchar(64) NOT NULL COMMENT '用户唯一标识',
   `order_type` varchar(64) NOT NULL COMMENT '订单类型',
   `order_state` varchar(64) NOT NULL COMMENT '订单状态',
+  `repayment_day` int COMMENT '还款日',
   `instalment` int  NULL COMMENT '分期数',
   `instalment_unit` varchar(64) NOT NULL COMMENT '分期单位',
-  `instalment_rate` decimal(18,8) NOT NULL COMMENT '分期利率',
-  `penalty_rate` decimal(18,8) NOT NULL COMMENT '分期利率',
+  `instalment_rate` DECIMAL(18,8) NOT NULL COMMENT '分期利率',
+  `penalty_rate` DECIMAL(18,8) NOT NULL COMMENT '分期利率',
   `apply_currency` varchar(64) NOT NULL COMMENT '借款币种',
-  `anchor_currency` varchar(64) NOT NULL COMMENT '锚定币种',
-  `apply_amount` decimal(18,8) NOT NULL COMMENT '申请借款金额, 对应借款币种',
-  `lent_amount` decimal(18,8) NOT NULL COMMENT '放款金额, 对应借款币种',
-  `anchor_amount` decimal(18,8) NOT NULL COMMENT '锚定金额, 对应锚定币种',
+  `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
+  `equivalent_rate` DECIMAL(18,8) NOT NULL COMMENT '一般等价物的兑换率, 1个applyCurrency = x个equivalent',
+  `apply_amount` DECIMAL(18,8) NOT NULL COMMENT '申请借款金额, 对应借款币种',
+  `lent_amount` DECIMAL(18,8) NOT NULL COMMENT '放款金额, 对应借款币种',
+  `equivalent_amount` DECIMAL(18,8) NOT NULL COMMENT '锚定金额, 对应锚定币种',
+  `fee_follow_instalment` JSON COMMENT '跟随分期的其他费用, 每个分期都会有',
+  `fee` JSON COMMENT '直接分配到某个分期的费用',
   `lent_time` bigint(20) NOT NULL COMMENT '放款时间',
   `end_time` bigint(20) NOT NULL COMMENT '结束时间',
-  `timeZone` int  NULL COMMENT '时区',
+  `time_zone` int  NULL COMMENT '时区',
   `remark` text COMMENT '备注',
   `create_time` bigint(20) NOT NULL,
   `update_time` bigint(20) NOT NULL,
   `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `user_code` (`user_code`) USING BTREE,
-  UNIQUE INDEX `order_id` (`order_id`) USING BTREE,
-  INDEX `update_time` (`update_time`) USING BTREE,
-  INDEX `order_type` (`order_type`) USING BTREE,
-  INDEX `order_state` (`update_time`) USING BTREE,
-  INDEX `lent_time` (`update_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='账户表';
+  UNIQUE INDEX `index_order_id` (`order_id`) USING BTREE,
+  INDEX `index_user_code` (`user_code`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE,
+  INDEX `index_order_type` (`order_type`) USING BTREE,
+  INDEX `index_order_state` (`order_state`) USING BTREE,
+  INDEX `index_lent_time` (`lent_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
+
+
+/*
+ **************************分期表*************************
+ */
+DROP TABLE IF EXISTS t_canary_instalment;
+CREATE TABLE t_canary_instalment (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `instalment_id` varchar(64) NOT NULL COMMENT '订单号',
+  `order_id` varchar(64) NOT NULL COMMENT '订单号',
+  `user_code` varchar(64) NOT NULL COMMENT '用户唯一标识',
+  `order_type` varchar(64) NOT NULL COMMENT '订单类型',
+  `instalment_state` varchar(64) NOT NULL COMMENT '订单状态',
+  `instalment` int  NULL COMMENT '分期数',
+  `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
+  `original_principal` DECIMAL(18,8) NOT NULL COMMENT '原始本金',
+  `original_interest` DECIMAL(18,8) NOT NULL COMMENT '原始利息',
+  `original_fee_follow_instalment` JSON NOT NULL COMMENT '原始跟随分期的其他费用, 每个分期都会有, JSON',
+  `original_fee` JSON NOT NULL COMMENT '原始直接分配到某个分期的费用, JSON',
+  `principal` DECIMAL(18,8) NOT NULL COMMENT '应还本金',
+  `interest` DECIMAL(18,8) NOT NULL COMMENT '应还利息',
+  `penalty` DECIMAL(18,8) NOT NULL COMMENT '应还罚息',
+  `fee_follow_instalment` JSON COMMENT '应还跟随分期的其他费用, 每个分期都会有, JSON',
+  `fee` JSON COMMENT '应还直接分配到某个分期的费用, JSON',
+  `should_pay_time` bigint(20) NOT NULL COMMENT '应还清时间',
+  `clear_time` bigint(20) NOT NULL COMMENT '超过这个时间, 此分期强制结束, 如果为 -1 , 表示会一直记罚息',
+  `end_time` bigint(20) NOT NULL COMMENT '实际结束时间',
+  `time_zone` int  NULL COMMENT '时区',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_instalment_id` (`instalment_id`) USING BTREE,
+  INDEX `index_order_id` (`order_id`) USING BTREE,
+  INDEX `index_user_code` (`user_code`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE,
+  INDEX `index_order_type` (`order_type`) USING BTREE,
+  INDEX `index_instalment_state` (`instalment_state`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分期表';
+
+/*
+ **************************用户表*************************
+ */
+DROP TABLE IF EXISTS t_canary_user;
+CREATE TABLE t_canary_user (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `user_code` varchar(64) NOT NULL COMMENT '用户唯一标识',
+  `nick_name` varchar(64) NOT NULL COMMENT '名字',
+  `level` varchar(64) NOT NULL COMMENT '等级',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_user_code` (`user_code`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
+
+INSERT INTO t_canary_user (id, user_code, nick_name, level, remark, create_time, update_time, is_deleted)
+  VALUES (1, '1', 'xzhang', '1', '', 21331313, 1231231231, 0);
+
+/*
+ **************************用户级别表*************************
+ */
+DROP TABLE IF EXISTS t_canary_user_level_setting;
+CREATE TABLE t_canary_user_level_setting (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `level` varchar(64) NOT NULL COMMENT '等级',
+  `daily_interest_rate` DECIMAL(18,8) NOT NULL COMMENT '利率',
+  `daily_penalty_rate` DECIMAL(18,8) NOT NULL COMMENT '罚息率',
+  `max_loanable_amount` DECIMAL(18,8) NOT NULL COMMENT '累计最大借款额',
+  `min_loanable_amount` DECIMAL(18,8) NOT NULL COMMENT '每次最小借款额',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_level` (`level`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户级别表';
+
+INSERT INTO t_canary_user_level_setting (id,  level, daily_interest_rate, daily_penalty_rate, max_loanable_amount, min_loanable_amount, remark, create_time, update_time, is_deleted)
+  VALUES (1, '1', 1, 2, 100000, 10, '', 21331313, 1231231231, 0);

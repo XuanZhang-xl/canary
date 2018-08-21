@@ -40,7 +40,7 @@ public class BaseResponse<T> {
 
     public BaseResponse() {
         this.code = ResponseNutEnum.OK.getCode();
-        this.msg = ResponseNutEnum.OK.getMsg();
+        this.msg = ResponseNutEnum.OK.getMessage();
     }
 
     public BaseResponse buildSuccessResponse(T responseData) {
@@ -50,7 +50,7 @@ public class BaseResponse<T> {
 
     public BaseResponse buildFailedResponse(ResponseNutEnum responseNutEnum) {
         this.code = responseNutEnum.getCode();
-        this.msg = responseNutEnum.getMsg();
+        this.msg = responseNutEnum.getMessage();
         return this;
     }
 

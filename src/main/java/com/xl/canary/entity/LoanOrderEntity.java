@@ -1,20 +1,26 @@
 package com.xl.canary.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.enums.CurrencyEnum;
-import com.xl.canary.enums.LoanOrderStatusEnum;
+import com.xl.canary.enums.StatusEnum;
 import com.xl.canary.enums.LoanOrderTypeEnum;
 import com.xl.canary.enums.TimeUnitEnum;
+import com.xl.canary.utils.Fee;
 import com.xl.canary.utils.IDWorker;
+import com.xl.canary.utils.LoanOrderInstalmentUtils;
 
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 订单表
- * created by XUAN on 2018/08/06
+ * created by XUAN on 2018/08/18
  */
 @Table(name = "t_canary_loan_order")
-public class LoanOrderEntity extends AbstractBaseEntity {
+public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity {
 
     /**
      * 订单号
@@ -22,7 +28,7 @@ public class LoanOrderEntity extends AbstractBaseEntity {
     private String orderId;
 
     /**
-     * 借款订单类型
+     * 用户编号
      */
     private String userCode;
 
@@ -37,12 +43,17 @@ public class LoanOrderEntity extends AbstractBaseEntity {
     private String orderState;
 
     /**
+     * 还款日, 只有  某些  orderType   时才有效, 为计算还款日有效
+     */
+    private Integer repaymentDay;
+
+    /**
      * 分期数
      */
     private Integer instalment;
 
     /**
-     * 分期单位, 年, 月, 日
+     * 分期单位, 年, 月, 周, 日
      */
     private String instalmentUnit;
 
@@ -62,9 +73,14 @@ public class LoanOrderEntity extends AbstractBaseEntity {
     private String applyCurrency;
 
     /**
-     * 锚定币种
+     * 一般等价物, 锚定币种
      */
-    private String anchorCurrency;
+    private String equivalent;
+
+    /**
+     * 一般等价物的兑换率, 1个applyCurrency = x个equivalent
+     */
+    private BigDecimal equivalentRate;
 
     /**
      * 申请借款金额, 对应借款币种
@@ -79,7 +95,17 @@ public class LoanOrderEntity extends AbstractBaseEntity {
     /**
      * 锚定金额, 对应锚定币种
      */
-    private BigDecimal anchorAmount = BigDecimal.ZERO;
+    private BigDecimal equivalentAmount = BigDecimal.ZERO;
+
+    /**
+     * 跟随分期的其他费用, 每个分期都会有, JSON
+     */
+    private String feeFollowInstalment;
+
+    /**
+     * 直接分配到某个分期的费用, JSON
+     */
+    private String fee;
 
     /**
      * 放款时间
@@ -168,12 +194,12 @@ public class LoanOrderEntity extends AbstractBaseEntity {
         this.applyCurrency = applyCurrency;
     }
 
-    public String getAnchorCurrency() {
-        return anchorCurrency;
+    public String getEquivalent() {
+        return equivalent;
     }
 
-    public void setAnchorCurrency(String anchorCurrency) {
-        this.anchorCurrency = anchorCurrency;
+    public void setEquivalent(String equivalent) {
+        this.equivalent = equivalent;
     }
 
     public BigDecimal getApplyAmount() {
@@ -192,12 +218,28 @@ public class LoanOrderEntity extends AbstractBaseEntity {
         this.lentAmount = lentAmount;
     }
 
-    public BigDecimal getAnchorAmount() {
-        return anchorAmount;
+    public BigDecimal getEquivalentAmount() {
+        return equivalentAmount;
     }
 
-    public void setAnchorAmount(BigDecimal anchorAmount) {
-        this.anchorAmount = anchorAmount;
+    public void setEquivalentAmount(BigDecimal equivalentAmount) {
+        this.equivalentAmount = equivalentAmount;
+    }
+
+    public String getFeeFollowInstalment() {
+        return feeFollowInstalment;
+    }
+
+    public void setFeeFollowInstalment(String feeFollowInstalment) {
+        this.feeFollowInstalment = feeFollowInstalment;
+    }
+
+    public String getFee() {
+        return fee;
+    }
+
+    public void setFee(String fee) {
+        this.fee = fee;
     }
 
     public Long getLentTime() {
@@ -224,25 +266,66 @@ public class LoanOrderEntity extends AbstractBaseEntity {
         this.timeZone = timeZone;
     }
 
+    public Integer getRepaymentDay() {
+        return repaymentDay;
+    }
+
+    public void setRepaymentDay(Integer repaymentDay) {
+        this.repaymentDay = repaymentDay;
+    }
+
+    public BigDecimal getEquivalentRate() {
+        return equivalentRate;
+    }
+
+    public void setEquivalentRate(BigDecimal equivalentRate) {
+        this.equivalentRate = equivalentRate;
+    }
+
     public static LoanOrderEntity foo() {
         LoanOrderEntity loanOrder = new LoanOrderEntity();
         loanOrder.setOrderId(IDWorker.getNewID());
         loanOrder.setUserCode("1");
-        loanOrder.setOrderState(LoanOrderStatusEnum.PENDING.name());
-        loanOrder.setOrderType(LoanOrderTypeEnum.FIXED_PRINCIPAL.name());
+        loanOrder.setOrderState(StatusEnum.PENDING.name());
+        loanOrder.setOrderType(LoanOrderTypeEnum.GENERAL_TYPE.name());
         loanOrder.setInstalment(3);
         loanOrder.setInstalmentRate(new BigDecimal("0.025"));
         loanOrder.setInstalmentUnit(TimeUnitEnum.MONTH.name());
         loanOrder.setPenaltyRate(loanOrder.instalmentRate.multiply(new BigDecimal("1.5")));
         loanOrder.setApplyCurrency(CurrencyEnum.USDT.name());
         loanOrder.setApplyAmount(new BigDecimal("100"));
-        loanOrder.setAnchorCurrency(loanOrder.getApplyCurrency());
-        loanOrder.setAnchorAmount(loanOrder.getApplyAmount());
+        loanOrder.setEquivalent(loanOrder.getApplyCurrency());
+        loanOrder.setEquivalentRate(BigDecimal.ONE);
+        loanOrder.setEquivalentAmount(loanOrder.getApplyAmount());
         Long now = System.currentTimeMillis();
         loanOrder.setCreateTime(now);
         loanOrder.setUpdateTime(now);
         loanOrder.setTimeZone(8);
         loanOrder.setIsDeleted(0);
         return loanOrder;
+    }
+
+    public List<Fee> getDeserializeFee () {
+        if (this.fee == null) {
+            return null;
+        }
+        return JSONObject.parseArray(fee, Fee.class);
+    }
+
+    public List<Fee> getDeserializeFeeFollowInstalment() {
+        if (this.feeFollowInstalment == null) {
+            return null;
+        }
+        return JSONObject.parseArray(feeFollowInstalment, Fee.class);
+    }
+
+    @Override
+    public String getUniqueId() {
+        return orderId;
+    }
+
+    @Override
+    public String getState() {
+        return orderState;
     }
 }

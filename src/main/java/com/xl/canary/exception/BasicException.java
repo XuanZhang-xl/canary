@@ -19,13 +19,13 @@ public class BasicException extends Exception {
     }
 
     public BasicException(ResponseNutEnum responseNutEnum) {
-        super(responseNutEnum.getMsg());
+        super(responseNutEnum.getMessage());
         this.responseNutEnum = responseNutEnum;
     }
 
     public BasicException(Integer code, String msg) {
         ResponseNutEnum responseNutEnum = ResponseNutEnum.getByCode(code);
-        responseNutEnum.setMsg(msg);
+        responseNutEnum.setMessage(msg);
         this.responseNutEnum = responseNutEnum;
     }
 
