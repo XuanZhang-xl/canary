@@ -1,11 +1,11 @@
 package com.xl.canary.config.mybatis;
 
 import com.github.pagehelper.PageInterceptor;
-import com.xl.canary.config.mybatis.MybatisProperties;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,32 +22,13 @@ import java.util.Properties;
  * 配置Mybatis
  */
 @Configuration
-@EnableConfigurationProperties(MybatisProperties.class)
 @EnableTransactionManagement
 public class MybatisAutoConfigurer implements TransactionManagementConfigurer {
 
     @Autowired
-    private MybatisProperties properties;
-
-    @Autowired(required = false)
-    private Interceptor[] interceptors;
-
-    @Autowired
+    @Qualifier("dataSource")
     private DataSource dataSource;
 
-    //@Bean
-    //public SqlSessionFactory sqlSessionFactory () throws Exception {
-    //    SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
-    //    factory.setConfigLocation(this.properties.getConfigLocation());
-    //    factory.setDataSource(this.dataSource);
-    //    factory.setTypeAliasesPackage(this.properties.getTypeAliasesPackage());
-    //    //factory.setMapperLocations(this.properties.getMapperLocations());
-    //
-    //    if (this.interceptors != null && this.interceptors.length > 0) {
-    //        factory.setPlugins(interceptors);
-    //    }
-    //    return factory.getObject();
-    //}
 
     @Bean
     public PageInterceptor pageInterceptor() {

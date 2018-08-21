@@ -3,43 +3,60 @@ package com.xl.canary.enums;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by gqwu on 2018/3/23.
+ * Created by xzhang on 2018/8/19.
  * 分期还款方式
  */
 public enum LoanOrderTypeEnum {
 
-    FIXED_INSTALLMENT("等额本息"),
-    FIXED_PRINCIPAL("等额本金"),
+    /**
+     * 一般类型, 测试用
+     */
+    GENERAL_TYPE("一般类型", RepaymentDateTypeEnum.FIX_MONTH_INTERVAL, InstallmentModeEnum.FIXED_INSTALLMENT),
     ;
 
-    private String explanation;
+    /**
+     * 订单类型描述
+     */
+    private String desc;
 
-    LoanOrderTypeEnum(String explanation){
-        this.explanation = explanation;
+    /**
+     * 订单类型的还款日
+     */
+    private RepaymentDateTypeEnum repaymentDateType;
+
+    /**
+     * 订单类型的分期方式
+     */
+    private InstallmentModeEnum installmentMode;
+
+    public String getDesc() {
+        return desc;
     }
 
-    public String getExplanation() {
-        return explanation;
+    public RepaymentDateTypeEnum getRepaymentDateType() {
+        return repaymentDateType;
     }
 
-    public void setExplanation(String explanation) {
-        this.explanation = explanation;
+    public InstallmentModeEnum getInstallmentMode() {
+        return installmentMode;
     }
 
+    LoanOrderTypeEnum(String desc, RepaymentDateTypeEnum repaymentDateType, InstallmentModeEnum installmentMode) {
+        this.desc = desc;
+        this.repaymentDateType = repaymentDateType;
+        this.installmentMode = installmentMode;
+    }
 
     public static LoanOrderTypeEnum getByName(String name) {
         if (StringUtils.isBlank(name)) {
-            return FIXED_INSTALLMENT;
+            return GENERAL_TYPE;
         }
-        LoanOrderTypeEnum[] settleTypes = LoanOrderTypeEnum.values();
-        for (LoanOrderTypeEnum settleType : settleTypes) {
-            if (settleType.name().equals(name)) {
-                return settleType;
+        LoanOrderTypeEnum[] loanOrderTypes = LoanOrderTypeEnum.values();
+        for (LoanOrderTypeEnum loanOrderType : loanOrderTypes) {
+            if (loanOrderType.name().equals(name)) {
+                return loanOrderType;
             }
         }
-        return FIXED_INSTALLMENT;
+        return GENERAL_TYPE;
     }
-
-
-
 }

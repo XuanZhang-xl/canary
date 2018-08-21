@@ -2,46 +2,47 @@ package com.xl.canary.enums;
 
 /**
  * 错误码
+ * 前4位代表项目
+ * 后4位代表实际错误码
  * created by MSI-PC on 2018/01/13
  */
 public enum ResponseNutEnum {
-    OK(0, "成功"),
+    OK(10000000, "成功", "成功"),
 
-    PRODUCT_NOT_FIND(1000, "未找到对应商品"),
-    PRODUCT_INSUFFICIENT(1001, "商品库存不足, productId:"),
-    PRODUCT_DETAIL_NOT_FIND(1002, "商品详情未找到"),
-    ORDER_STATUS_ERROR(1003, "订单状态修改异常"),
-    ORDER_PAY_STATUS_ERROR(1004, "订单支付状态不正确"),
-    PARAM_ERROR(1005, "参数检验遗常"),
-    CART_EMPTY(1006, "购物车不能为空"),
-    ORDER_NOT_FIND(1006, "未找到对应订单"),
-    NO_ORDER_UNDER_OPENID(1007, "对应openid下无此 订单"),
+    ERROR_LAST_ELEMENT(10000001, "系统内部异常", "错误的入账最后一位入账顺序"),
+    NO_USER(10000002, "用户不存在", "用户不存在"),
 
 
 
-    UNKNOWN_EXCEPTION(9999, "未知异常"),
-    ;
+    UNKNOWN_EXCEPTION(10009999, "系统内部异常", "未知异常");
 
+
+    ResponseNutEnum(Integer code, String message, String explanation) {
+        this.code = code;
+        this.message = message;
+        this.explanation = explanation;
+    }
 
     private Integer code;
 
-    private String msg;
+    private String message;
+
+    private String explanation;
 
     public Integer getCode() {
         return code;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    ResponseNutEnum(Integer code, String msg) {
-        this.code = code;
-        this.msg = msg;
+    public String getExplanation() {
+        return explanation;
     }
 
     public static ResponseNutEnum getByCode(Integer code) {

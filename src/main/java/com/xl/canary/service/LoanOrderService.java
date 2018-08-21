@@ -1,6 +1,7 @@
 package com.xl.canary.service;
 
 import com.xl.canary.bean.condition.LoanOrderCondition;
+import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 public interface LoanOrderService {
 
     /**
-     * 保存, 测试方法
+     * 保存
      * @param loanOrder
      */
     public LoanOrderEntity save(LoanOrderEntity loanOrder);

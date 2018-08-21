@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
-@MapperScan("com.xl.canary.mapper")
 public class CanaryApplication {
 
 	public static void main(String[] args) {
