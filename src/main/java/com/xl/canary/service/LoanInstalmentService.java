@@ -12,9 +12,9 @@ public interface LoanInstalmentService {
 
     /**
      * 保存
-     * @param loanInstalment
+     * @param loanInstalments
      */
-    void save(LoanInstalmentEntity loanInstalment);
+    void saveLoanInstalments(List<LoanInstalmentEntity> loanInstalments);
 
     /**
      * 根据订单获得分期

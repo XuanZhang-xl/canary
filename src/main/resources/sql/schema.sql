@@ -13,13 +13,13 @@ CREATE TABLE t_canary_loan_order (
   `instalment_unit` varchar(64) NOT NULL COMMENT '分期单位',
   `instalment_rate` DECIMAL(18,8) NOT NULL COMMENT '分期利率',
   `penalty_rate` DECIMAL(18,8) NOT NULL COMMENT '分期利率',
+  `lend_mode` varchar(64) NOT NULL COMMENT '放款模式',
   `apply_currency` varchar(64) NOT NULL COMMENT '借款币种',
   `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
   `equivalent_rate` DECIMAL(18,8) NOT NULL COMMENT '一般等价物的兑换率, 1个applyCurrency = x个equivalent',
   `apply_amount` DECIMAL(18,8) NOT NULL COMMENT '申请借款金额, 对应借款币种',
   `lent_amount` DECIMAL(18,8) NOT NULL COMMENT '放款金额, 对应借款币种',
   `equivalent_amount` DECIMAL(18,8) NOT NULL COMMENT '锚定金额, 对应锚定币种',
-  `fee_follow_instalment` JSON COMMENT '跟随分期的其他费用, 每个分期都会有',
   `fee` JSON COMMENT '直接分配到某个分期的费用',
   `lent_time` bigint(20) NOT NULL COMMENT '放款时间',
   `end_time` bigint(20) NOT NULL COMMENT '结束时间',
@@ -53,12 +53,10 @@ CREATE TABLE t_canary_instalment (
   `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
   `original_principal` DECIMAL(18,8) NOT NULL COMMENT '原始本金',
   `original_interest` DECIMAL(18,8) NOT NULL COMMENT '原始利息',
-  `original_fee_follow_instalment` JSON NOT NULL COMMENT '原始跟随分期的其他费用, 每个分期都会有, JSON',
   `original_fee` JSON NOT NULL COMMENT '原始直接分配到某个分期的费用, JSON',
   `principal` DECIMAL(18,8) NOT NULL COMMENT '应还本金',
   `interest` DECIMAL(18,8) NOT NULL COMMENT '应还利息',
   `penalty` DECIMAL(18,8) NOT NULL COMMENT '应还罚息',
-  `fee_follow_instalment` JSON COMMENT '应还跟随分期的其他费用, 每个分期都会有, JSON',
   `fee` JSON COMMENT '应还直接分配到某个分期的费用, JSON',
   `should_pay_time` bigint(20) NOT NULL COMMENT '应还清时间',
   `clear_time` bigint(20) NOT NULL COMMENT '超过这个时间, 此分期强制结束, 如果为 -1 , 表示会一直记罚息',
@@ -118,4 +116,4 @@ CREATE TABLE t_canary_user_level_setting (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户级别表';
 
 INSERT INTO t_canary_user_level_setting (id,  level, daily_interest_rate, daily_penalty_rate, max_loanable_amount, min_loanable_amount, remark, create_time, update_time, is_deleted)
-  VALUES (1, '1', 1, 2, 100000, 10, '', 21331313, 1231231231, 0);
+  VALUES (1, '1', '0.0005', '0.001', 100000, 10, '', 21331313, 1231231231, 0);

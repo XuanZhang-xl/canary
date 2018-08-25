@@ -1,6 +1,12 @@
 package com.xl.canary.utils;
 
+import com.xl.canary.controller.LoanOrderController;
+import com.xl.canary.enums.FeeAllocateEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,24 +16,57 @@ import java.util.Map;
  */
 public class LoanOrderInstalmentUtils {
 
+    public static Logger logger = LoggerFactory.getLogger(LoanOrderInstalmentUtils.class);
+
+
+    /**
+     * TODO: 重新分期时如何获得  remainingFees 和 remainingFeesFollowInstalment
+     * @param remainingInstalments
+     * @param remainingPrincipal
+     * @param remainingFees
+     * @param instalmentInterestRate
+     * @return
+     */
     public static List<BasicInstalment> simpleFixedInstallment(
             int remainingInstalments,
             BigDecimal remainingPrincipal,
             List<Fee> remainingFees,
-            List<Fee> remainingFeesFollowInstalment,
-            BigDecimal instalmentInterestRate,
-            List<BasicInstalment> basicInstalments) {
+            BigDecimal instalmentInterestRate) {
+        List<Fee> fees = new ArrayList<Fee>();
+        List<Fee> feesFollowInstalment = new ArrayList<Fee>();
+        // 把fee分成两类
+        for (Fee remainingFee : remainingFees) {
+            String allocate = remainingFee.getAllocate();
+            if (FeeAllocateEnum.AVERAGE_IN_INSTALMENT.name().equals(allocate)) {
+                fees.add(remainingFee);
+            } else if (FeeAllocateEnum.FOLLOW_INSTALMENT.name().equals(allocate)) {
+                feesFollowInstalment.add(remainingFee);
+            } else {
+                logger.error("无法匹配的FeeAllocateEnum[{}]", allocate);
+            }
+        }
         List<BasicInstalment> instalments = simpleFixedInstallmentRecursion(
                 remainingInstalments,
                 remainingPrincipal,
-                remainingFees,
-                remainingFeesFollowInstalment,
+                fees,
                 instalmentInterestRate,
-                basicInstalments);
-        // 设置期数
+                new ArrayList<BasicInstalment>());
+
         for (int i = 0; i < remainingInstalments; i++) {
+            // 设置期数
             BasicInstalment basicInstalment = instalments.get(i);
             basicInstalment.setInstalment(i + 1);
+            Map<String, BigDecimal> fee = basicInstalment.getFee();
+            // 设置跟随期数的费用
+            if (feesFollowInstalment != null && feesFollowInstalment.size() > 0) {
+                for (Fee feeFollowInstalment : feesFollowInstalment) {
+                    Integer instalment = feeFollowInstalment.getInstalment();
+                    if (instalment.equals(i + 1)) {
+                        fee.put(feeFollowInstalment.getElementName(), feeFollowInstalment.getAmount());
+                        break;
+                    }
+                }
+            }
         }
         return instalments;
     }
@@ -43,11 +82,10 @@ public class LoanOrderInstalmentUtils {
      * @param basicInstalments 简单分期明细
      * @return List<BasicInstalment> 简单分期明细
      */
-    public static List<BasicInstalment> simpleFixedInstallmentRecursion(
+    private static List<BasicInstalment> simpleFixedInstallmentRecursion(
             int remainingInstalments,
             BigDecimal remainingPrincipal,
             List<Fee> remainingFees,
-            List<Fee> remainingFeesFollowInstalment,
             BigDecimal instalmentInterestRate,
             List<BasicInstalment> basicInstalments) {
         if (remainingInstalments == 0) {
@@ -64,23 +102,12 @@ public class LoanOrderInstalmentUtils {
         basicInstalment.setPrincipal(instalmentPrincipal);
         basicInstalment.setInterest(instalmentInterest);
         basicInstalment.setFee(instalmentAverageFee);
-        Map<String, BigDecimal> remainingFeesFollowInstalmentMap = new HashMap<String, BigDecimal>();
-        if (remainingFeesFollowInstalment != null && remainingFeesFollowInstalment.size() > 0) {
-            for (Fee feeFollowInstalment : remainingFeesFollowInstalment) {
-                Integer instalment = feeFollowInstalment.getInstalment();
-                if (instalment.equals(remainingInstalments)) {
-                    remainingFeesFollowInstalmentMap.put(feeFollowInstalment.getElementName(), feeFollowInstalment.getAmount());
-                }
-            }
-        }
-        basicInstalment.setFeeFollowInstalment(remainingFeesFollowInstalmentMap);
-        remainingInstalments = remainingInstalments - 1;
         basicInstalments.add(basicInstalment);
+        remainingInstalments = remainingInstalments - 1;
         return simpleFixedInstallmentRecursion(
                 remainingInstalments,
                 remainingPrincipal.subtract(instalmentPrincipal),
                 getRemainingFee(remainingFees, instalmentAverageFee),
-                remainingFeesFollowInstalment,
                 instalmentInterestRate,
                 basicInstalments);
     }

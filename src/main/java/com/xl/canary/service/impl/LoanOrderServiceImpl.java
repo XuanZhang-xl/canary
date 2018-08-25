@@ -31,19 +31,26 @@ public class LoanOrderServiceImpl implements LoanOrderService {
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public LoanOrderEntity save(LoanOrderEntity loanOrder) {
         loanOrderMapper.insert(loanOrder);
-        List<LoanInstalmentEntity> loanInstalmentEntities = loanInstalmentService.generateInstalments(loanOrder);
-        for (LoanInstalmentEntity loanInstalmentEntity : loanInstalmentEntities) {
-            loanInstalmentService.save(loanInstalmentEntity);
-        }
         return loanOrder;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void update(LoanOrderEntity entity) {
+        loanOrderMapper.updateByPrimaryKey(entity);
     }
 
     @Override
     public List<LoanOrderEntity> fetchLoanOrders(LoanOrderCondition condition) {
         PageHelper.startPage(condition.getPageNumber(), condition.getPageSize());
         return loanOrderMapper.fetchLoanOrders(condition);
+    }
+
+    @Override
+    public LoanOrderEntity getByOrderId(String orderId) {
+        return loanOrderMapper.getByOrderId(orderId);
     }
 }

@@ -23,4 +23,17 @@ public interface LoanOrderService {
      * @return
      */
     List<LoanOrderEntity> fetchLoanOrders(LoanOrderCondition condition);
+
+    /**
+     * 根据订单号获取订单
+     * @param orderId
+     * @return
+     */
+    LoanOrderEntity getByOrderId(String orderId);
+
+    /**
+     * 更新订单
+     * @param entity
+     */
+    void update(LoanOrderEntity entity);
 }

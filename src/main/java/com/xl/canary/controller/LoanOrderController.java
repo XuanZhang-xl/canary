@@ -6,11 +6,15 @@ import com.xl.canary.bean.BaseResponse;
 import com.xl.canary.bean.condition.LoanOrderCondition;
 import com.xl.canary.bean.req.LoanOrderReq;
 import com.xl.canary.bean.res.LoanOrderRes;
+import com.xl.canary.engine.event.order.AuditLaunchEvent;
+import com.xl.canary.engine.event.order.loan.LendLaunchEvent;
+import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.UserEntity;
 import com.xl.canary.entity.UserLevelSettingEntity;
 import com.xl.canary.enums.*;
+import com.xl.canary.lock.RedisService;
 import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.service.LoanOrderService;
 import com.xl.canary.service.UserLevelSettingService;
@@ -30,6 +34,8 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * created by XUAN on 2018/08/09
@@ -55,11 +61,17 @@ public class LoanOrderController {
     @Autowired
     private UserLevelSettingService userLevelSettingService;
 
+    @Autowired
+    private RedisService redisService;
+
+    @Autowired
+    private IEventLauncher loanOrderEventLauncher;
+
     @Value("${equivalent.currency}")
     private String equivalent;
 
     @GetMapping("/fetch_loan_orders")
-    public JSONObject fetchLoanOrders(
+    public BaseResponse<JSONObject> fetchLoanOrders(
             @RequestParam(value = "orderId", required = false) String orderId,
             @RequestParam(value = "userCode", required = false) String userCode,
             @RequestParam(value = "lentTimeBegin",required = false) Long lentTimeBegin,
@@ -67,6 +79,7 @@ public class LoanOrderController {
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "pageNumber", required = false, defaultValue = "1") Integer pageNumber
     ) {
+        BaseResponse<JSONObject> response = new BaseResponse<JSONObject>();
         LoanOrderCondition condition = new LoanOrderCondition();
         condition.setOrderId(orderId);
         condition.setUserCode(userCode);
@@ -78,7 +91,7 @@ public class LoanOrderController {
         JSONObject result = new JSONObject();
         PageInfo<LoanOrderEntity> pageInfo = new PageInfo<LoanOrderEntity>(loanOrders);
         result.put("orders", pageInfo);
-        return result;
+        return response.buildSuccessResponse(result);
     }
 
 
@@ -93,55 +106,67 @@ public class LoanOrderController {
         String level = user.getLevel();
         UserLevelSettingEntity userLevelSetting = userLevelSettingService.getByLevel(level);
 
+        try {
+            // 强制锁用户30秒, 以防重复下单
+            if (redisService.lock(userCode, userCode, 30000, TimeUnit.MILLISECONDS)) {
+                BigDecimal amount = req.getAmount();
+                CurrencyEnum applyCurrency = req.getApplyCurrency();
+                LoanOrderTypeEnum loanOrderType = req.getLoanOrderType();
+                Integer instalment = req.getInstalment();
+                Integer timeZone = req.getTimeZone();
 
-        BigDecimal amount = req.getAmount();
-        CurrencyEnum applyCurrency = req.getApplyCurrency();
-        LoanOrderTypeEnum loanOrderType = req.getLoanOrderType();
-        Integer instalment = req.getInstalment();
-        Integer timeZone = req.getTimeZone();
+                LoanOrderEntity loanOrder = new LoanOrderEntity();
+                long orderId = idWorker.nextId();
+                loanOrder.setOrderId(String.valueOf(orderId));
+                loanOrder.setUserCode(userCode);
+                loanOrder.setOrderState(StatusEnum.PENDING.name());
+                loanOrder.setOrderType(loanOrderType.name());
+                loanOrder.setInstalment(instalment);
+                RepaymentDateTypeEnum repaymentDateType = loanOrderType.getRepaymentDateType();
+                TimeUnitEnum timeUnit = repaymentDateType.getTimeUnit();
+                loanOrder.setInstalmentUnit(timeUnit.name());
+                loanOrder.setInstalmentRate(userLevelSetting.getDailyInterestRate().multiply(new BigDecimal(timeUnit.getDays())));
+                loanOrder.setPenaltyRate(userLevelSetting.getDailyPenaltyRate().multiply(new BigDecimal(timeUnit.getDays())));
+                loanOrder.setLendMode(LendModeEnum.AUTO.name());
+                loanOrder.setApplyCurrency(applyCurrency.name());
+                loanOrder.setApplyAmount(amount);
+                loanOrder.setEquivalent(equivalent);
+                BigDecimal ticker = ExchangeRateSimulator.getTicker(applyCurrency.name(), equivalent);
+                loanOrder.setEquivalentRate(ticker);
+                loanOrder.setEquivalentAmount(loanOrder.getApplyAmount().multiply(ticker));
 
-        LoanOrderEntity loanOrder = new LoanOrderEntity();
-        long orderId = idWorker.nextId();
-        loanOrder.setOrderId(String.valueOf(orderId));
-        loanOrder.setUserCode(userCode);
-        loanOrder.setOrderState(StatusEnum.PENDING.name());
-        loanOrder.setOrderType(loanOrderType.name());
-        loanOrder.setInstalment(instalment);
-        RepaymentDateTypeEnum repaymentDateType = loanOrderType.getRepaymentDateType();
-        TimeUnitEnum timeUnit = repaymentDateType.getTimeUnit();
-        loanOrder.setInstalmentUnit(timeUnit.name());
-        loanOrder.setInstalmentRate(userLevelSetting.getDailyInterestRate().multiply(new BigDecimal(timeUnit.getDays())));
-        loanOrder.setPenaltyRate(userLevelSetting.getDailyPenaltyRate().multiply(new BigDecimal(timeUnit.getDays())));
-        loanOrder.setApplyCurrency(applyCurrency.name());
-        loanOrder.setApplyAmount(amount);
-        loanOrder.setEquivalent(equivalent);
-        BigDecimal ticker = ExchangeRateSimulator.getTicker(applyCurrency.name(), equivalent);
-        loanOrder.setEquivalentRate(ticker);
-        loanOrder.setEquivalentAmount(loanOrder.getApplyAmount().multiply(ticker));
+                // 其他费用
+                List<Fee> fee = new ArrayList<Fee>();
+                Fee serviceFee = new Fee(FeeAllocateEnum.AVERAGE_IN_INSTALMENT, LoanOrderElementEnum.SERVICE_FEE.name(), BigDecimal.ONE);
+                Fee bindAddressFee = new Fee(1, FeeAllocateEnum.FOLLOW_INSTALMENT, LoanOrderElementEnum.BIND_ADDRESS_FEE.name(), BigDecimal.ONE);
+                Fee generateAddressFee = new Fee(2, FeeAllocateEnum.FOLLOW_INSTALMENT, LoanOrderElementEnum.GENERATE_ADDRESS_FEE.name(), BigDecimal.ONE);
+                fee.add(serviceFee);
+                fee.add(bindAddressFee);
+                fee.add(generateAddressFee);
+                loanOrder.setFee(JSONObject.toJSONString(fee));
 
-        // 跟随分期费用
-        List<Fee> fee = new ArrayList<Fee>();
-        Fee serviceFee = new Fee(-1, LoanOrderElementEnum.SERVICE_FEE.name(), BigDecimal.ONE);
-        fee.add(serviceFee);
-        loanOrder.setFee(JSONObject.toJSONString(fee));
-        // 绑定分期费用
-        List<Fee> feeFollowInstalment = new ArrayList<Fee>();
-        Fee bindAddressFee = new Fee(1, LoanOrderElementEnum.BIND_ADDRESS_FEE.name(), BigDecimal.ONE);
-        Fee generateAddressFee = new Fee(2, LoanOrderElementEnum.GENERATE_ADDRESS_FEE.name(), BigDecimal.ONE);
-        feeFollowInstalment.add(bindAddressFee);
-        feeFollowInstalment.add(generateAddressFee);
-        loanOrder.setFeeFollowInstalment(JSONObject.toJSONString(feeFollowInstalment));
+                Long now = System.currentTimeMillis();
+                loanOrder.setCreateTime(now);
+                loanOrder.setUpdateTime(now);
+                loanOrder.setTimeZone(timeZone / EssentialConstance.MINUTE_HOUR);
+                loanOrder.setIsDeleted(0);
+                loanOrderService.save(loanOrder);
 
-        Long now = System.currentTimeMillis();
-        loanOrder.setCreateTime(now);
-        loanOrder.setUpdateTime(now);
-        loanOrder.setTimeZone(timeZone / EssentialConstance.MINUTE_HOUR);
-        loanOrder.setIsDeleted(0);
-        loanOrderService.save(loanOrder);
+                LoanOrderRes res = new LoanOrderRes();
+                res.setOrderId(loanOrder.getOrderId());
+                response.setData(res);
 
-        LoanOrderRes res = new LoanOrderRes();
-        res.setOrderId(loanOrder.getOrderId());
-        response.setData(res);
+                // 放款操作, 必须在最后做, 否则可能出现幻读, 虚读等错误
+                loanOrderEventLauncher.launch(new AuditLaunchEvent(userCode, loanOrder.getOrderId()));
+            } else {
+                logger.error("用户[{}]下单锁竞争失败", userCode);
+                return response.buildFailedResponse(ResponseNutEnum.LOCK_ERROR);
+            }
+        } catch (Exception e) {
+            logger.error("下单报错:", e);
+        } finally {
+            redisService.unlock(userCode);
+        }
         return response;
     }
 }

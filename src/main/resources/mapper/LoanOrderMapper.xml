@@ -17,4 +17,9 @@
             AND lent_time &lt; #{lentTimeEnd}
         </if>
     </select>
+
+    <select id="getByOrderId" resultType="com.xl.canary.entity.LoanOrderEntity">
+        select * from t_canary_loan_order WHERE order_id = #{orderId}
+    </select>
+
 </mapper>

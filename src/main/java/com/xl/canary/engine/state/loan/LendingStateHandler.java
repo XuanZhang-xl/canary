@@ -1,0 +1,57 @@
+package com.xl.canary.engine.state.loan;
+
+import com.alibaba.fastjson.JSONObject;
+import com.xl.canary.engine.action.IActionExecutor;
+import com.xl.canary.engine.event.IEvent;
+import com.xl.canary.engine.event.order.loan.LendResponseEvent;
+import com.xl.canary.engine.state.IStateHandler;
+import com.xl.canary.engine.state.StateHandler;
+import com.xl.canary.entity.LoanInstalmentEntity;
+import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.exception.InvalidEventException;
+import com.xl.canary.service.LoanInstalmentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * Created by gqwu on 2018/4/4.
+ */
+@Component
+@StateHandler(name = StatusEnum.LENDING)
+public class LendingStateHandler implements IStateHandler<LoanOrderEntity> {
+
+    private static final Logger logger = LoggerFactory.getLogger(LendingStateHandler.class);
+
+    @Autowired
+    private LoanInstalmentService loanInstalmentService;
+
+    @Override
+    public LoanOrderEntity handle(LoanOrderEntity loanOrder, IEvent event, IActionExecutor actionExecutor) throws InvalidEventException {
+
+        if (event instanceof LendResponseEvent) {
+            LendResponseEvent lendResponseEvent = (LendResponseEvent) event;
+
+            BigDecimal lentNumber = lendResponseEvent.getActualLent();
+            if (lendResponseEvent.isSucceeded()) {
+                loanOrder.setOrderState(StatusEnum.LENT.name());
+                loanOrder.setLentAmount(lentNumber);
+                loanOrder.setLentTime(lendResponseEvent.getSuccessTime());
+
+                // 放款成功后, 生成账单
+                List<LoanInstalmentEntity> loanInstalmentEntities = loanInstalmentService.generateInstalments(loanOrder);
+                loanInstalmentService.saveLoanInstalments(loanInstalmentEntities);
+            } else {
+                loanOrder.setOrderState(StatusEnum.FAILED.name());
+            }
+        } else {
+            throw new InvalidEventException("贷款订单状态与事件类型不匹配，状态：" + loanOrder.getState() + "，事件：" + event);
+        }
+        return loanOrder;
+    }
+}
