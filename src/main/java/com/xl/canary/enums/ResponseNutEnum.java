@@ -11,6 +11,7 @@ public enum ResponseNutEnum {
 
     ERROR_LAST_ELEMENT(10000001, "系统内部异常", "错误的入账最后一位入账顺序"),
     NO_USER(10000002, "用户不存在", "用户不存在"),
+    LOCK_ERROR(10000003, "系统内部异常", "锁竞争失败"),
 
 
 

@@ -30,14 +30,9 @@ public class BasicInstalment {
     private BigDecimal penalty;
 
     /**
-     * 不跟随分期费用
+     * 其他费用
      */
     private Map<String, BigDecimal> fee;
-
-    /**
-     * 跟随分期费用
-     */
-    private Map<String, BigDecimal> feeFollowInstalment;
 
     public BigDecimal getPrincipal() {
         return principal;
@@ -61,14 +56,6 @@ public class BasicInstalment {
 
     public void setFee(Map<String, BigDecimal> fee) {
         this.fee = fee;
-    }
-
-    public Map<String, BigDecimal> getFeeFollowInstalment() {
-        return feeFollowInstalment;
-    }
-
-    public void setFeeFollowInstalment(Map<String, BigDecimal> feeFollowInstalment) {
-        this.feeFollowInstalment = feeFollowInstalment;
     }
 
     public Integer getInstalment() {

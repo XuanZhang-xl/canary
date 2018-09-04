@@ -18,4 +18,11 @@ public interface LoanOrderMapper extends Mapper<LoanOrderEntity>{
      * @return
      */
     List<LoanOrderEntity> fetchLoanOrders(LoanOrderCondition condition);
+
+    /**
+     * 根据orderId获得订单
+     * @param orderId
+     * @return
+     */
+    LoanOrderEntity getByOrderId(String orderId);
 }

@@ -68,6 +68,11 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
     private BigDecimal penaltyRate;
 
     /**
+     * 放款模式
+     */
+    private String lendMode;
+
+    /**
      * 借款币种
      */
     private String applyCurrency;
@@ -98,12 +103,7 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
     private BigDecimal equivalentAmount = BigDecimal.ZERO;
 
     /**
-     * 跟随分期的其他费用, 每个分期都会有, JSON
-     */
-    private String feeFollowInstalment;
-
-    /**
-     * 直接分配到某个分期的费用, JSON
+     * 其他费用, 要分配到分期, JSON
      */
     private String fee;
 
@@ -226,14 +226,6 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
         this.equivalentAmount = equivalentAmount;
     }
 
-    public String getFeeFollowInstalment() {
-        return feeFollowInstalment;
-    }
-
-    public void setFeeFollowInstalment(String feeFollowInstalment) {
-        this.feeFollowInstalment = feeFollowInstalment;
-    }
-
     public String getFee() {
         return fee;
     }
@@ -282,6 +274,14 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
         this.equivalentRate = equivalentRate;
     }
 
+    public String getLendMode() {
+        return lendMode;
+    }
+
+    public void setLendMode(String lendMode) {
+        this.lendMode = lendMode;
+    }
+
     public static LoanOrderEntity foo() {
         LoanOrderEntity loanOrder = new LoanOrderEntity();
         loanOrder.setOrderId(IDWorker.getNewID());
@@ -310,13 +310,6 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
             return null;
         }
         return JSONObject.parseArray(fee, Fee.class);
-    }
-
-    public List<Fee> getDeserializeFeeFollowInstalment() {
-        if (this.feeFollowInstalment == null) {
-            return null;
-        }
-        return JSONObject.parseArray(feeFollowInstalment, Fee.class);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,14 +33,16 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
     private LoanInstalmentMapper loanInstalmentMapper;
 
     @Override
-    public void save(LoanInstalmentEntity loanInstalment) {
-        loanInstalmentMapper.insert(loanInstalment);
+    @Transactional(rollbackFor = Exception.class)
+    public void saveLoanInstalments (List<LoanInstalmentEntity> loanInstalments) {
+        for (LoanInstalmentEntity loanInstalment : loanInstalments) {
+            loanInstalmentMapper.insert(loanInstalment);
+        }
     }
 
     @Override
     public List<LoanInstalmentEntity> generateInstalments(LoanOrderEntity loanOrder) {
         List<LoanInstalmentEntity> loanInstalmentEntities = new ArrayList<LoanInstalmentEntity>();
-
         LoanOrderTypeEnum loanOrderType = LoanOrderTypeEnum.valueOf(loanOrder.getOrderType());
         InstallmentModeEnum installmentMode = loanOrderType.getInstallmentMode();
         switch (installmentMode) {
@@ -47,16 +50,13 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
                 Integer instalment = loanOrder.getInstalment();
                 BigDecimal equivalentAmount = loanOrder.getEquivalentAmount();
                 List<Fee> deserializeFee = loanOrder.getDeserializeFee();
-                List<Fee> deserializeFeeFollowInstalment = loanOrder.getDeserializeFeeFollowInstalment();
                 BigDecimal instalmentRate = loanOrder.getInstalmentRate();
                 Map<Integer, Long> repaymentDates = LoanOrderDateUtils.listRepaymentDates(loanOrder);
                 List<BasicInstalment> basicInstalments = LoanOrderInstalmentUtils.simpleFixedInstallment(
                         instalment,
                         equivalentAmount,
                         deserializeFee,
-                        deserializeFeeFollowInstalment,
-                        instalmentRate,
-                        new ArrayList<BasicInstalment>());
+                        instalmentRate);
                 for (BasicInstalment basicInstalment : basicInstalments) {
                     LoanInstalmentEntity loanInstalment = new LoanInstalmentEntity();
                     long instalmentId = idWorker.nextId();
@@ -71,15 +71,12 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
                     // 原始应还信息
                     loanInstalment.setOriginalPrincipal(basicInstalment.getPrincipal());
                     loanInstalment.setOriginalInterest(basicInstalment.getInterest());
-                    String jsonFeeFollowInstalment = JSONObject.toJSONString(basicInstalment.getFeeFollowInstalment());
-                    loanInstalment.setOriginalFeeFollowInstalment(jsonFeeFollowInstalment);
                     String jsonFee = JSONObject.toJSONString(basicInstalment.getFee());
                     loanInstalment.setOriginalFee(jsonFee);
                     // 应还信息
                     loanInstalment.setPrincipal(basicInstalment.getPrincipal());
                     loanInstalment.setInterest(basicInstalment.getInterest());
                     loanInstalment.setPenalty(BigDecimal.ZERO);
-                    loanInstalment.setFeeFollowInstalment(jsonFeeFollowInstalment);
                     loanInstalment.setFee(jsonFee);
                     // 还款日
                     loanInstalment.setShouldPayTime(repaymentDates.get(instalmentDate));
@@ -100,12 +97,6 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
 
             }
         }
-
-        RepaymentDateTypeEnum repaymentDateType = loanOrderType.getRepaymentDateType();
         return loanInstalmentEntities;
-
-
-
-
     }
 }

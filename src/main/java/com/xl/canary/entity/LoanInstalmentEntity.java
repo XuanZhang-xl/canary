@@ -57,12 +57,7 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
     private BigDecimal originalInterest = BigDecimal.ZERO;
 
     /**
-     * 原始跟随分期的其他费用, 每个分期都会有, JSON
-     */
-    private String originalFeeFollowInstalment;
-
-    /**
-     * 原始直接分配到某个分期的费用, JSON
+     * 原始其他费用, JSON
      */
     private String originalFee;
 
@@ -82,12 +77,7 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
     private BigDecimal penalty = BigDecimal.ZERO;
 
     /**
-     * 应还跟随分期的其他费用, 每个分期都会有, JSON
-     */
-    private String feeFollowInstalment;
-
-    /**
-     * 应还直接分配到某个分期的费用, JSON
+     * 应还其他费用, JSON
      */
     private String fee;
 
@@ -193,14 +183,6 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
         this.originalInterest = originalInterest;
     }
 
-    public String getOriginalFeeFollowInstalment() {
-        return originalFeeFollowInstalment;
-    }
-
-    public void setOriginalFeeFollowInstalment(String originalFeeFollowInstalment) {
-        this.originalFeeFollowInstalment = originalFeeFollowInstalment;
-    }
-
     public String getOriginalFee() {
         return originalFee;
     }
@@ -231,14 +213,6 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
 
     public void setPenalty(BigDecimal penalty) {
         this.penalty = penalty;
-    }
-
-    public String getFeeFollowInstalment() {
-        return feeFollowInstalment;
-    }
-
-    public void setFeeFollowInstalment(String feeFollowInstalment) {
-        this.feeFollowInstalment = feeFollowInstalment;
     }
 
     public String getFee() {
