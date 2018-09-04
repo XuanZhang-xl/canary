@@ -1,6 +1,4 @@
-/*
- **************************订单表*************************
- */
+/**************************订单表**************************/
 DROP TABLE IF EXISTS t_canary_loan_order;
 CREATE TABLE t_canary_loan_order (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -38,9 +36,7 @@ CREATE TABLE t_canary_loan_order (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单表';
 
 
-/*
- **************************分期表*************************
- */
+/***************************分期表**************************/
 DROP TABLE IF EXISTS t_canary_instalment;
 CREATE TABLE t_canary_instalment (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -75,9 +71,100 @@ CREATE TABLE t_canary_instalment (
   INDEX `index_instalment_state` (`instalment_state`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分期表';
 
-/*
- **************************用户表*************************
- */
+
+
+/***************************还款订单表*************************/
+DROP TABLE IF EXISTS t_canary_pay_order;
+CREATE TABLE t_canary_pay_order (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `pay_order_id` varchar(64) NOT NULL COMMENT '还款订单号',
+  `loan_order_id` varchar(1024) NOT NULL COMMENT '此还款订单所还过的借款订单, List集合',
+  `user_code` varchar(64) NOT NULL COMMENT '用户唯一标识',
+  `pay_order_type` varchar(64) NOT NULL COMMENT '订单类型',
+  `pay_order_state` varchar(64) NOT NULL COMMENT '订单状态',
+  `apply_currency` varchar(64) NOT NULL COMMENT '借款币种',
+  `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
+  `equivalent_rate` DECIMAL(18,8) NOT NULL COMMENT '一般等价物的兑换率, 1个applyCurrency = x个equivalent',
+  `apply_amount` DECIMAL(18,8) NOT NULL COMMENT '申请借款金额, 对应借款币种',
+  `pay_amount` DECIMAL(18,8) NOT NULL COMMENT '实际扣款金额， 对应借款币种',
+  `equivalent_amount` DECIMAL(18,8) NOT NULL COMMENT '锚定金额, 对应锚定币种',
+  `entry_amount` DECIMAL(18,8) NOT NULL COMMENT '实际入账金额， 对应锚定币种',
+  `pay_time` bigint(20) NOT NULL COMMENT '支付时间',
+  `end_time` bigint(20) NOT NULL COMMENT '入账结束时间',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_pay_order_id` (`pay_order_id`) USING BTREE,
+  INDEX `index_user_code` (`user_code`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE,
+  INDEX `index_pay_order_type` (`pay_order_type`) USING BTREE,
+  INDEX `index_pay_order_state` (`pay_order_state`) USING BTREE,
+  INDEX `index_pay_time` (`pay_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='还款订单表';
+
+
+/***************************还款明细表*************************/
+DROP TABLE IF EXISTS t_canary_pay_order_detail;
+CREATE TABLE t_canary_pay_order_detail (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `source` varchar(64) NOT NULL COMMENT '来源',
+  `source_id` varchar(64) NOT NULL COMMENT '来源id',
+  `source_type` varchar(64) NOT NULL COMMENT '来源类型 ',
+  `destination` varchar(64) NOT NULL COMMENT '目标',
+  `destination_id` varchar(64) NOT NULL COMMENT '目标id',
+  `user_code` varchar(64) NOT NULL COMMENT '用户唯一标识',
+  `instalment` INT COMMENT '还款期数, 还款订单时有值',
+  `repayment_date` bigint(20) COMMENT '应还日期, 还款订单时有值',
+  `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
+  `element` varchar(64) NOT NULL COMMENT '元素, 本金等',
+  `should_pay` DECIMAL(18,8) NOT NULL COMMENT '应付金额',
+  `paid` DECIMAL(18,8) NOT NULL COMMENT '付款金额',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_source_id` (`source_id`) USING BTREE,
+  INDEX `index_user_code` (`user_code`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE,
+  INDEX `index_destination_id` (`destination_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='还款明细表';
+
+
+/***************************优惠表, 优惠券或惩罚券 *************************/
+DROP TABLE IF EXISTS t_canary_coupon;
+CREATE TABLE t_canary_coupon (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `coupon_id` varchar(64) NOT NULL COMMENT '优惠券号',
+  `coupon_type` varchar(64) NOT NULL COMMENT '优惠券类型',
+  `coupon_state` varchar(64) NOT NULL COMMENT '优惠券状态',
+  `user_code` varchar(64) COMMENT '绑定用户唯一标识',
+  `bound_order_id` varchar(64) COMMENT '绑定订单号, 绑定订单后有值',
+  `condition` JSON COMMENT '使用限制',
+  `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
+  `default_amount` DECIMAL(18,8) NOT NULL COMMENT '优惠券默认值, 根据类型可能时百分比或固定量, 如果是固定量, 则应与apply_amount相等 ',
+  `apply_amount` DECIMAL(18,8) NOT NULL COMMENT '可优惠金额, 绑定订单后有值',
+  `entry_amount` DECIMAL(18,8) NOT NULL COMMENT '已入账金额, 绑定订单后有值',
+  `effective_date` BIGINT NOT NULL COMMENT '生效起始日期',
+  `effective_days` INT NOT NULL COMMENT '有效天数',
+  `apply_time` bigint(20) NOT NULL COMMENT '使用时间',
+  `end_time` bigint(20) NOT NULL COMMENT '入账结束时间',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_coupon_id` (`coupon_id`) USING BTREE,
+  INDEX `index_user_code` (`user_code`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
+
+
+
+
+/***************************用户表**************************/
 DROP TABLE IF EXISTS t_canary_user;
 CREATE TABLE t_canary_user (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -96,9 +183,7 @@ CREATE TABLE t_canary_user (
 INSERT INTO t_canary_user (id, user_code, nick_name, level, remark, create_time, update_time, is_deleted)
   VALUES (1, '1', 'xzhang', '1', '', 21331313, 1231231231, 0);
 
-/*
- **************************用户级别表*************************
- */
+/***************************用户级别表*************************/
 DROP TABLE IF EXISTS t_canary_user_level_setting;
 CREATE TABLE t_canary_user_level_setting (
   `id` int(10) NOT NULL AUTO_INCREMENT,
