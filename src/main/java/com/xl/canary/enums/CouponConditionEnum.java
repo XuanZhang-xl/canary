@@ -7,15 +7,34 @@ package com.xl.canary.enums;
 public enum CouponConditionEnum {
 
     /**
-     * 下单时绑定， 下单时可用
+     * 使用的场合
+     * 见  UserActionEnum
      */
-    LOAN_ORDER_BOUND(),
+    OCCASION(),
 
     /**
-     * 还款时绑定， 还款时可用
+     * 借款币种
      */
-    PAY_ORDER_BOUND(),
+    LOAN_CURRENCY(),
 
+    /**
+     * 借款金额
+     */
+    LOAN_AMOUNT(),
+
+    /**
+     * 还款币种
+     */
+    PAY_CURRENCY(),
+
+    /**
+     * 还款金额
+     */
+    PAY_AMOUNT()
+
+    // 继续补充
+
+    ;
 
 
 
