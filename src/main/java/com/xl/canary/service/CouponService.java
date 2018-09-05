@@ -2,6 +2,7 @@ package com.xl.canary.service;
 
 import com.xl.canary.entity.CouponEntity;
 import com.xl.canary.enums.coupon.CouponTypeEnum;
+import com.xl.canary.exception.CouponException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +18,18 @@ public interface CouponService {
      * @return
      */
     CouponEntity getByCouponId(String couponId);
+
+
+    /**
+     * 获得一张初始化优惠券
+     * @param couponType     类型
+     * @param weightAmount   金额/比例
+     * @param effectiveDate  有效期开始
+     * @param effectiveDays  有效天数
+     * @return 优惠券
+     * @throws CouponException 校验失败
+     */
+    CouponEntity getInitCoupon (CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Integer effectiveDays) throws CouponException;
 
     /**
      * 保存优惠券
