@@ -29,7 +29,7 @@ public class DeductedStateHandler implements IStateHandler<PayOrderEntity> {
 
         if (event instanceof EntryLaunchEvent) {
             payOrder.setPayOrderState(StateEnum.ENTRY_DOING.name());
-            PayTypeEnum payType = PayTypeEnum.valueOf(payOrder.getType());
+            PayTypeEnum payType = PayTypeEnum.valueOf(payOrder.getPayOrderType());
             actionExecutor.append(new EntryExecuteAction(payOrder.getUserCode(), payOrder.getPayOrderId(), payType, entryEventLauncher));
 
         } else {
