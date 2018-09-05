@@ -4,6 +4,7 @@ import com.xl.canary.engine.event.IStateEvent;
 import com.xl.canary.engine.launcher.AbstractStateEventLauncher;
 import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.mapper.LoanOrderMapper;
 import com.xl.canary.service.LoanOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,16 +16,16 @@ import org.springframework.stereotype.Component;
 public class LoanOrderEventLauncherImpl extends AbstractStateEventLauncher<LoanOrderEntity, IStateEvent> implements IEventLauncher<IStateEvent> {
 
     @Autowired
-    private LoanOrderService loanOrderService;
+    private LoanOrderMapper loanOrderMapper;
 
     @Override
     public LoanOrderEntity selectEntity(String entityUniqueId) {
-        return this.loanOrderService.getByOrderId(entityUniqueId);
+        return this.loanOrderMapper.getByOrderId(entityUniqueId);
     }
 
     @Override
     public void saveEntity(LoanOrderEntity entity) {
         entity.setUpdateTime(System.currentTimeMillis());
-        loanOrderService.update(entity);
+        loanOrderMapper.updateByPrimaryKey(entity);
     }
 }

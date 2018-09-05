@@ -30,7 +30,7 @@ public class DeductExecuteAction implements IAction {
          * 发送mq, 等待对方mq
          * // TODO: 防止重复发送?
          */
-        PayOrderEntity payOrder = payOrderService.getByOrderId(payOrderId);
+        PayOrderEntity payOrder = payOrderService.getByPayOrderId(payOrderId);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.xl.canary.bean.req;
 
 import com.xl.canary.enums.CurrencyEnum;
-import com.xl.canary.enums.LoanOrderTypeEnum;
+import com.xl.canary.enums.loan.LoanOrderTypeEnum;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;

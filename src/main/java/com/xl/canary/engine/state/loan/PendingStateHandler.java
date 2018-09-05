@@ -9,7 +9,7 @@ import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import javax.annotation.Resource;
  * Created by gqwu on 2018/4/4.
  */
 @Component("loanPendingState")
-@StateHandler(name = StatusEnum.PENDING)
+@StateHandler(name = StateEnum.PENDING)
 public class PendingStateHandler implements IStateHandler<LoanOrderEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger(PendingStateHandler.class);
@@ -32,14 +32,14 @@ public class PendingStateHandler implements IStateHandler<LoanOrderEntity> {
     @Override
     public LoanOrderEntity handle(LoanOrderEntity loanOrder, IEvent event, IActionExecutor actionExecutor) throws InvalidEventException {
         if (event instanceof CancelEvent) {
-            loanOrder.setOrderState(StatusEnum.CANCELLED.name());
+            loanOrder.setOrderState(StateEnum.CANCELLED.name());
         } else if (event instanceof AuditLaunchEvent) {
             AuditLaunchEvent auditLaunchEvent = (AuditLaunchEvent) event;
             if (!auditLaunchEvent.getUserCode().equals(loanOrder.getUserCode())) {
                 logger.error("用户不是该借贷订单的拥有者，事件所属用户：[{}]，订单：[{}]，订单所属用户：[{}]", auditLaunchEvent.getUserCode(), loanOrder.getOrderId(), loanOrder.getUserCode());
                 throw new InvalidEventException("用户不是该还款订单的拥有者，事件所属用户：" + auditLaunchEvent.getUserCode() + "，订单：" + loanOrder.getOrderId() + "，订单所属用户：" + loanOrder.getUserCode());
             }
-            loanOrder.setOrderState(StatusEnum.AUDITING.name());
+            loanOrder.setOrderState(StateEnum.AUDITING.name());
             /**
              * 附加执行一个审核通过的行为
              * */

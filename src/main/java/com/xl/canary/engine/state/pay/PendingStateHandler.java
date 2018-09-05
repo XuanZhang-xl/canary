@@ -10,7 +10,7 @@ import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.PayOrderEntity;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import com.xl.canary.service.PayOrderService;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ import javax.annotation.Resource;
  * Created by gqwu on 2018/4/4.
  */
 @Component
-@StateHandler(name = StatusEnum.PENDING)
+@StateHandler(name = StateEnum.PENDING)
 public class PendingStateHandler implements IStateHandler<PayOrderEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger(PendingStateHandler.class);
@@ -39,7 +39,7 @@ public class PendingStateHandler implements IStateHandler<PayOrderEntity> {
     public PayOrderEntity handle(PayOrderEntity payOrder, IEvent event, IActionExecutor actionExecutor) throws InvalidEventException {
 
         if (event instanceof CancelEvent) {
-            payOrder.setPayOrderState(StatusEnum.CANCELLED.name());
+            payOrder.setPayOrderState(StateEnum.CANCELLED.name());
 
         } else if (event instanceof AuditLaunchEvent) {
 
@@ -54,11 +54,11 @@ public class PendingStateHandler implements IStateHandler<PayOrderEntity> {
                         + "，订单：" + payOrder.getPayOrderId() + "，订单所属用户：" + payOrder.getUserCode());
             }
 
-            payOrder.setPayOrderState(StatusEnum.AUDITING.name());
+            payOrder.setPayOrderState(StateEnum.AUDITING.name());
             /** 还款订单审核 */
             actionExecutor.append(new PayAuditAction(payOrder, payOrderEventLauncher));
         } else if (event instanceof OrderExpireEvent) {
-            payOrder.setPayOrderState(StatusEnum.EXPIRED.name());
+            payOrder.setPayOrderState(StateEnum.EXPIRED.name());
         } else {
             throw new InvalidEventException("还款订单状态与事件类型不匹配，状态：" + payOrder.getState() + "，事件：" + event);
         }

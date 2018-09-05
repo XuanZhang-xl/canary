@@ -1,4 +1,4 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.loan;
 
 import com.xl.canary.entity.LoanOrderEntity;
 import org.apache.commons.lang3.StringUtils;

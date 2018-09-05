@@ -8,8 +8,8 @@ import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.PayOrderEntity;
-import com.xl.canary.enums.PayTypeEnum;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.pay.PayTypeEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * Created by gqwu on 2018/4/4.
  */
 @Component
-@StateHandler(name = StatusEnum.DEDUCTED)
+@StateHandler(name = StateEnum.DEDUCTED)
 public class DeductedStateHandler implements IStateHandler<PayOrderEntity> {
 
     @Autowired
@@ -28,8 +28,8 @@ public class DeductedStateHandler implements IStateHandler<PayOrderEntity> {
     public PayOrderEntity handle(PayOrderEntity payOrder, IEvent event, IActionExecutor actionExecutor) throws InvalidEventException {
 
         if (event instanceof EntryLaunchEvent) {
-            payOrder.setPayOrderState(StatusEnum.ENTRY_DOING.name());
-            PayTypeEnum payType = PayTypeEnum.valueOf(payOrder.getType());
+            payOrder.setPayOrderState(StateEnum.ENTRY_DOING.name());
+            PayTypeEnum payType = PayTypeEnum.valueOf(payOrder.getPayOrderType());
             actionExecutor.append(new EntryExecuteAction(payOrder.getUserCode(), payOrder.getPayOrderId(), payType, entryEventLauncher));
 
         } else {

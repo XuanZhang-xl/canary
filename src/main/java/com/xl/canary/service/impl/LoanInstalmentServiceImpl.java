@@ -3,10 +3,9 @@ package com.xl.canary.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.enums.InstallmentModeEnum;
-import com.xl.canary.enums.LoanOrderTypeEnum;
-import com.xl.canary.enums.RepaymentDateTypeEnum;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.loan.InstallmentModeEnum;
+import com.xl.canary.enums.loan.LoanOrderTypeEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.mapper.LoanInstalmentMapper;
 import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.utils.*;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +62,7 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
                     loanInstalment.setOrderId(loanOrder.getOrderId());
                     loanInstalment.setUserCode(loanOrder.getUserCode());
                     loanInstalment.setOrderType(loanOrderType.name());
-                    loanInstalment.setInstalmentState(StatusEnum.PENDING.name());
+                    loanInstalment.setInstalmentState(StateEnum.PENDING.name());
                     Integer instalmentDate = basicInstalment.getInstalment();
                     loanInstalment.setInstalment(instalmentDate);
                     loanInstalment.setEquivalent(loanOrder.getEquivalent());

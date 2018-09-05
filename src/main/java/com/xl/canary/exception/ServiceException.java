@@ -8,7 +8,7 @@ import com.xl.canary.enums.ResponseNutEnum;
  */
 public class ServiceException extends RuntimeException {
 
-    ResponseNutEnum responseNutEnum;
+    private ResponseNutEnum responseNutEnum;
 
     public ResponseNutEnum getResponseNutEnum() {
         return responseNutEnum;

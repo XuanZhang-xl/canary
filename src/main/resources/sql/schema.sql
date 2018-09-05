@@ -78,7 +78,7 @@ DROP TABLE IF EXISTS t_canary_pay_order;
 CREATE TABLE t_canary_pay_order (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `pay_order_id` varchar(64) NOT NULL COMMENT '还款订单号',
-  `loan_order_id` varchar(1024) NOT NULL COMMENT '此还款订单所还过的借款订单, List集合',
+  `loan_order_ids` JSON NOT NULL COMMENT '此还款订单所还过的借款订单, List集合',
   `user_code` varchar(64) NOT NULL COMMENT '用户唯一标识',
   `pay_order_type` varchar(64) NOT NULL COMMENT '订单类型',
   `pay_order_state` varchar(64) NOT NULL COMMENT '订单状态',
@@ -133,7 +133,7 @@ CREATE TABLE t_canary_pay_order_detail (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='还款明细表';
 
 
-/***************************优惠表, 优惠券或惩罚券 *************************/
+/***************************优惠表, 优惠券 *************************/
 DROP TABLE IF EXISTS t_canary_coupon;
 CREATE TABLE t_canary_coupon (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -142,15 +142,15 @@ CREATE TABLE t_canary_coupon (
   `coupon_state` varchar(64) NOT NULL COMMENT '优惠券状态',
   `user_code` varchar(64) COMMENT '绑定用户唯一标识',
   `bound_order_id` varchar(64) COMMENT '绑定订单号, 绑定订单后有值',
-  `condition` JSON COMMENT '使用限制',
+  `condition` JSON COMMENT '使用特别限制',
   `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
   `default_amount` DECIMAL(18,8) NOT NULL COMMENT '优惠券默认值, 根据类型可能时百分比或固定量, 如果是固定量, 则应与apply_amount相等 ',
-  `apply_amount` DECIMAL(18,8) NOT NULL COMMENT '可优惠金额, 绑定订单后有值',
-  `entry_amount` DECIMAL(18,8) NOT NULL COMMENT '已入账金额, 绑定订单后有值',
-  `effective_date` BIGINT NOT NULL COMMENT '生效起始日期',
-  `effective_days` INT NOT NULL COMMENT '有效天数',
-  `apply_time` bigint(20) NOT NULL COMMENT '使用时间',
-  `end_time` bigint(20) NOT NULL COMMENT '入账结束时间',
+  `apply_amount` DECIMAL(18,8) DEFAULT 0 COMMENT '可优惠金额, 绑定订单后有值',
+  `entry_amount` DECIMAL(18,8) DEFAULT 0  COMMENT '已入账金额, 绑定订单后有值',
+  `effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期',
+  `effective_days` INT DEFAULT 0 COMMENT '有效天数',
+  `apply_time` bigint(20) DEFAULT -1 COMMENT '使用时间',
+  `end_time` bigint(20) DEFAULT -1 COMMENT '入账结束时间',
   `remark` text COMMENT '备注',
   `create_time` bigint(20) NOT NULL,
   `update_time` bigint(20) NOT NULL,
@@ -158,7 +158,25 @@ CREATE TABLE t_canary_coupon (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `index_coupon_id` (`coupon_id`) USING BTREE,
   INDEX `index_user_code` (`user_code`) USING BTREE,
-  INDEX `index_update_time` (`update_time`) USING BTREE,
+  INDEX `index_update_time` (`update_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
+
+
+
+/***************************优惠券设置表 *************************/
+DROP TABLE IF EXISTS t_canary_coupon_condition_set;
+CREATE TABLE t_canary_coupon_condition_set (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `coupon_type` varchar(64) NOT NULL COMMENT '优惠券类型',
+  `condition` varchar(64) NOT NULL COMMENT '条件',
+  `operator` varchar(64) NOT NULL COMMENT '操作符',
+  `value` varchar(64) NOT NULL COMMENT '值',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  INDEX `index_coupon_type` (`coupon_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
 
 

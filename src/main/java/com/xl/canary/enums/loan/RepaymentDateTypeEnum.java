@@ -1,4 +1,6 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.loan;
+
+import com.xl.canary.enums.TimeUnitEnum;
 
 /**
  * 还款日期类型枚举

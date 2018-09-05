@@ -1,8 +1,8 @@
 package com.xl.canary.utils;
 
 import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.enums.LoanOrderTypeEnum;
-import com.xl.canary.enums.RepaymentDateTypeEnum;
+import com.xl.canary.enums.loan.LoanOrderTypeEnum;
+import com.xl.canary.enums.loan.RepaymentDateTypeEnum;
 
 import java.util.Calendar;
 import java.util.HashMap;

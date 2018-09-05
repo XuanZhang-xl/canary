@@ -1,4 +1,4 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.coupon;
 
 /**
  * 优惠券关系类型

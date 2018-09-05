@@ -4,7 +4,7 @@ import com.xl.canary.engine.action.IAction;
 import com.xl.canary.engine.event.entry.EntryEvent;
 import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.enums.ExecuteActionMethodEnum;
-import com.xl.canary.enums.PayTypeEnum;
+import com.xl.canary.enums.pay.PayTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

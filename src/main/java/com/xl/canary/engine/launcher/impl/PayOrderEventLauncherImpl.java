@@ -4,6 +4,7 @@ import com.xl.canary.engine.event.IStateEvent;
 import com.xl.canary.engine.launcher.AbstractStateEventLauncher;
 import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.PayOrderEntity;
+import com.xl.canary.mapper.PayOrderMapper;
 import com.xl.canary.service.PayOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,16 +16,16 @@ import org.springframework.stereotype.Component;
 public class PayOrderEventLauncherImpl extends AbstractStateEventLauncher<PayOrderEntity, IStateEvent> implements IEventLauncher<IStateEvent> {
 
     @Autowired
-    private PayOrderService payOrderService;
+    private PayOrderMapper payOrderMapper;
 
     @Override
     public PayOrderEntity selectEntity(String orderId) {
-        return this.payOrderService.getByOrderId(orderId);
+        return this.payOrderMapper.getByPayOrderId(orderId);
     }
 
     @Override
     public void saveEntity(PayOrderEntity entity) {
         entity.setUpdateTime(System.currentTimeMillis());
-        this.payOrderService.save(entity);
+        this.payOrderMapper.updateByPrimaryKey(entity);
     }
 }

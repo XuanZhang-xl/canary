@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xl.canary.mapper.CouponConditionMapper">
+
+    <select id="listByCouponType" resultType="com.xl.canary.entity.CouponConditionEntity">
+        select * from t_canary_coupon_condition_set WHERE coupon_type = #{couponType}
+    </select>
+
+</mapper>

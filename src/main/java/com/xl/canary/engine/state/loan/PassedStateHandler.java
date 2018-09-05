@@ -9,8 +9,8 @@ import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.enums.LendModeEnum;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.loan.LendModeEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import com.xl.canary.service.LoanOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * Created by gqwu on 2018/4/4.
  */
 @Component("loanPassedState")
-@StateHandler(name = StatusEnum.PASSED)
+@StateHandler(name = StateEnum.PASSED)
 public class PassedStateHandler implements IStateHandler<LoanOrderEntity> {
 
     @Autowired
@@ -33,9 +33,9 @@ public class PassedStateHandler implements IStateHandler<LoanOrderEntity> {
     public LoanOrderEntity handle(LoanOrderEntity loanOrder, IEvent event, IActionExecutor actionExecutor) throws Exception {
 
         if (event instanceof CancelEvent) {
-            loanOrder.setOrderState(StatusEnum.CANCELLED.name());
+            loanOrder.setOrderState(StateEnum.CANCELLED.name());
         } else if (event instanceof LendLaunchEvent) {
-            loanOrder.setOrderState(StatusEnum.LENDING.name());
+            loanOrder.setOrderState(StateEnum.LENDING.name());
             /** 自动放款模式订单，附加执行实际放款行为（通知钱包放款）*/
             if (loanOrder.getLendMode().equals(LendModeEnum.AUTO.name())) {
                 actionExecutor.append(new LendExecuteAction(loanOrder.getOrderId(), loanOrderService, loanOrderEventLauncher));

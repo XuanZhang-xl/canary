@@ -29,7 +29,7 @@ public class EntryLaunchAction implements IAction {
     public void run() {
         EntryLaunchEvent entryLaunchEvent = new EntryLaunchEvent(payOrderId);
         try {
-            PayOrderEntity payOrder = payOrderService.getByOrderId(payOrderId);
+            PayOrderEntity payOrder = payOrderService.getByPayOrderId(payOrderId);
 
             this.payOrderEventLauncher.launch(entryLaunchEvent);
         } catch (Exception e) {

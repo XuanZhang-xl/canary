@@ -35,4 +35,9 @@ public interface EssentialConstance {
      * 每小时分钟数
      */
     int MINUTE_HOUR = 60;
+
+    /**
+     * 每天毫秒数
+     */
+    int DAY_MILLISECOND = 86400000;
 }

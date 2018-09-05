@@ -7,7 +7,7 @@ import com.xl.canary.engine.event.order.loan.SchemeEntryEvent;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  * Created by gqwu on 2018/4/4.
  */
 @Component
-@StateHandler(name = StatusEnum.LENT)
+@StateHandler(name = StateEnum.LENT)
 public class LentStateHandler implements IStateHandler<LoanOrderEntity> {
 
 
