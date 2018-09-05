@@ -1,4 +1,4 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.pay;
 
 /**
  * created by XUAN on 2018/08/23

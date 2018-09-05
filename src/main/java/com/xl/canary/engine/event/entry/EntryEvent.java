@@ -2,7 +2,7 @@ package com.xl.canary.engine.event.entry;
 
 import com.xl.canary.engine.event.AbstractEvent;
 import com.xl.canary.engine.event.IEvent;
-import com.xl.canary.enums.PayTypeEnum;
+import com.xl.canary.enums.pay.PayTypeEnum;
 
 /**
  * Created by gqwu on 2018/4/4.

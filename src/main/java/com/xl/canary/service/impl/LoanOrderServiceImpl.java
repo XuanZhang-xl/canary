@@ -27,6 +27,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
 
     /**
      * 不用新开事务
+     * TODO: 应删掉这个方法
      * @param loanOrder
      * @return
      */

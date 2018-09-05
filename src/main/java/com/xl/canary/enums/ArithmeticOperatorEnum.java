@@ -22,7 +22,19 @@ public enum ArithmeticOperatorEnum {
     GREAT_THAN(),
 
     /**
+     * 大于等于
+     */
+    GREAT_THAN_OR_EQUAL(),
+
+    /**
      * 小于
      */
-    LESS_THAN
+    LESS_THAN(),
+
+    /**
+     * 小于等于
+     */
+    LESS_THAN_OR_EQUAL,
+
+    ;
 }

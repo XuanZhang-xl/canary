@@ -1,7 +1,10 @@
 package com.xl.canary.service.impl;
 
 import com.xl.canary.entity.PayOrderEntity;
+import com.xl.canary.mapper.LoanOrderMapper;
+import com.xl.canary.mapper.PayOrderMapper;
 import com.xl.canary.service.PayOrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,13 +13,11 @@ import org.springframework.stereotype.Service;
 @Service("payOrderServiceImpl")
 public class PayOrderServiceImpl implements PayOrderService {
 
-    @Override
-    public PayOrderEntity getByOrderId(String orderId) {
-        return null;
-    }
+    @Autowired
+    private PayOrderMapper payOrderMapper;
 
     @Override
-    public void save(PayOrderEntity entity) {
-
+    public PayOrderEntity getByPayOrderId(String payOrderId) {
+        return payOrderMapper.getByPayOrderId(payOrderId);
     }
 }

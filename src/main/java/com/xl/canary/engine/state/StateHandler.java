@@ -1,6 +1,6 @@
 package com.xl.canary.engine.state;
 
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.StateEnum;
 
 import java.lang.annotation.*;
 
@@ -12,5 +12,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface StateHandler {
-  StatusEnum name();
+  StateEnum name();
 }

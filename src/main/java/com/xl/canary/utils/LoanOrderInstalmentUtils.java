@@ -1,7 +1,6 @@
 package com.xl.canary.utils;
 
-import com.xl.canary.controller.LoanOrderController;
-import com.xl.canary.enums.FeeAllocateEnum;
+import com.xl.canary.enums.loan.FeeAllocateEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

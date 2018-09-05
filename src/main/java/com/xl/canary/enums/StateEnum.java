@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by XUAN on 2018/9/04.
  */
-public enum StatusEnum {
+public enum StateEnum {
 
     /**
      * 通用状态
@@ -54,24 +54,24 @@ public enum StatusEnum {
     /**
      * 订单进行中的状态
      */
-    public static List<StatusEnum> processing  = Arrays.asList(PENDING,PASSED, AUDITING, LENDING, LENT);
+    public static List<StateEnum> processing  = Arrays.asList(PENDING,PASSED, AUDITING, LENDING, LENT);
 
     /**
      * 放款中订单
      */
-    public static List<StatusEnum> pending  = Arrays.asList(PENDING,PASSED, AUDITING, LENDING);
+    public static List<StateEnum> pending  = Arrays.asList(PENDING,PASSED, AUDITING, LENDING);
 
     /**
      * 已放款, 待还款状态
      */
-    public static List<StatusEnum> lent  = Arrays.asList(LENT);
+    public static List<StateEnum> lent  = Arrays.asList(LENT);
 
     /**
      * 失败订单
      */
-    public static List<StatusEnum> failed  = Arrays.asList(CANCELLED , REJECTED , FAILED);
+    public static List<StateEnum> failed  = Arrays.asList(CANCELLED , REJECTED , FAILED);
 
-    StatusEnum(String explanation) {
+    StateEnum(String explanation) {
         this.explanation = explanation;
     }
 

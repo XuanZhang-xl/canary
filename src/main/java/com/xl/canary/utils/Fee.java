@@ -1,6 +1,6 @@
 package com.xl.canary.utils;
 
-import com.xl.canary.enums.FeeAllocateEnum;
+import com.xl.canary.enums.loan.FeeAllocateEnum;
 
 import java.math.BigDecimal;
 

@@ -1,4 +1,4 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.pay;
 
 /**
  * 销帐类型

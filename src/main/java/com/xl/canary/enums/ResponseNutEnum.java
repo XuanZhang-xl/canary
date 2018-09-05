@@ -1,5 +1,7 @@
 package com.xl.canary.enums;
 
+import com.xl.canary.exception.InnerException;
+
 /**
  * 错误码
  * 前4位代表项目
@@ -7,6 +9,12 @@ package com.xl.canary.enums;
  * created by MSI-PC on 2018/01/13
  */
 public enum ResponseNutEnum {
+
+    /**
+     * 错误码
+     * 前4位代表项目
+     * 后4位代表实际错误码
+     */
     OK(10000000, "成功", "成功"),
 
     ERROR_LAST_ELEMENT(10000001, "系统内部异常", "错误的入账最后一位入账顺序"),
@@ -52,6 +60,6 @@ public enum ResponseNutEnum {
                 return responseNutEnum;
             }
         }
-        return null;
+        throw new InnerException(UNKNOWN_EXCEPTION);
     }
 }

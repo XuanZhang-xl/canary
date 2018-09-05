@@ -12,11 +12,5 @@ public interface PayOrderService {
      * @param orderId
      * @return
      */
-    PayOrderEntity getByOrderId(String orderId);
-
-    /**
-     * 保存订单
-     * @param entity
-     */
-    void save(PayOrderEntity entity);
+    PayOrderEntity getByPayOrderId(String orderId);
 }

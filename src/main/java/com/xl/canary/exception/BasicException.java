@@ -8,7 +8,7 @@ import com.xl.canary.enums.ResponseNutEnum;
  */
 public class BasicException extends Exception {
 
-    ResponseNutEnum responseNutEnum;
+    private ResponseNutEnum responseNutEnum;
 
     public ResponseNutEnum getResponseNutEnum() {
         return responseNutEnum;

@@ -1,4 +1,7 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.coupon;
+
+import com.xl.canary.enums.loan.LoanOrderElementEnum;
+import com.xl.canary.enums.WeightEnum;
 
 /**
  * 优惠券类型

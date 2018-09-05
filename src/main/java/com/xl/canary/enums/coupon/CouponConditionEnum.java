@@ -1,4 +1,9 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.coupon;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 优惠券使用条件枚举
@@ -30,12 +35,11 @@ public enum CouponConditionEnum {
     /**
      * 还款金额
      */
-    PAY_AMOUNT()
+    PAY_AMOUNT(),
+
+
 
     // 继续补充
 
     ;
-
-
-
 }

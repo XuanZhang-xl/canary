@@ -1,4 +1,4 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.loan;
 
 /**
  * Created by gqwu on 2018/3/23.

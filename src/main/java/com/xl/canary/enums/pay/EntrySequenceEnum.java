@@ -1,10 +1,10 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.pay;
 
-import com.xl.canary.bean.condition.LoanOrderCondition;
+import com.xl.canary.enums.ResponseNutEnum;
+import com.xl.canary.enums.loan.LoanOrderElementEnum;
 import com.xl.canary.exception.InnerException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

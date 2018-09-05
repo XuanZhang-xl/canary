@@ -2,25 +2,22 @@ package com.xl.canary.entity;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.enums.CurrencyEnum;
-import com.xl.canary.enums.StatusEnum;
-import com.xl.canary.enums.LoanOrderTypeEnum;
+import com.xl.canary.enums.StateEnum;
+import com.xl.canary.enums.loan.LoanOrderTypeEnum;
 import com.xl.canary.enums.TimeUnitEnum;
 import com.xl.canary.utils.Fee;
 import com.xl.canary.utils.IDWorker;
-import com.xl.canary.utils.LoanOrderInstalmentUtils;
 
 import javax.persistence.Table;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 订单表
  * created by XUAN on 2018/08/18
  */
 @Table(name = "t_canary_loan_order")
-public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity {
+public class LoanOrderEntity extends AbstractOrderEntity {
 
     /**
      * 订单号
@@ -194,6 +191,7 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
         this.applyCurrency = applyCurrency;
     }
 
+    @Override
     public String getEquivalent() {
         return equivalent;
     }
@@ -218,6 +216,7 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
         this.lentAmount = lentAmount;
     }
 
+    @Override
     public BigDecimal getEquivalentAmount() {
         return equivalentAmount;
     }
@@ -286,7 +285,7 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IStateEntity 
         LoanOrderEntity loanOrder = new LoanOrderEntity();
         loanOrder.setOrderId(IDWorker.getNewID());
         loanOrder.setUserCode("1");
-        loanOrder.setOrderState(StatusEnum.PENDING.name());
+        loanOrder.setOrderState(StateEnum.PENDING.name());
         loanOrder.setOrderType(LoanOrderTypeEnum.GENERAL_TYPE.name());
         loanOrder.setInstalment(3);
         loanOrder.setInstalmentRate(new BigDecimal("0.025"));

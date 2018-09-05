@@ -2,7 +2,7 @@ package com.xl.canary.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.enums.CurrencyEnum;
-import com.xl.canary.enums.LoanOrderTypeEnum;
+import com.xl.canary.enums.loan.LoanOrderTypeEnum;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class LoanOrderControllerTest implements Runnable {
 

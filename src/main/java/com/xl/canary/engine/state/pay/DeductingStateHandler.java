@@ -8,7 +8,7 @@ import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.PayOrderEntity;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import com.xl.canary.service.PayOrderService;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * Created by gqwu on 2018/4/4.
  */
 @Component
-@StateHandler(name = StatusEnum.DEDUCTING)
+@StateHandler(name = StateEnum.DEDUCTING)
 public class DeductingStateHandler implements IStateHandler<PayOrderEntity> {
 
     private static final Logger logger = LoggerFactory.getLogger(DeductingStateHandler.class);
@@ -37,14 +37,14 @@ public class DeductingStateHandler implements IStateHandler<PayOrderEntity> {
         if (event instanceof DeductResponseEvent) {
             DeductResponseEvent deductResponseEvent = (DeductResponseEvent) event;
             if (deductResponseEvent.isSucceeded()) {
-                payOrder.setPayOrderState(StatusEnum.DEDUCTED.name());
+                payOrder.setPayOrderState(StateEnum.DEDUCTED.name());
                 payOrder.setPayNumber(deductResponseEvent.getActualDeducted());
                 payOrder.setPayTime(deductResponseEvent.getEventTime());
                 /** 此处相当于在扣款成功后，自动发起入账 */
                 actionExecutor.append(new EntryLaunchAction(payOrder.getPayOrderId(), payOrderEventLauncher, payOrderService));
 
             } else {
-                payOrder.setPayOrderState(StatusEnum.DEDUCT_FAILED.name());
+                payOrder.setPayOrderState(StateEnum.DEDUCT_FAILED.name());
             }
         } else {
             throw new InvalidEventException(

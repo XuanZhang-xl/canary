@@ -6,7 +6,7 @@ import com.xl.canary.engine.event.order.pay.EntryResponseEvent;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.PayOrderEntity;
-import com.xl.canary.enums.StatusEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * Created by gqwu on 2018/4/4.
  */
 @Component
-@StateHandler(name = StatusEnum.ENTRY_DOING)
+@StateHandler(name = StateEnum.ENTRY_DOING)
 public class EntryDoingStateHandler implements IStateHandler<PayOrderEntity> {
 
     @Override
@@ -24,9 +24,9 @@ public class EntryDoingStateHandler implements IStateHandler<PayOrderEntity> {
             EntryResponseEvent entryResponseEvent = (EntryResponseEvent) event;
             payOrder.setEntryNumber(payOrder.getEntryNumber().add(entryResponseEvent.getActualEntry()));
             if (payOrder.getEntryNumber().compareTo(payOrder.getEquivalentAmount()) == 0) {
-                payOrder.setPayOrderState(StatusEnum.ENTRY_DONE.name());
+                payOrder.setPayOrderState(StateEnum.ENTRY_DONE.name());
             } else {
-                payOrder.setPayOrderState(StatusEnum.ENTRY_FAILED.name());
+                payOrder.setPayOrderState(StateEnum.ENTRY_FAILED.name());
             }
             payOrder.setEntryOverTime(entryResponseEvent.getEventTime());
         }  else {

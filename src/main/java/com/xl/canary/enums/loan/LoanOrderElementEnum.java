@@ -1,4 +1,4 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.loan;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.xl.canary.enums;
+package com.xl.canary.enums.loan;
 
 /**
  * 元素类型
