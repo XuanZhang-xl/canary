@@ -78,7 +78,7 @@ DROP TABLE IF EXISTS t_canary_pay_order;
 CREATE TABLE t_canary_pay_order (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `pay_order_id` varchar(64) NOT NULL COMMENT '还款订单号',
-  `loan_order_ids` JSON NOT NULL COMMENT '此还款订单所还过的借款订单, List集合',
+  `pay_batch_id` varchar(64) NOT NULL COMMENT '还款订单批次号, 允许一次性用多个货币还款',
   `user_code` varchar(64) NOT NULL COMMENT '用户唯一标识',
   `pay_order_type` varchar(64) NOT NULL COMMENT '订单类型',
   `pay_order_state` varchar(64) NOT NULL COMMENT '订单状态',

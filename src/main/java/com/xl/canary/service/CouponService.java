@@ -31,6 +31,21 @@ public interface CouponService {
      */
     CouponEntity getInitCoupon (CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Integer effectiveDays) throws CouponException;
 
+
+    /**
+     * 将优惠券绑定给用户
+     * @param couponId   优惠券id
+     * @param userCode   用户
+     */
+    CouponEntity boundCouponToUser(String couponId, String userCode) throws CouponException;
+
+    /**
+     * 将优惠券绑定给订单(借款订单, 还款订单)
+     * @param couponId   优惠券id
+     * @param orderId    orderId / payOrderId
+     */
+    CouponEntity boundCouponToOrder(String couponId, String orderId) throws CouponException;
+
     /**
      * 保存优惠券
      * @param couponType     类型

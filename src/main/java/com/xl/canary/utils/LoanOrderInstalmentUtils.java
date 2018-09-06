@@ -1,5 +1,7 @@
 package com.xl.canary.utils;
 
+import com.xl.canary.bean.dto.BasicInstalment;
+import com.xl.canary.bean.dto.Fee;
 import com.xl.canary.enums.loan.FeeAllocateEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

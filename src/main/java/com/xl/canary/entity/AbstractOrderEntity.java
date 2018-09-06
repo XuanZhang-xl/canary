@@ -19,4 +19,10 @@ public abstract class AbstractOrderEntity extends AbstractBaseEntity implements 
      * @return
      */
     public abstract String getEquivalent();
+
+    /**
+     * 获取用户
+     * @return
+     */
+    public abstract String getUserCode();
 }

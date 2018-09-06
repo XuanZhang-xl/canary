@@ -1,4 +1,4 @@
-package com.xl.canary.utils;
+package com.xl.canary.bean.dto;
 
 import java.math.BigDecimal;
 import java.util.Map;

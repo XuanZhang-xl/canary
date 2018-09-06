@@ -1,6 +1,8 @@
 package com.xl.canary.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xl.canary.bean.dto.BasicInstalment;
+import com.xl.canary.bean.dto.Fee;
 import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.enums.loan.InstallmentModeEnum;

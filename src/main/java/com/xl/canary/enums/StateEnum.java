@@ -38,13 +38,16 @@ public enum StateEnum {
     ENTRY_FAILED("入账失败"),
     REFUNDED("已退款"),
 
+    /**
+     * 优惠券状态
+     */
+    BUNDLED("已绑定"),
 
     /**
      * 策略状态
      * EXECUTING 其实没有意义, 只是让策略的含义更明显
      */
     EXECUTING("执行中"),
-    BUNDLED("已绑定"),
 
 
     ;
