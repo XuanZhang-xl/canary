@@ -5,7 +5,7 @@ import com.xl.canary.enums.CurrencyEnum;
 import com.xl.canary.enums.StateEnum;
 import com.xl.canary.enums.loan.LoanOrderTypeEnum;
 import com.xl.canary.enums.TimeUnitEnum;
-import com.xl.canary.utils.Fee;
+import com.xl.canary.bean.dto.Fee;
 import com.xl.canary.utils.IDWorker;
 
 import javax.persistence.Table;
@@ -127,6 +127,7 @@ public class LoanOrderEntity extends AbstractOrderEntity {
         this.orderId = orderId;
     }
 
+    @Override
     public String getUserCode() {
         return userCode;
     }

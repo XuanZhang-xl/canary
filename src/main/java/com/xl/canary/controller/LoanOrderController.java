@@ -20,7 +20,7 @@ import com.xl.canary.service.UserLevelSettingService;
 import com.xl.canary.service.UserService;
 import com.xl.canary.simulator.ExchangeRateSimulator;
 import com.xl.canary.utils.EssentialConstance;
-import com.xl.canary.utils.Fee;
+import com.xl.canary.bean.dto.Fee;
 import com.xl.canary.utils.IDWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

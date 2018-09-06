@@ -1,10 +1,13 @@
 package com.xl.canary.entity;
 
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 /**
+ * 还款订单
  * created by XUAN on 2018/08/23
  */
+@Table(name = "t_canary_pay_order")
 public class PayOrderEntity extends AbstractOrderEntity {
 
     /**
@@ -13,9 +16,9 @@ public class PayOrderEntity extends AbstractOrderEntity {
     private String payOrderId;
 
     /**
-     * todo
+     * 还款批次号, 代表着一次操作
      */
-    private String loanOrderIds;
+    private String payBatchId;
 
     /**
      * 用户编号
@@ -85,14 +88,15 @@ public class PayOrderEntity extends AbstractOrderEntity {
         this.payOrderId = payOrderId;
     }
 
-    public String getLoanOrderIds() {
-        return loanOrderIds;
+    public String getPayBatchId() {
+        return payBatchId;
     }
 
-    public void setLoanOrderIds(String loanOrderIds) {
-        this.loanOrderIds = loanOrderIds;
+    public void setPayBatchId(String payBatchId) {
+        this.payBatchId = payBatchId;
     }
 
+    @Override
     public String getUserCode() {
         return userCode;
     }
