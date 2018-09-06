@@ -111,9 +111,9 @@ public class CouponServiceImpl implements CouponService {
         if (userAction == null) {
             // 没有使用情况限制, 则不应该来绑定订单
             throw new CouponException("优惠券[" + couponId + "]类型为[" + coupon.getCouponType() + "]不应绑定订单");
-        } else if (userAction == UserActionEnum.LOAN_ORDER) {
+        } else if (userAction == UserActionEnum.LOAN) {
             abstractOrder = loanOrderService.getByOrderId(orderId);
-        } else if (userAction == UserActionEnum.PAY_ORDER) {
+        } else if (userAction == UserActionEnum.REPAYMENT) {
             abstractOrder = payOrderService.getByPayOrderId(orderId);
         } else {
             throw new CouponException("不支持的用户操作类型: " + userAction.name());

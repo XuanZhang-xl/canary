@@ -9,10 +9,10 @@ public enum UserActionEnum {
     /**
      * 下单
      */
-    LOAN_ORDER(),
+    LOAN(),
 
     /**
      * 还款
      */
-    PAY_ORDER(),
+    REPAYMENT(),
 }
