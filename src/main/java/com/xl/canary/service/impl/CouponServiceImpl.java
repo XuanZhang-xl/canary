@@ -65,7 +65,7 @@ public class CouponServiceImpl implements CouponService {
         List<CouponConditionEntity> couponConditionEntities = couponConditionService.listByCouponType(couponType.name());
         List<CouponCondition> couponConditions = new ArrayList<CouponCondition>();
         for (CouponConditionEntity couponConditionEntity : couponConditionEntities) {
-            couponConditions.add(new CouponCondition(couponConditionEntity.getCondition(), couponConditionEntity.getOperator(), couponConditionEntity.getValue()));
+            couponConditions.add(new CouponCondition(couponConditionEntity.getCondition(), couponConditionEntity.getOperator(), couponConditionEntity.getTarget()));
         }
         return this.saveCoupon(couponType, weightAmount, effectiveDate, effectiveDays, JSONObject.toJSONString(couponConditions));
     }

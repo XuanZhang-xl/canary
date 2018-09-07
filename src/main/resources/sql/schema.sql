@@ -169,7 +169,7 @@ CREATE TABLE t_canary_coupon_condition_set (
   `coupon_type` varchar(64) NOT NULL COMMENT '优惠券类型',
   `condition` varchar(64) NOT NULL COMMENT '条件',
   `operator` varchar(64) NOT NULL COMMENT '操作符',
-  `value` varchar(64) NOT NULL COMMENT '值',
+  `target` varchar(1024) NOT NULL COMMENT '目标值',
   `remark` text COMMENT '备注',
   `create_time` bigint(20) NOT NULL,
   `update_time` bigint(20) NOT NULL,
