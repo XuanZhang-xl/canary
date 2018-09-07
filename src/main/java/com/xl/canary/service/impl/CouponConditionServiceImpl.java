@@ -1,20 +1,11 @@
 package com.xl.canary.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xl.canary.bean.dto.CouponCondition;
 import com.xl.canary.entity.CouponConditionEntity;
-import com.xl.canary.entity.CouponEntity;
-import com.xl.canary.enums.StateEnum;
-import com.xl.canary.enums.coupon.CouponTypeEnum;
 import com.xl.canary.mapper.CouponConditionMapper;
 import com.xl.canary.service.CouponConditionService;
-import com.xl.canary.utils.IDWorker;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,5 +20,15 @@ public class CouponConditionServiceImpl implements CouponConditionService {
     @Override
     public List<CouponConditionEntity> listByCouponType(String couponType) {
         return couponConditionMapper.listByCouponType(couponType);
+    }
+
+    @Override
+    public CouponConditionEntity getByCouponTypeAndCondition(String couponType, String condition) {
+        return couponConditionMapper.getByCouponTypeAndCondition(couponType, condition);
+    }
+
+    @Override
+    public List<CouponConditionEntity> listByCouponTypeAndConditions(String couponType, List<String> conditions) {
+        return couponConditionMapper.listByCouponTypeAndConditions(couponType, conditions);
     }
 }

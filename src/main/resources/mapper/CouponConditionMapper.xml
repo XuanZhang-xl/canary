@@ -7,4 +7,17 @@
         select * from t_canary_coupon_condition_set WHERE coupon_type = #{couponType}
     </select>
 
+    <select id="getByCouponTypeAndCondition" resultType="com.xl.canary.entity.CouponConditionEntity">
+        select * from t_canary_coupon_condition_set WHERE coupon_type = #{couponType} AND condition = #{condition}
+    </select>
+
+    <select id="listByCouponTypeAndConditions" resultType="com.xl.canary.entity.CouponConditionEntity">
+        select * from t_canary_coupon_condition_set WHERE coupon_type = #{couponType}
+        <if test="conditions != null">
+            AND condition IN
+            <foreach collection="conditions" index="index" item="condition" open="(" separator="," close=")">
+                #{condition}
+            </foreach>
+        </if>
+    </select>
 </mapper>

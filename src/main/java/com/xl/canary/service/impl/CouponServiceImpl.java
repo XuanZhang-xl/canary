@@ -2,14 +2,8 @@ package com.xl.canary.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.bean.dto.CouponCondition;
-import com.xl.canary.entity.AbstractOrderEntity;
-import com.xl.canary.entity.CouponConditionEntity;
-import com.xl.canary.entity.CouponEntity;
-import com.xl.canary.entity.UserEntity;
-import com.xl.canary.enums.ResponseNutEnum;
-import com.xl.canary.enums.StateEnum;
-import com.xl.canary.enums.UserActionEnum;
-import com.xl.canary.enums.coupon.CouponConditionEnum;
+import com.xl.canary.entity.*;
+import com.xl.canary.enums.*;
 import com.xl.canary.enums.coupon.CouponTypeEnum;
 import com.xl.canary.exception.CouponException;
 import com.xl.canary.exception.InnerException;
@@ -17,6 +11,7 @@ import com.xl.canary.mapper.CouponMapper;
 import com.xl.canary.service.*;
 import com.xl.canary.utils.EssentialConstance;
 import com.xl.canary.utils.IDWorker;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,9 +38,6 @@ public class CouponServiceImpl implements CouponService {
 
     @Autowired
     private LoanOrderService loanOrderService;
-
-    @Autowired
-    private PayOrderService payOrderService;
 
     @Autowired
     private IDWorker idWorker;
@@ -84,6 +76,14 @@ public class CouponServiceImpl implements CouponService {
         if (coupon.getCouponState().equals(StateEnum.PENDING.name())) {
             throw new CouponException("不合法的优惠券绑定状态: " + coupon.getCouponState());
         }
+        if (StringUtils.isNoneBlank(coupon.getUserCode())) {
+            if (coupon.getUserCode().equals(userCode)) {
+                return coupon;
+            } else {
+                throw new CouponException("优惠券绑定用户[" + userCode + "]时, " + "已绑定用户[" + coupon.getUserCode() + "]");
+            }
+        }
+        // TODO: 如果以后增加主体, 这里也要加入主体检查
         UserEntity user = userService.getByUserCode(userCode);
         if (user == null) {
             throw new InnerException(ResponseNutEnum.NO_USER);
@@ -99,29 +99,28 @@ public class CouponServiceImpl implements CouponService {
         if (coupon.getCouponState().equals(StateEnum.PENDING.name())) {
             throw new CouponException("不合法的优惠券绑定状态: " + coupon.getCouponState());
         }
-        List<CouponConditionEntity> couponConditionEntities = couponConditionService.listByCouponType(coupon.getCouponType());
-        UserActionEnum userAction = null;
-        for (CouponConditionEntity couponCondition : couponConditionEntities) {
-            if (couponCondition.getCondition().equals(CouponConditionEnum.OCCASION)) {
-                // TODO:涉及运算符操作
-                break;
+        CouponTypeEnum couponType = CouponTypeEnum.valueOf(coupon.getCouponType());
+        if (!SubjectEnum.LOAN_ORDER.equals(couponType.getSubject())) {
+            throw new CouponException("优惠券[" + couponId + "]可绑定主体为[" + couponType.getSubject().name() + "], 不可绑定订单");
+        }
+        LoanOrderEntity loanOrder = loanOrderService.getByOrderId(orderId);
+        if (loanOrder == null) {
+            throw new CouponException("找不到借款订单[" + orderId + "]");
+        }
+        if (StringUtils.isNoneBlank(coupon.getUserCode())) {
+            if (!coupon.getUserCode().equals(loanOrder.getUserCode())) {
+                throw new CouponException("优惠券绑定用户[" + loanOrder.getUserCode() + "]时, " + "已绑定用户[" + coupon.getUserCode() + "]");
             }
         }
-        AbstractOrderEntity abstractOrder = null;
-        if (userAction == null) {
-            // 没有使用情况限制, 则不应该来绑定订单
-            throw new CouponException("优惠券[" + couponId + "]类型为[" + coupon.getCouponType() + "]不应绑定订单");
-        } else if (userAction == UserActionEnum.LOAN) {
-            abstractOrder = loanOrderService.getByOrderId(orderId);
-        } else if (userAction == UserActionEnum.REPAYMENT) {
-            abstractOrder = payOrderService.getByPayOrderId(orderId);
+        BigDecimal equivalentAmount = loanOrder.getEquivalentAmount();
+        BigDecimal applyAmount;
+        if (WeightEnum.PERCENT.equals(couponType.getWeight())) {
+            applyAmount = equivalentAmount.multiply(coupon.getDefaultAmount());
         } else {
-            throw new CouponException("不支持的用户操作类型: " + userAction.name());
+            applyAmount = coupon.getDefaultAmount();
         }
-        if (abstractOrder == null) {
-            throw new CouponException("订单类型[" + userAction.name() + "]中找不到订单[" + orderId + "]");
-        }
-        coupon.setUserCode(abstractOrder.getUserCode());
+        coupon.setApplyAmount(applyAmount);
+        coupon.setUserCode(loanOrder.getUserCode());
         coupon.setBoundOrderId(orderId);
         couponMapper.insertSelective(coupon);
         return coupon;

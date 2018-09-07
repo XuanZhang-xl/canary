@@ -9,6 +9,8 @@ import javax.persistence.Table;
 /**
  * 以List形式限制优惠券的使用
  * TODO: 如果遇到复杂情况只是这样的判断可能不行, 到时候可以设计一个判断条件的接口, 每一个优惠券类型都要有一个实现
+ *
+ * 写限制条件时请注意: 每条限制条件之间的关系都为'&&'
  * created by XUAN on 2018/09/04
  */
 @Table(name = "t_canary_coupon_condition_set")
