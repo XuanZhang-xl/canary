@@ -12,7 +12,7 @@ import com.xl.canary.handler.aoperator.IArithmeticOperatorHandler;
 public abstract class ArithmeticDescribeCouponConditionHandler implements ICouponConditionHandler {
 
     @Override
-    public Boolean checkCondition(String target, String param, ArithmeticOperatorEnum operator) throws BaseException {
+    public Boolean checkCondition(String target, Comparable param, ArithmeticOperatorEnum operator) throws BaseException {
         IArithmeticOperatorHandler instance = ArithmeticOperatorHandlerFactory.instance(operator);
         return instance.operate(target, param);
     }

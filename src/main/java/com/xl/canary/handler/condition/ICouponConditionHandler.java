@@ -16,5 +16,5 @@ public interface ICouponConditionHandler {
      * @param operator  运算符
      * @return
      */
-    Boolean checkCondition(String target, String param, ArithmeticOperatorEnum operator) throws BaseException;
+    Boolean checkCondition(String target, Comparable param, ArithmeticOperatorEnum operator) throws BaseException;
 }
