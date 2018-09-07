@@ -175,6 +175,7 @@ CREATE TABLE t_canary_coupon_condition_set (
   `update_time` bigint(20) NOT NULL,
   `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
   PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_coupon_type_condition` (`coupon_type`, `condition`) USING BTREE,
   INDEX `index_coupon_type` (`coupon_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
 

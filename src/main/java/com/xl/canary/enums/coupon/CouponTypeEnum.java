@@ -1,5 +1,6 @@
 package com.xl.canary.enums.coupon;
 
+import com.xl.canary.enums.SubjectEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
 import com.xl.canary.enums.WeightEnum;
 
@@ -16,6 +17,11 @@ import com.xl.canary.enums.WeightEnum;
  *      答: 1. 用户手动添加, 还款时减免
  *          2. 可以直接使用, 就像代金券
  *          3. 时机, 可以多次减免, 也可能只能有一次
+ *
+ *
+ *
+ * 这里的参数是配置,无论怎么改不影响优惠券的使用
+ * condition中是限制, 分清
  * created by XUAN on 2018/09/02
  */
 public enum CouponTypeEnum {
@@ -23,11 +29,7 @@ public enum CouponTypeEnum {
     /**
      * 利息减免券
      */
-    INTEREST_COUPON("利息减免券[使用限制说明等]",
-            CouponsRelationEnum.COMPATIBILITY,
-            LoanOrderElementEnum.INTEREST,
-            CouponEntryFrequencyEnum.ONCE,
-            WeightEnum.PERCENT);
+    INTEREST_COUPON("利息减免券[使用限制说明等]", CouponsRelationEnum.COMPATIBILITY, SubjectEnum.LOAN_ORDER, WeightEnum.PERCENT);
 
     /**
      * 描述
@@ -40,14 +42,9 @@ public enum CouponTypeEnum {
     private CouponsRelationEnum couponsRelation;
 
     /**
-     * 作用于的元素
+     * 优惠券的主体, 目前仅可以是 用户或借款订单
      */
-    private LoanOrderElementEnum loanOrderElement;
-
-    /**
-     * 入账方式
-     */
-    private CouponEntryFrequencyEnum couponEntryFrequency;
+    private SubjectEnum subject;
 
     /**
      * 比重类型
@@ -55,11 +52,10 @@ public enum CouponTypeEnum {
      */
     private WeightEnum weight;
 
-    CouponTypeEnum(String desc, CouponsRelationEnum couponsRelation, LoanOrderElementEnum loanOrderElement, CouponEntryFrequencyEnum couponEntryFrequency, WeightEnum weight) {
+    CouponTypeEnum(String desc, CouponsRelationEnum couponsRelation, SubjectEnum subject, WeightEnum weight) {
         this.desc = desc;
         this.couponsRelation = couponsRelation;
-        this.loanOrderElement = loanOrderElement;
-        this.couponEntryFrequency = couponEntryFrequency;
+        this.subject = subject;
         this.weight = weight;
     }
 
@@ -71,11 +67,11 @@ public enum CouponTypeEnum {
         return couponsRelation;
     }
 
-    public LoanOrderElementEnum getLoanOrderElement() {
-        return loanOrderElement;
+    public SubjectEnum getSubject() {
+        return subject;
     }
 
-    public CouponEntryFrequencyEnum getCouponEntryFrequency() {
-        return couponEntryFrequency;
+    public WeightEnum getWeight() {
+        return weight;
     }
 }

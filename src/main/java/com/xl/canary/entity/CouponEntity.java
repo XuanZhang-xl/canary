@@ -36,7 +36,8 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
     private String boundOrderId;
 
     /**
-     * 使用限制, json字段, 用于CouponConditionEntity所处理不了的情况
+     * 使用限制, json字段, CouponConditionEntity的缩小版本
+     * 说明能不能用这个优惠券
      */
     private String condition;
 
@@ -46,7 +47,7 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
     private String equivalent;
 
     /**
-     * 默认值
+     * 默认值, 根据类型可能时百分比或固定量, 如果是固定量, 则应与apply_amount相等
      */
     private BigDecimal defaultAmount;
 
@@ -61,7 +62,7 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
     private BigDecimal entryAmount;
 
     /**
-     * 生效起始时间, 冗余, 会在condition 中提现
+     * 生效起始时间, 冗余, 会在condition 中体现
      */
     private Long effectiveDate;
 
@@ -194,11 +195,11 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
 
     @Override
     public String getUniqueId() {
-        return null;
+        return couponId;
     }
 
     @Override
     public String getState() {
-        return null;
+        return couponState;
     }
 }
