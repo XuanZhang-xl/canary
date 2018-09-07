@@ -8,7 +8,6 @@ import javax.persistence.Table;
 
 /**
  * 以List形式限制优惠券的使用
- * TODO: 如果遇到复杂情况只是这样的判断可能不行, 到时候可以设计一个判断条件的接口, 每一个优惠券类型都要有一个实现
  *
  * 写限制条件时请注意: 每条限制条件之间的关系都为'&&'
  * created by XUAN on 2018/09/04
@@ -29,12 +28,12 @@ public class CouponConditionEntity extends AbstractBaseEntity {
     /**
      * 操作符
      */
-    private ArithmeticOperatorEnum operator;
+    private ArithmeticOperatorEnum operator = ArithmeticOperatorEnum.SPECIAL;
 
     /**
-     * 值
+     * 目标值, 可能为数组
      */
-    private String value;
+    private String target;
 
     public CouponTypeEnum getCouponType() {
         return couponType;
@@ -60,11 +59,11 @@ public class CouponConditionEntity extends AbstractBaseEntity {
         this.operator = operator;
     }
 
-    public String getValue() {
-        return value;
+    public String getTarget() {
+        return target;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setTarget(String target) {
+        this.target = target;
     }
 }

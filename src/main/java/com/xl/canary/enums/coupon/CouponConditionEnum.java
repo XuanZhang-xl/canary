@@ -50,6 +50,11 @@ public enum CouponConditionEnum {
      */
     ENTRY_FREQUENCY(),
 
+    /**
+     * 特殊的限制条件, 这儿只是举个例子
+     */
+    SPECIAL(),
+
     // 继续补充
 
     ;
