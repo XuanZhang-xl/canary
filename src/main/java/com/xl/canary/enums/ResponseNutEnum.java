@@ -20,10 +20,12 @@ public enum ResponseNutEnum {
     ERROR_LAST_ELEMENT(10000001, "系统内部异常", "错误的入账最后一位入账顺序"),
     NO_USER(10000002, "用户不存在", "用户不存在"),
     LOCK_ERROR(10000003, "系统内部异常", "锁竞争失败"),
+    NO_ORDER(10000004, "无订单", "无订单"),
 
 
+    UNKNOWN_EXCEPTION(10009999, "系统内部异常", "未知异常"),
 
-    UNKNOWN_EXCEPTION(10009999, "系统内部异常", "未知异常");
+    ;
 
 
     ResponseNutEnum(Integer code, String message, String explanation) {

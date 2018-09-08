@@ -46,12 +46,12 @@ public class PayOrderEntity extends AbstractOrderEntity {
     private BigDecimal applyAmount;
 
     /**
-     * 实际扣款金额
+     * 实际扣款金额, 默认0
      */
     private BigDecimal payNumber;
 
     /**
-     * 实际扣款时间
+     * 实际扣款时间. 默认-1
      */
     private Long payTime;
 
@@ -66,17 +66,17 @@ public class PayOrderEntity extends AbstractOrderEntity {
     private BigDecimal equivalentRate;
 
     /**
-     * 准备入账金额
+     * 准备入账金额 默认0
      */
     private BigDecimal equivalentAmount;
 
     /**
-     * 入账金额
+     * 入账金额, 默认0
      */
     private BigDecimal entryNumber;
 
     /**
-     * 入账结束时间
+     * 入账结束时间. 默认-1
      */
     private Long entryOverTime;
 
