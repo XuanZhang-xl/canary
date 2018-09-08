@@ -1,12 +1,15 @@
 package com.xl.canary.handler.aoperator.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.xl.canary.controller.LoanOrderController;
 import com.xl.canary.enums.ArithmeticOperatorEnum;
 import com.xl.canary.exception.CompareException;
 import com.xl.canary.handler.aoperator.ArithmeticOperatorHandler;
 import com.xl.canary.handler.aoperator.IArithmeticOperatorHandler;
 import com.xl.canary.utils.ArithmeticOperatorUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -24,6 +27,8 @@ import java.util.List;
 @Component("betweenOperatorHandler")
 @ArithmeticOperatorHandler(operator = ArithmeticOperatorEnum.BETWEEN)
 public class BetweenOperatorHandler implements IArithmeticOperatorHandler {
+
+    Logger logger = LoggerFactory.getLogger(BetweenOperatorHandler.class);
 
     @Override
     public Boolean operate(String target, Comparable param) throws CompareException {
@@ -69,8 +74,21 @@ public class BetweenOperatorHandler implements IArithmeticOperatorHandler {
                     max = number;
                 }
             }
-            return paramNumber.compareTo(min) >= 0 && paramNumber.compareTo(max) <= 0;
+            Boolean begin;
+            Boolean end;
+            if (containBegin) {
+                begin = paramNumber.compareTo(min) >= 0;
+            } else  {
+                begin = paramNumber.compareTo(min) > 0;
+            }
+            if (containEnd) {
+                end = paramNumber.compareTo(max) <= 0;
+            } else {
+                end = paramNumber.compareTo(max) < 0;
+            }
+            return begin && end;
         } else {
+            logger.warn("目标值[{}], 参数[{}], 校验不通过", target, param);
             return false;
         }
     }
