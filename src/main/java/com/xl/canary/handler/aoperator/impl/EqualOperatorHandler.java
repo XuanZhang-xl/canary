@@ -6,6 +6,8 @@ import com.xl.canary.handler.aoperator.ArithmeticOperatorHandler;
 import com.xl.canary.handler.aoperator.IArithmeticOperatorHandler;
 import com.xl.canary.utils.ArithmeticOperatorUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,6 +19,8 @@ import java.math.BigDecimal;
 @Component("equalOperatorHandler")
 @ArithmeticOperatorHandler(operator = ArithmeticOperatorEnum.EQUAL)
 public class EqualOperatorHandler implements IArithmeticOperatorHandler {
+
+    Logger logger = LoggerFactory.getLogger(EqualOperatorHandler.class);
 
     @Override
     public Boolean operate(String target, Comparable param) throws CompareException {
@@ -34,6 +38,7 @@ public class EqualOperatorHandler implements IArithmeticOperatorHandler {
         } else if (!(targetIsNumber || paramIsNumber)) {
             return target.trim().equals(strParam.trim());
         } else {
+            logger.warn("目标值[{}], 参数[{}], 校验不通过", target, param);
             return false;
         }
     }
