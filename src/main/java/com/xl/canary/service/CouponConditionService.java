@@ -1,9 +1,7 @@
 package com.xl.canary.service;
 
-import com.xl.canary.entity.CouponConditionEntity;
-import com.xl.canary.enums.coupon.CouponTypeEnum;
+import com.xl.canary.entity.ConditionEntity;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -16,7 +14,7 @@ public interface CouponConditionService {
      * @param couponType  优惠券类型
      * @return 限制
      */
-    List<CouponConditionEntity> listByCouponType(String couponType);
+    List<ConditionEntity> listByCouponType(String subject, String couponType);
 
     /**
      * 获取一条限制
@@ -24,7 +22,7 @@ public interface CouponConditionService {
      * @param condition    限制类型
      * @return 限制
      */
-    CouponConditionEntity getByCouponTypeAndCondition(String couponType, String condition);
+    ConditionEntity getByCouponTypeAndCondition(String subject, String couponType, String condition);
 
     /**
      * 获取一部分限制
@@ -32,5 +30,5 @@ public interface CouponConditionService {
      * @param conditions    限制类型
      * @return 限制
      */
-    List<CouponConditionEntity> listByCouponTypeAndConditions(String couponType, List<String> conditions);
+    List<ConditionEntity> listByCouponTypeAndConditions(String subject, String couponType, List<String> conditions);
 }

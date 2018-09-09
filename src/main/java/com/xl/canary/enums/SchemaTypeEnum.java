@@ -8,19 +8,19 @@ package com.xl.canary.enums;
 public enum  SchemaTypeEnum {
 
     /**
-     * 原始, 下单时schema
+     * 订单原始, 下单时schema
      */
-    ORIGINAL(),
+    LOAN_ORIGINAL(),
 
     /**
-     * 当前, 当前一下还清schema
+     * 订单当前, 当前一下还清schema
      */
-    CURRENT(),
+    LOAN_CURRENT(),
 
     /**
-     * 计划, 按期还清schema
+     * 订单计划, 按期还清schema
      */
-    PLAN(),
+    LOAN_PLAN(),
 
 
     ;

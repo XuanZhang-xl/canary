@@ -12,8 +12,8 @@ import javax.persistence.Table;
  * 写限制条件时请注意: 每条限制条件之间的关系都为'&&'
  * created by XUAN on 2018/09/04
  */
-@Table(name = "t_canary_coupon_condition_set")
-public class CouponConditionEntity extends AbstractBaseEntity {
+@Table(name = "t_canary_condition_set")
+public class ConditionEntity extends AbstractBaseEntity {
 
     /**
      * 优惠券类型
