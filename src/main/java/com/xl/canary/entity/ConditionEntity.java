@@ -66,4 +66,13 @@ public class ConditionEntity extends AbstractBaseEntity {
     public void setTarget(String target) {
         this.target = target;
     }
+
+    public String getTarget (LoanOrderEntity loanOrder, PayOrderEntity payOrder) {
+        // TODO: 以后的变态需求就在这儿写
+        if (CouponConditionEnum.SPECIAL.equals(condition)) {
+            return payOrder.getApplyCurrency();
+        } else {
+            return target;
+        }
+    }
 }
