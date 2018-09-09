@@ -13,7 +13,7 @@ import javax.persistence.Table;
  * created by XUAN on 2018/09/04
  */
 @Table(name = "t_canary_condition_set")
-public class CouponConditionEntity extends AbstractBaseEntity {
+public class ConditionEntity extends AbstractBaseEntity {
 
     /**
      * 优惠券类型

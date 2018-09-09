@@ -179,7 +179,7 @@ CREATE TABLE t_canary_condition_set (
   UNIQUE INDEX `index_subject_type_condition` (`subject`, `subject_type`, `condition`) USING BTREE,
   INDEX `index_subject` (`subject`) USING BTREE,
   INDEX `index_subject_type` (`subject_type`) USING BTREE,
-  INDEX `index_condition` (`condition`) USING BTREE,
+  INDEX `index_condition` (`condition`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='条件设置表';
 
 

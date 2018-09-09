@@ -1,6 +1,6 @@
 package com.xl.canary.service.impl;
 
-import com.xl.canary.entity.CouponConditionEntity;
+import com.xl.canary.entity.ConditionEntity;
 import com.xl.canary.mapper.CouponConditionMapper;
 import com.xl.canary.service.CouponConditionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +18,17 @@ public class CouponConditionServiceImpl implements CouponConditionService {
     private CouponConditionMapper couponConditionMapper;
 
     @Override
-    public List<CouponConditionEntity> listByCouponType(String couponType) {
-        return couponConditionMapper.listByCouponType(couponType);
+    public List<ConditionEntity> listByCouponType(String subject, String couponType) {
+        return couponConditionMapper.listByCouponType(subject, couponType);
     }
 
     @Override
-    public CouponConditionEntity getByCouponTypeAndCondition(String couponType, String condition) {
-        return couponConditionMapper.getByCouponTypeAndCondition(couponType, condition);
+    public ConditionEntity getByCouponTypeAndCondition(String subject, String couponType, String condition) {
+        return couponConditionMapper.getByCouponTypeAndCondition(subject, couponType, condition);
     }
 
     @Override
-    public List<CouponConditionEntity> listByCouponTypeAndConditions(String couponType, List<String> conditions) {
-        return couponConditionMapper.listByCouponTypeAndConditions(couponType, conditions);
+    public List<ConditionEntity> listByCouponTypeAndConditions(String subject, String couponType, List<String> conditions) {
+        return couponConditionMapper.listByCouponTypeAndConditions(subject, couponType, conditions);
     }
 }

@@ -2,9 +2,10 @@ package com.xl.canary.handler.coupon;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.bean.dto.CouponCondition;
-import com.xl.canary.entity.CouponConditionEntity;
+import com.xl.canary.entity.ConditionEntity;
 import com.xl.canary.entity.AbstractOrderEntity;
 import com.xl.canary.entity.CouponEntity;
+import com.xl.canary.enums.SubjectEnum;
 import com.xl.canary.enums.coupon.CouponConditionEnum;
 import com.xl.canary.enums.coupon.CouponTypeEnum;
 import com.xl.canary.exception.CouponException;
@@ -54,10 +55,10 @@ public class InterestCouponHandler implements ICouponTypeHandler {
         }
 
         // 使用限制
-        List<CouponConditionEntity> couponConditionEntities = couponConditionService.listByCouponType(CouponTypeEnum.INTEREST_COUPON.name());
+        List<ConditionEntity> couponConditionEntities = couponConditionService.listByCouponType(SubjectEnum.COUPON.name(), CouponTypeEnum.INTEREST_COUPON.name());
         List<CouponCondition> couponConditions = new ArrayList<CouponCondition>();
-        for (CouponConditionEntity couponConditionEntity : couponConditionEntities) {
-            couponConditions.add(new CouponCondition(couponConditionEntity.getCondition(), couponConditionEntity.getOperator(), couponConditionEntity.getTarget()));
+        for (ConditionEntity conditionEntity : couponConditionEntities) {
+            couponConditions.add(new CouponCondition(conditionEntity.getCondition(), conditionEntity.getOperator(), conditionEntity.getTarget()));
         }
         return couponService.saveCoupon(CouponTypeEnum.INTEREST_COUPON, weightAmount, effectiveDate, effectiveDays, JSONObject.toJSONString(couponConditions));
     }
