@@ -161,6 +161,26 @@ CREATE TABLE t_canary_coupon (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
 
 
+/***************************策略表 *************************/
+DROP TABLE IF EXISTS t_canary_strategy;
+CREATE TABLE t_canary_strategy (
+`id` int(10) NOT NULL AUTO_INCREMENT,
+`strategy_id` varchar(64) NOT NULL COMMENT '策略号',
+`strategy_type` varchar(64) NOT NULL COMMENT '策略类型',
+`condition` JSON COMMENT '使用特别限制',
+`effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期, 包括头',
+`expire_date` BIGINT DEFAULT -1 COMMENT '失效日期, 不包括尾',
+`remark` text COMMENT '备注',
+`create_time` bigint(20) NOT NULL,
+`update_time` bigint(20) NOT NULL,
+`is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+PRIMARY KEY (`id`),
+UNIQUE INDEX `index_strategy_id` (`strategy_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
+
+INSERT INTO t_canary_strategy (id, strategy_id, strategy_type, `condition`, effective_date, expire_date, remark, create_time, update_time, is_deleted)
+VALUES (1, '217990908229603328', 'GENERAL', '', -1, -1, '', 21331313, 1231231231, 0);
+
 
 /***************************条件设置表 *************************/
 DROP TABLE IF EXISTS t_canary_condition_set;
@@ -181,25 +201,6 @@ CREATE TABLE t_canary_condition_set (
   INDEX `index_subject_type` (`subject_type`) USING BTREE,
   INDEX `index_condition` (`condition`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='条件设置表';
-
-
-/***************************策略表 *************************/
-DROP TABLE IF EXISTS t_canary_strategy;
-CREATE TABLE t_canary_strategy (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `strategy_id` varchar(64) NOT NULL COMMENT '策略号',
-  `strategy_type` varchar(64) NOT NULL COMMENT '策略类型',
-  `condition` JSON COMMENT '使用特别限制',
-  `effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期, 包括头',
-  `expire_date` BIGINT DEFAULT -1 COMMENT '失效日期, 不包括尾',
-  `remark` text COMMENT '备注',
-  `create_time` bigint(20) NOT NULL,
-  `update_time` bigint(20) NOT NULL,
-  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `index_strategy_id` (`strategy_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
-
 
 
 
