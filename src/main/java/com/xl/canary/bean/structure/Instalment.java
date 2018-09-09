@@ -20,7 +20,7 @@ public class Instalment implements Map<LoanOrderElementEnum, Element>, Cloneable
     /**
      * 当期的还款日
      */
-    private Long repaymentDate = -1L;
+    private long repaymentDate = -1L;
 
     @Override
     public int size() {
@@ -110,11 +110,11 @@ public class Instalment implements Map<LoanOrderElementEnum, Element>, Cloneable
         this.instalmentMap = instalmentMap;
     }
 
-    public Long getRepaymentDate() {
+    public long getRepaymentDate() {
         return repaymentDate;
     }
 
-    public void setRepaymentDate(Long repaymentDate) {
+    public void setRepaymentDate(long repaymentDate) {
         this.repaymentDate = repaymentDate;
     }
 }

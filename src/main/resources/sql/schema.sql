@@ -162,11 +162,12 @@ CREATE TABLE t_canary_coupon (
 
 
 
-/***************************优惠券设置表 *************************/
-DROP TABLE IF EXISTS t_canary_coupon_condition_set;
-CREATE TABLE t_canary_coupon_condition_set (
+/***************************条件设置表 *************************/
+DROP TABLE IF EXISTS t_canary_condition_set;
+CREATE TABLE t_canary_condition_set (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `coupon_type` varchar(64) NOT NULL COMMENT '优惠券类型',
+  `subject` varchar(64) NOT NULL COMMENT '限制的主体',
+  `subject_type` varchar(64) NOT NULL COMMENT '主体的类型',
   `condition` varchar(64) NOT NULL COMMENT '条件',
   `operator` varchar(64) NOT NULL COMMENT '操作符',
   `target` varchar(1024) NOT NULL COMMENT '目标值',
@@ -175,8 +176,28 @@ CREATE TABLE t_canary_coupon_condition_set (
   `update_time` bigint(20) NOT NULL,
   `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `index_coupon_type_condition` (`coupon_type`, `condition`) USING BTREE,
-  INDEX `index_coupon_type` (`coupon_type`) USING BTREE
+  UNIQUE INDEX `index_subject_type_condition` (`subject`, `subject_type`, `condition`) USING BTREE,
+  INDEX `index_subject` (`subject`) USING BTREE,
+  INDEX `index_subject_type` (`subject_type`) USING BTREE,
+  INDEX `index_condition` (`condition`) USING BTREE,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='条件设置表';
+
+
+/***************************策略表 *************************/
+DROP TABLE IF EXISTS t_canary_strategy;
+CREATE TABLE t_canary_strategy (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `strategy_id` varchar(64) NOT NULL COMMENT '策略号',
+  `strategy_type` varchar(64) NOT NULL COMMENT '策略类型',
+  `condition` JSON COMMENT '使用特别限制',
+  `effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期, 包括头',
+  `expire_date` BIGINT DEFAULT -1 COMMENT '失效日期, 不包括尾',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `index_strategy_id` (`strategy_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
 
 

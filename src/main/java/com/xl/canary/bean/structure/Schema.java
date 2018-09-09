@@ -1,6 +1,9 @@
 package com.xl.canary.bean.structure;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xl.canary.enums.SchemaTypeEnum;
+import com.xl.canary.enums.pay.PayTypeEnum;
+import com.xl.canary.utils.TimeUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -15,6 +18,37 @@ import java.util.Set;
 public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable {
 
     private final Map<Integer, Instalment> schemaMap;
+
+    /**
+     * schema的类型
+     */
+    private SchemaTypeEnum schemaType;
+
+    /**
+     * 获取当前用户还款时的还款类型
+     * TODO: HashMap 可能是乱排的, 这样获取对不对还要测试下
+     * @return
+     */
+    public PayTypeEnum getPayType () {
+        for (Entry<Integer, Instalment> entry : this.schemaMap.entrySet()) {
+            long repaymentDate = entry.getValue().getRepaymentDate();
+            long now = TimeUtils.truncateToDay(System.currentTimeMillis());
+            if (repaymentDate < now) {
+                return PayTypeEnum.REPAY_OVERDUE;
+            } else if (repaymentDate == now) {
+                return PayTypeEnum.REPAY_AS_PLAN;
+            }
+        }
+        return PayTypeEnum.REPAY_IN_ADVANCE;
+    }
+
+    public Schema() {
+        this.schemaMap = new HashMap<Integer, Instalment>();
+    }
+
+    public Schema(Map<Integer, Instalment> schemaMap) {
+        this.schemaMap = schemaMap;
+    }
 
     @Override
     public int size() {
@@ -94,13 +128,5 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
     @Override
     public int hashCode() {
         return this.schemaMap.hashCode();
-    }
-
-    public Schema() {
-        this.schemaMap = new HashMap<Integer, Instalment>();
-    }
-
-    public Schema(Map<Integer, Instalment> schemaMap) {
-        this.schemaMap = schemaMap;
     }
 }
