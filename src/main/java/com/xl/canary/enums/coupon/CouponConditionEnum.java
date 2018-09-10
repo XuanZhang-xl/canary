@@ -5,6 +5,8 @@ import java.util.List;
 
 /**
  * 优惠券使用条件枚举
+ *
+ * ${LOAN_CURRENCY} 为变量
  * created by XUAN on 2018/09/02
  */
 public enum CouponConditionEnum {

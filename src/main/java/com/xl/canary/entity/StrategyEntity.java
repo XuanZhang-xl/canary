@@ -1,13 +1,14 @@
 package com.xl.canary.entity;
 
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 /**
  * 策略entity
  * created by XUAN on 2018/09/09
  */
 @Table(name = "t_canary_strategy")
-public class StrategyEntity extends AbstractBaseEntity {
+public class StrategyEntity extends AbstractConditionEntity {
 
     /**
      * 策略id
@@ -20,9 +21,19 @@ public class StrategyEntity extends AbstractBaseEntity {
     private String strategyType;
 
     /**
+     * 策略应用主体
+     */
+    private String subject;
+
+    /**
      * 限制条件, 可能时List
      */
     private String condition;
+
+    /**
+     * 默认值
+     */
+    private BigDecimal defaultAmount;
 
     /**
      * 起效时间, -1为一直有效, 包括这个时间(包头)
@@ -50,12 +61,29 @@ public class StrategyEntity extends AbstractBaseEntity {
         this.strategyType = strategyType;
     }
 
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    @Override
     public String getCondition() {
         return condition;
     }
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    public BigDecimal getDefaultAmount() {
+        return defaultAmount;
+    }
+
+    public void setDefaultAmount(BigDecimal defaultAmount) {
+        this.defaultAmount = defaultAmount;
     }
 
     public Long getEffectiveDate() {

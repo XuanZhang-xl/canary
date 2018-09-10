@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * Created by xzhang on 2018/9/5.
  */
 @Table(name = "t_canary_coupon")
-public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
+public class CouponEntity extends AbstractConditionEntity implements IStateEntity  {
 
     /**
      * 唯一编号
@@ -67,9 +67,9 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
     private Long effectiveDate;
 
     /**
-     * 有效天数
+     * 失效日期
      */
-    private Integer effectiveDays;
+    private Long expireDate;
 
     /**
      * 开始使用时间
@@ -121,6 +121,7 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
         this.boundOrderId = boundOrderId;
     }
 
+    @Override
     public String getCondition() {
         return condition;
     }
@@ -169,12 +170,12 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
         this.effectiveDate = effectiveDate;
     }
 
-    public Integer getEffectiveDays() {
-        return effectiveDays;
+    public Long getExpireDate() {
+        return expireDate;
     }
 
-    public void setEffectiveDays(Integer effectiveDays) {
-        this.effectiveDays = effectiveDays;
+    public void setExpireDate(Long expireDate) {
+        this.expireDate = expireDate;
     }
 
     public Long getApplyTime() {

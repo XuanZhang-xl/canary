@@ -25,4 +25,10 @@ public abstract class AbstractOrderEntity extends AbstractBaseEntity implements 
      * @return
      */
     public abstract String getUserCode();
+
+    /**
+     * 获取订单类型
+     * @return
+     */
+    public abstract String getOrderSubjectType();
 }

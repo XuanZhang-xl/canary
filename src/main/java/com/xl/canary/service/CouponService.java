@@ -25,11 +25,11 @@ public interface CouponService {
      * @param couponType     类型
      * @param weightAmount   金额/比例
      * @param effectiveDate  有效期开始
-     * @param effectiveDays  有效天数
+     * @param expireDate     失效日期
      * @return 优惠券
      * @throws CouponException 校验失败
      */
-    CouponEntity getInitCoupon (CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Integer effectiveDays) throws CouponException;
+    CouponEntity getInitCoupon (CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Long expireDate) throws CouponException;
 
 
     /**
@@ -51,9 +51,9 @@ public interface CouponService {
      * @param couponType     类型
      * @param weightAmount   数量
      * @param effectiveDate  有效期其实
-     * @param effectiveDays  有效天数
+     * @param expireDate     失效日期
      * @param condition      使用限制
      * @return  保存后的实体
      */
-    CouponEntity saveCoupon(CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Integer effectiveDays, String condition);
+    CouponEntity saveCoupon(CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Long expireDate, String condition);
 }

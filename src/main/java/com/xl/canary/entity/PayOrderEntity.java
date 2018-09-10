@@ -1,5 +1,7 @@
 package com.xl.canary.entity;
 
+import com.xl.canary.enums.SubjectEnum;
+
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -99,6 +101,11 @@ public class PayOrderEntity extends AbstractOrderEntity {
     @Override
     public String getUserCode() {
         return userCode;
+    }
+
+    @Override
+    public String getOrderSubjectType() {
+        return SubjectEnum.PAY_ORDER.name();
     }
 
     public void setUserCode(String userCode) {
