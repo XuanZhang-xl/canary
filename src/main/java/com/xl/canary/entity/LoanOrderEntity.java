@@ -134,8 +134,8 @@ public class LoanOrderEntity extends AbstractOrderEntity {
     }
 
     @Override
-    public String getOrderSubjectType() {
-        return SubjectEnum.LOAN_ORDER.name();
+    public SubjectEnum getOrderSubjectType() {
+        return SubjectEnum.LOAN_ORDER;
     }
 
     public void setUserCode(String userCode) {

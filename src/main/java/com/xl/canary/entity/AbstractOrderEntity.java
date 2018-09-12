@@ -1,5 +1,7 @@
 package com.xl.canary.entity;
 
+import com.xl.canary.enums.SubjectEnum;
+
 import java.math.BigDecimal;
 
 /**
@@ -30,5 +32,5 @@ public abstract class AbstractOrderEntity extends AbstractBaseEntity implements 
      * 获取订单类型
      * @return
      */
-    public abstract String getOrderSubjectType();
+    public abstract SubjectEnum getOrderSubjectType();
 }

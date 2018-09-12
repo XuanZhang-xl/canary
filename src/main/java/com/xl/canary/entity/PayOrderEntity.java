@@ -104,8 +104,8 @@ public class PayOrderEntity extends AbstractOrderEntity {
     }
 
     @Override
-    public String getOrderSubjectType() {
-        return SubjectEnum.PAY_ORDER.name();
+    public SubjectEnum getOrderSubjectType() {
+        return SubjectEnum.PAY_ORDER;
     }
 
     public void setUserCode(String userCode) {
