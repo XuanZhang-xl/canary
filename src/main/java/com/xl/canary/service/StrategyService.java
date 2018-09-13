@@ -1,5 +1,6 @@
 package com.xl.canary.service;
 
+import com.xl.canary.bean.dto.Situation;
 import com.xl.canary.entity.AbstractConditionEntity;
 import com.xl.canary.entity.StrategyEntity;
 
@@ -19,8 +20,8 @@ public interface StrategyService {
 
     /**
      * 获取当前可用的策略
-     * @param params       需要检查的参数
+     * @param situation       需要检查的参数
      * @return
      */
-    List<StrategyEntity> listStrategies (Map<String, Comparable> params);
+    List<StrategyEntity> listStrategies (Situation situation);
 }

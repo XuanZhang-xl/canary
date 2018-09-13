@@ -1,5 +1,6 @@
 package com.xl.canary.service.impl;
 
+import com.xl.canary.bean.dto.Situation;
 import com.xl.canary.entity.StrategyEntity;
 import com.xl.canary.enums.SubjectEnum;
 import com.xl.canary.handler.condition.ConditionHandler;
@@ -31,11 +32,11 @@ public class StrategyServiceImpl implements StrategyService {
     }
 
     @Override
-    public List<StrategyEntity> listStrategies (Map<String, Comparable> params) {
+    public List<StrategyEntity> listStrategies (Situation situation) {
         List<StrategyEntity> strategyEntities = strategyMapper.listAvailableStrategiesBySubject(SubjectEnum.CANARY.name(), System.currentTimeMillis());
         List<StrategyEntity> passedStrategyEntities = new ArrayList<StrategyEntity>();
         for (StrategyEntity strategyEntity : strategyEntities) {
-            Boolean isPass = conditionHandler.checkCondition(strategyEntity, params);
+            Boolean isPass = conditionHandler.checkCondition(strategyEntity, situation);
             if (isPass) {
                 passedStrategyEntities.add(strategyEntity);
             }

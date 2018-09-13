@@ -9,4 +9,9 @@ import java.util.HashMap;
  * Created by xzhang on 2018/9/12.
  */
 public class Situation extends HashMap<CouponConditionEnum, Comparable> {
+
+    public Situation collect(CouponConditionEnum key, Comparable value) {
+        this.put(key, value);
+        return this;
+    }
 }
