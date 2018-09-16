@@ -1,7 +1,7 @@
 package com.xl.canary.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xl.canary.bean.dto.CouponCondition;
+import com.xl.canary.bean.dto.ConditionDescription;
 import com.xl.canary.entity.*;
 import com.xl.canary.enums.*;
 import com.xl.canary.enums.coupon.CouponTypeEnum;
@@ -9,7 +9,6 @@ import com.xl.canary.exception.CouponException;
 import com.xl.canary.exception.InnerException;
 import com.xl.canary.mapper.CouponMapper;
 import com.xl.canary.service.*;
-import com.xl.canary.utils.EssentialConstance;
 import com.xl.canary.utils.IDWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +61,9 @@ public class CouponServiceImpl implements CouponService {
 
         // 使用限制
         List<ConditionEntity> couponConditionEntities = couponConditionService.listByCouponType(SubjectEnum.COUPON.name(), couponType.name());
-        List<CouponCondition> couponConditions = new ArrayList<CouponCondition>();
+        List<ConditionDescription> couponConditions = new ArrayList<ConditionDescription>();
         for (ConditionEntity conditionEntity : couponConditionEntities) {
-            couponConditions.add(new CouponCondition(conditionEntity.getCondition(), conditionEntity.getOperator(), conditionEntity.getTarget()));
+            couponConditions.add(new ConditionDescription(conditionEntity.getCondition(), conditionEntity.getOperator(), conditionEntity.getTarget()));
         }
         return this.saveCoupon(couponType, weightAmount, effectiveDate, expireDate, JSONObject.toJSONString(couponConditions));
     }

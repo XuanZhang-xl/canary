@@ -25,15 +25,14 @@ public class InOperatorHandler implements IArithmeticOperatorHandler {
     Logger logger = LoggerFactory.getLogger(InOperatorHandler.class);
 
     @Override
-    public Boolean operate(String target, Comparable param) throws CompareException {
-        if (StringUtils.isBlank(target) || param == null) {
+    public Boolean operate(String target, String param) throws CompareException {
+        if (StringUtils.isBlank(target) || StringUtils.isBlank(param)) {
             throw new CompareException("目标值[" + target + "] 或 参数[" + param + "] 不符合条件");
         }
-        String strParam = param.toString();
-        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(strParam);
+        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(param);
         if (paramIsNumber) {
             List<BigDecimal> targetList = JSON.parseArray(target, BigDecimal.class);
-            BigDecimal paramNumber = new BigDecimal(strParam);
+            BigDecimal paramNumber = new BigDecimal(param);
             for (BigDecimal t : targetList) {
                 if (paramNumber.compareTo(t) == 0) {
                     return true;
@@ -43,7 +42,7 @@ public class InOperatorHandler implements IArithmeticOperatorHandler {
         } else {
             List<String> targetList = JSON.parseArray(target, String.class);
             for (String str : targetList) {
-                if (strParam.equals(str)) {
+                if (param.equals(str)) {
                     return true;
                 }
             }

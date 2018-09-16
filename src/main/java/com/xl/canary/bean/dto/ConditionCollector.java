@@ -1,6 +1,9 @@
 package com.xl.canary.bean.dto;
 
+import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.AbstractOrderEntity;
+import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.SubjectEnum;
 import com.xl.canary.enums.coupon.CouponConditionEnum;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -17,22 +20,20 @@ import java.util.Map;
  * 每次输入都创建一个新实例
  * Created by xzhang on 2018/9/12.
  */
-@Component("conditionCollector")
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ConditionCollector {
 
     /**
      * 用于存储order, 条件来源
      */
-    private Map<SubjectEnum, AbstractOrderEntity> entities = new HashMap<SubjectEnum, AbstractOrderEntity>();
+    private List<Object> entities = new ArrayList<Object>();
 
-    /**
-     * 参数
-     */
-    private Situation situation = new Situation();
+    public ConditionCollector addSource (AbstractOrderEntity order) {
+        entities.add(order);
+        return this;
+    }
 
-    public ConditionCollector addOrder (AbstractOrderEntity order) {
-        entities.put(order.getOrderSubjectType(), order);
+    public ConditionCollector addSource (Schema schema) {
+        entities.add(schema);
         return this;
     }
 
@@ -41,31 +42,24 @@ public class ConditionCollector {
      * @return
      */
     public Situation getSituation() {
-        for (SubjectEnum subjectEnum : SubjectEnum.values()) {
-            AbstractOrderEntity order = entities.get(subjectEnum);
-            if (order == null) {
-                continue;
+        Situation situation = new Situation();
+        for (Object entity : entities) {
+            if (entity instanceof LoanOrderEntity) {
+                LoanOrderEntity order = (LoanOrderEntity) entity;
+                situation.collect(CouponConditionEnum.LOAN_AMOUNT, order.getEquivalentAmount());
+                situation.collect(CouponConditionEnum.LOAN_CURRENCY, order.getEquivalent());
             }
-            if (SubjectEnum.PAY_ORDER.equals(order.getOrderSubjectType())) {
-                situation.put(CouponConditionEnum.PAY_AMOUNT, order.getEquivalentAmount());
-                situation.put(CouponConditionEnum.PAY_CURRENCY, order.getEquivalent());
+            if (entity instanceof PayOrderEntity) {
+                PayOrderEntity order = (PayOrderEntity) entity;
+                situation.collect(CouponConditionEnum.PAY_AMOUNT, order.getEquivalentAmount());
+                situation.collect(CouponConditionEnum.PAY_CURRENCY, order.getEquivalent());
             }
-            if (SubjectEnum.LOAN_ORDER.equals(order.getOrderSubjectType())) {
-                situation.put(CouponConditionEnum.LOAN_AMOUNT, order.getEquivalentAmount());
-                situation.put(CouponConditionEnum.LOAN_CURRENCY, order.getEquivalent());
+            if (entity instanceof Schema) {
+                Schema schema = (Schema) entity;
+                // TODO
             }
         }
         return situation;
     }
 
-    /**
-     * 直接添加数据
-     * @param condition
-     * @param comparable
-     * @return
-     */
-    public Situation addSituation(CouponConditionEnum condition, Comparable comparable) {
-        situation.put(condition, comparable);
-        return situation;
-    }
 }

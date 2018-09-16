@@ -3,6 +3,8 @@ package com.xl.canary.service;
 import com.xl.canary.bean.dto.Situation;
 import com.xl.canary.entity.AbstractConditionEntity;
 import com.xl.canary.entity.StrategyEntity;
+import com.xl.canary.exception.CompareException;
+import com.xl.canary.exception.NotExistException;
 
 import java.util.List;
 import java.util.Map;
@@ -23,5 +25,5 @@ public interface StrategyService {
      * @param situation       需要检查的参数
      * @return
      */
-    List<StrategyEntity> listStrategies (Situation situation);
+    List<StrategyEntity> listStrategies (Situation situation) throws NotExistException, CompareException;
 }

@@ -23,20 +23,19 @@ public class GreatThanOrEqualOperatorHandler implements IArithmeticOperatorHandl
     Logger logger = LoggerFactory.getLogger(GreatThanOrEqualOperatorHandler.class);
 
     @Override
-    public Boolean operate(String target, Comparable param) throws CompareException {
-        if (StringUtils.isBlank(target) || param == null) {
+    public Boolean operate(String target, String param) throws CompareException {
+        if (StringUtils.isBlank(target) || StringUtils.isBlank(param)) {
             throw new CompareException("目标值[" + target + "] 或 参数[" + param + "] 不符合条件");
         }
-        String strParam = param.toString();
         boolean targetIsNumber = ArithmeticOperatorUtils.isNumber(target);
-        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(strParam);
+        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(param);
         if (targetIsNumber && paramIsNumber) {
             // 都是数字
             BigDecimal targetNumber = new BigDecimal(target);
-            BigDecimal paramNumber = new BigDecimal(strParam);
+            BigDecimal paramNumber = new BigDecimal(param);
             return targetNumber.compareTo(paramNumber) <= 0;
         } else {
-            throw new CompareException("目标值[" + target + "] 参数[" + strParam + "] 不可比较!");
+            throw new CompareException("目标值[" + target + "] 参数[" + param + "] 不可比较!");
         }
     }
 }

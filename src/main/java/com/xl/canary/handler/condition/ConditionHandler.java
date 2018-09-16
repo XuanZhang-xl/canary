@@ -1,7 +1,14 @@
 package com.xl.canary.handler.condition;
 
+import com.alibaba.fastjson.JSONObject;
+import com.xl.canary.bean.dto.ConditionDescription;
 import com.xl.canary.bean.dto.Situation;
 import com.xl.canary.entity.AbstractConditionEntity;
+import com.xl.canary.exception.CompareException;
+import com.xl.canary.exception.NotExistException;
+import com.xl.canary.handler.aoperator.ArithmeticOperatorHandlerFactory;
+import com.xl.canary.handler.aoperator.IArithmeticOperatorHandler;
+import com.xl.canary.utils.ConditionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,8 +36,22 @@ public class ConditionHandler {
      * @param situation          需要检查的参数
      * @return
      */
-    public Boolean checkCondition (AbstractConditionEntity conditionEntity, Situation situation) {
-        String condition = conditionEntity.getCondition();
+    public Boolean checkCondition (AbstractConditionEntity conditionEntity, Situation situation) throws NotExistException, CompareException {
+        String conditionStr = conditionEntity.getCondition();
+        // 替换目标限制中的占位符
+        conditionStr = ConditionUtils.replacePlaceholder(conditionStr, situation);
+        List<ConditionDescription> conditionDescriptions = JSONObject.parseArray(conditionStr, ConditionDescription.class);
+
+        for (ConditionDescription conditionDescription : conditionDescriptions) {
+            String currentParam = situation.get(conditionDescription.getCondition());
+            if (currentParam == null) {
+                throw new NotExistException("检查限制条件, 缺少参数 " + conditionDescription.getCondition().name());
+            }
+            IArithmeticOperatorHandler operatorHandler = ArithmeticOperatorHandlerFactory.instance(conditionDescription.getOperator());
+            if (!operatorHandler.operate(conditionDescription.getStandardParam(), conditionDescription.getCurrentParam())) {
+                return false;
+            }
+        }
         return true;
     }
 

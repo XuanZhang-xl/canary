@@ -3,6 +3,8 @@ package com.xl.canary.service.impl;
 import com.xl.canary.bean.dto.Situation;
 import com.xl.canary.entity.StrategyEntity;
 import com.xl.canary.enums.SubjectEnum;
+import com.xl.canary.exception.CompareException;
+import com.xl.canary.exception.NotExistException;
 import com.xl.canary.handler.condition.ConditionHandler;
 import com.xl.canary.mapper.StrategyMapper;
 import com.xl.canary.service.StrategyService;
@@ -32,7 +34,7 @@ public class StrategyServiceImpl implements StrategyService {
     }
 
     @Override
-    public List<StrategyEntity> listStrategies (Situation situation) {
+    public List<StrategyEntity> listStrategies (Situation situation) throws NotExistException, CompareException {
         List<StrategyEntity> strategyEntities = strategyMapper.listAvailableStrategiesBySubject(SubjectEnum.CANARY.name(), System.currentTimeMillis());
         List<StrategyEntity> passedStrategyEntities = new ArrayList<StrategyEntity>();
         for (StrategyEntity strategyEntity : strategyEntities) {

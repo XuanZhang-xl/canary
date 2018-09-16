@@ -3,9 +3,7 @@ package com.xl.canary.utils;
 import com.xl.canary.bean.dto.Situation;
 import com.xl.canary.enums.coupon.CouponConditionEnum;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,10 +25,10 @@ public class ConditionUtils {
     }
 
     public static String replacePlaceholder (String targetStr, Situation situation) {
-        for (Map.Entry<CouponConditionEnum, Pattern> entry : PATTERNS.entrySet()) {
-            Matcher matcher = entry.getValue().matcher(targetStr);
+        for (Map.Entry<CouponConditionEnum, String> entry : situation.entrySet()) {
+            Matcher matcher = PATTERNS.get(entry.getKey()).matcher(targetStr);
             if (matcher.find()) {
-                targetStr = matcher.replaceAll(situation.get(entry.getKey()).toString());
+                targetStr = matcher.replaceAll(situation.get(entry.getKey()));
             }
         }
         return targetStr;
@@ -43,7 +41,7 @@ public class ConditionUtils {
         for (Map.Entry<CouponConditionEnum, Pattern> entry : PATTERNS.entrySet()) {
             Matcher matcher = entry.getValue().matcher(testStr);
             if (matcher.find()) {
-                testStr = matcher.replaceAll(situation.get(entry.getKey()).toString());
+                testStr = matcher.replaceAll(situation.get(entry.getKey()));
             }
         }
         System.out.println(testStr);
