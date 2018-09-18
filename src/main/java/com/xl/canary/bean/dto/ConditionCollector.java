@@ -1,19 +1,13 @@
 package com.xl.canary.bean.dto;
 
 import com.xl.canary.bean.structure.Schema;
-import com.xl.canary.entity.AbstractOrderEntity;
+import com.xl.canary.entity.IOrderEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.PayOrderEntity;
-import com.xl.canary.enums.SubjectEnum;
 import com.xl.canary.enums.coupon.CouponConditionEnum;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 条件收集器
@@ -27,7 +21,7 @@ public class ConditionCollector {
      */
     private List<Object> entities = new ArrayList<Object>();
 
-    public ConditionCollector addSource (AbstractOrderEntity order) {
+    public ConditionCollector addSource (IOrderEntity order) {
         entities.add(order);
         return this;
     }

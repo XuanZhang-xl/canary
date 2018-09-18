@@ -9,8 +9,8 @@ import java.util.Map;
  * 还款订单schema计算器
  * created by XUAN on 2018/09/08
  */
-@Component("loanOrderSchemaCalculator")
-public class LoanOrderSchemaCalculator implements SchemaCalculator {
+@Component("loanOrderSchemaCalculatorImpl")
+public class LoanSchemaCalculatorImpl implements LoanSchemaCalculator {
 
 
     @Override

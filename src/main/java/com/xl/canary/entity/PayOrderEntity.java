@@ -1,5 +1,6 @@
 package com.xl.canary.entity;
 
+import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.SubjectEnum;
 
 import javax.persistence.Table;
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
  * created by XUAN on 2018/08/23
  */
 @Table(name = "t_canary_pay_order")
-public class PayOrderEntity extends AbstractOrderEntity {
+public class PayOrderEntity extends AbstractBaseEntity implements IOrderEntity, ISchemaEntity {
 
     /**
      * 还款订单号
@@ -210,5 +211,10 @@ public class PayOrderEntity extends AbstractOrderEntity {
     @Override
     public String getState() {
         return payOrderState;
+    }
+
+    @Override
+    public BillTypeEnum getBillType() {
+        return BillTypeEnum.PAY_ORDER;
     }
 }

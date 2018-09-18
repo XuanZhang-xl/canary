@@ -18,7 +18,7 @@ import java.util.List;
  * created by XUAN on 2018/08/18
  */
 @Table(name = "t_canary_loan_order")
-public class LoanOrderEntity extends AbstractOrderEntity {
+public class LoanOrderEntity extends AbstractBaseEntity implements IOrderEntity {
 
     /**
      * 订单号

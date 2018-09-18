@@ -1,5 +1,7 @@
 package com.xl.canary.entity;
 
+import com.xl.canary.enums.BillTypeEnum;
+
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -8,7 +10,7 @@ import java.math.BigDecimal;
  * created by XUAN on 2018/09/09
  */
 @Table(name = "t_canary_strategy")
-public class StrategyEntity extends AbstractConditionEntity {
+public class StrategyEntity extends AbstractConditionEntity implements ISchemaEntity {
 
     /**
      * 策略id
@@ -100,5 +102,10 @@ public class StrategyEntity extends AbstractConditionEntity {
 
     public void setExpireDate(Long expireDate) {
         this.expireDate = expireDate;
+    }
+
+    @Override
+    public BillTypeEnum getBillType() {
+        return BillTypeEnum.STRATEGY;
     }
 }

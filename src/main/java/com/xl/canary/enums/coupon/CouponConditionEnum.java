@@ -12,16 +12,6 @@ import java.util.List;
 public enum CouponConditionEnum {
 
     /**
-     * 规定可减免期数
-     */
-    INSTALMENT(),
-
-    /**
-     * 规定可减免元素
-     */
-    ELEMENT(),
-
-    /**
      * 规定可使用的场合
      * 见  UserActionEnum
      */
@@ -53,6 +43,16 @@ public enum CouponConditionEnum {
     ENTRY_FREQUENCY(),
 
     /**
+     * 限定用户
+     */
+    USER(),
+
+    /**
+     * 限定用于某个借款订单
+     */
+    LOAN_ORDER_ID,
+
+    /**
      * 特殊的限制条件, 这儿只是举个例子
      */
     SPECIAL(),
@@ -60,11 +60,6 @@ public enum CouponConditionEnum {
     // 继续补充
 
     ;
-
-    /**
-     * 影响减免金额大小的元素
-     */
-    public static final List<CouponConditionEnum> AMOUNT_RELATED = Arrays.asList(INSTALMENT, ELEMENT);
 
     /**
      * 影响优惠券能不能用的元素
