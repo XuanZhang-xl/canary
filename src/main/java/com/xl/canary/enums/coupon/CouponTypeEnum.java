@@ -29,7 +29,9 @@ public enum CouponTypeEnum {
     /**
      * 利息减免券
      */
-    INTEREST_COUPON("利息减免券[使用限制说明等]", CouponsRelationEnum.COMPATIBILITY, SubjectEnum.LOAN_ORDER, WeightEnum.PERCENT);
+    INTEREST_COUPON("利息减免券[使用限制说明等]", CouponsRelationEnum.COMPATIBILITY, SubjectEnum.LOAN_ORDER, WeightEnum.PERCENT),
+
+    ;
 
     /**
      * 描述

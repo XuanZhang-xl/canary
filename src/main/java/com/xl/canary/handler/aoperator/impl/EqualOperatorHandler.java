@@ -23,20 +23,19 @@ public class EqualOperatorHandler implements IArithmeticOperatorHandler {
     Logger logger = LoggerFactory.getLogger(EqualOperatorHandler.class);
 
     @Override
-    public Boolean operate(String target, Comparable param) throws CompareException {
-        if (StringUtils.isBlank(target) || param == null) {
+    public Boolean operate(String target, String param) throws CompareException {
+        if (StringUtils.isBlank(target) || StringUtils.isBlank(param)) {
             throw new CompareException("目标值[" + target + "] 或 参数[" + param + "] 不符合条件");
         }
-        String strParam = param.toString();
         boolean targetIsNumber = ArithmeticOperatorUtils.isNumber(target);
-        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(strParam);
+        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(param);
         if (targetIsNumber && paramIsNumber) {
             // 都是数字
             BigDecimal targetNumber = new BigDecimal(target);
-            BigDecimal paramNumber = new BigDecimal(strParam);
+            BigDecimal paramNumber = new BigDecimal(param);
             return targetNumber.compareTo(paramNumber) == 0;
         } else if (!(targetIsNumber || paramIsNumber)) {
-            return target.trim().equals(strParam.trim());
+            return target.trim().equals(param.trim());
         } else {
             logger.warn("目标值[{}], 参数[{}], 校验不通过", target, param);
             return false;

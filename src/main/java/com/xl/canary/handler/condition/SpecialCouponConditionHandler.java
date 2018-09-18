@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class SpecialCouponConditionHandler implements ICouponConditionHandler{
 
     @Override
-    public Boolean checkCondition(String target, Comparable param, ArithmeticOperatorEnum operator) throws BaseException {
+    public Boolean checkCondition(String target, String param, ArithmeticOperatorEnum operator) throws BaseException {
         return true;
     }
 }

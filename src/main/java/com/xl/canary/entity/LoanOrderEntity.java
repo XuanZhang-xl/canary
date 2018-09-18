@@ -3,6 +3,7 @@ package com.xl.canary.entity;
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.enums.CurrencyEnum;
 import com.xl.canary.enums.StateEnum;
+import com.xl.canary.enums.SubjectEnum;
 import com.xl.canary.enums.loan.LoanOrderTypeEnum;
 import com.xl.canary.enums.TimeUnitEnum;
 import com.xl.canary.bean.dto.Fee;
@@ -17,7 +18,7 @@ import java.util.List;
  * created by XUAN on 2018/08/18
  */
 @Table(name = "t_canary_loan_order")
-public class LoanOrderEntity extends AbstractOrderEntity {
+public class LoanOrderEntity extends AbstractBaseEntity implements IOrderEntity {
 
     /**
      * 订单号
@@ -130,6 +131,11 @@ public class LoanOrderEntity extends AbstractOrderEntity {
     @Override
     public String getUserCode() {
         return userCode;
+    }
+
+    @Override
+    public SubjectEnum getOrderSubjectType() {
+        return SubjectEnum.LOAN_ORDER;
     }
 
     public void setUserCode(String userCode) {

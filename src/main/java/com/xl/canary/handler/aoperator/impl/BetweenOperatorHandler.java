@@ -31,8 +31,8 @@ public class BetweenOperatorHandler implements IArithmeticOperatorHandler {
     Logger logger = LoggerFactory.getLogger(BetweenOperatorHandler.class);
 
     @Override
-    public Boolean operate(String target, Comparable param) throws CompareException {
-        if (StringUtils.isBlank(target) || param == null) {
+    public Boolean operate(String target, String param) throws CompareException {
+        if (StringUtils.isBlank(target) || StringUtils.isBlank(param)) {
             throw new CompareException("目标值[" + target + "] 或 参数[" + param + "] 不符合条件");
         }
 
@@ -56,14 +56,14 @@ public class BetweenOperatorHandler implements IArithmeticOperatorHandler {
         } else {
             throw new CompareException("目标值[" + target + "] 错误, 必须以 ']' 或 ')' 结束");
         }
-        String strParam = param.toString();
-        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(strParam);
+
+        boolean paramIsNumber = ArithmeticOperatorUtils.isNumber(param);
         if (paramIsNumber) {
             List<BigDecimal> targetList = JSON.parseArray(target, BigDecimal.class);
             if (targetList == null || targetList.size() != 2) {
                 throw new CompareException("BETWEEN 操作符目标参数应有且仅有两个参数! 当前参数: " + target);
             }
-            BigDecimal paramNumber = new BigDecimal(strParam);
+            BigDecimal paramNumber = new BigDecimal(param);
             BigDecimal min = null;
             BigDecimal max = null;
             for (BigDecimal number : targetList) {

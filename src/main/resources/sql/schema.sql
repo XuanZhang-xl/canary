@@ -147,7 +147,7 @@ CREATE TABLE t_canary_coupon (
   `apply_amount` DECIMAL(18,8) DEFAULT 0 COMMENT '可优惠金额, 绑定订单后有值',
   `entry_amount` DECIMAL(18,8) DEFAULT 0  COMMENT '已入账金额, 绑定订单后有值',
   `effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期',
-  `effective_days` INT DEFAULT 0 COMMENT '有效天数',
+  `expire_date` BIGINT DEFAULT -1 COMMENT '失效日期',
   `apply_time` bigint(20) DEFAULT -1 COMMENT '使用时间',
   `end_time` bigint(20) DEFAULT -1 COMMENT '入账结束时间',
   `remark` text COMMENT '备注',
@@ -164,16 +164,18 @@ CREATE TABLE t_canary_coupon (
 /***************************策略表 *************************/
 DROP TABLE IF EXISTS t_canary_strategy;
 CREATE TABLE t_canary_strategy (
-`id` int(10) NOT NULL AUTO_INCREMENT,
-`strategy_id` varchar(64) NOT NULL COMMENT '策略号',
-`strategy_type` varchar(64) NOT NULL COMMENT '策略类型',
-`condition` JSON COMMENT '使用特别限制',
-`effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期, 包括头',
-`expire_date` BIGINT DEFAULT -1 COMMENT '失效日期, 不包括尾',
-`remark` text COMMENT '备注',
-`create_time` bigint(20) NOT NULL,
-`update_time` bigint(20) NOT NULL,
-`is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `strategy_id` varchar(64) NOT NULL COMMENT '策略号',
+  `strategy_type` varchar(64) NOT NULL COMMENT '策略类型',
+  `subject` varchar(64) NOT NULL COMMENT '策略应用主体',
+  `condition` JSON COMMENT '使用特别限制',
+  `default_amount` DECIMAL(18,8) NOT NULL COMMENT '策略的默认值, 根据类型可能时百分比或固定量',
+  `effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期, 包括头',
+  `expire_date` BIGINT DEFAULT -1 COMMENT '失效日期, 不包括尾',
+  `remark` text COMMENT '备注',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
 PRIMARY KEY (`id`),
 UNIQUE INDEX `index_strategy_id` (`strategy_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';

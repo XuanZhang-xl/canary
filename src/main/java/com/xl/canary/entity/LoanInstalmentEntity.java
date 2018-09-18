@@ -1,6 +1,8 @@
 package com.xl.canary.entity;
 
 
+import com.xl.canary.enums.BillTypeEnum;
+
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -9,7 +11,7 @@ import java.math.BigDecimal;
  * created by XUAN on 2018/08/06
  */
 @Table(name = "t_canary_instalment")
-public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEntity {
+public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEntity, ISchemaEntity {
 
     /**
      * 分期号
@@ -253,5 +255,10 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
 
     public void setTimeZone(Integer timeZone) {
         this.timeZone = timeZone;
+    }
+
+    @Override
+    public BillTypeEnum getBillType() {
+        return BillTypeEnum.LOAN_ORDER;
     }
 }

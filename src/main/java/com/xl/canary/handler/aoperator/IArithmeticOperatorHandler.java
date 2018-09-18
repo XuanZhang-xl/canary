@@ -14,5 +14,5 @@ public interface IArithmeticOperatorHandler {
      * @param param   当前实际值
      * @return        是否通过校验
      */
-    Boolean operate(String target, Comparable param) throws CompareException;
+    Boolean operate(String target, String param) throws CompareException;
 }

@@ -1,5 +1,7 @@
 package com.xl.canary.entity;
 
+import com.xl.canary.enums.BillTypeEnum;
+
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -8,7 +10,12 @@ import java.math.BigDecimal;
  * Created by xzhang on 2018/9/5.
  */
 @Table(name = "t_canary_coupon")
-public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
+public class CouponEntity extends AbstractConditionEntity implements IStateEntity, ISchemaEntity {
+
+    /**
+     * 批量优惠券编号, 有多张优惠券组成, 一个couponBatchId下的所有优惠券合成一个优惠券schema
+     */
+    private String couponBatchId;
 
     /**
      * 唯一编号
@@ -26,14 +33,27 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
     private String couponState;
 
     /**
-     * 用户名
+     * 用户名, 有值表示已绑定用户, 入账完成必定有值
+     * condition中体现
      */
     private String userCode;
 
     /**
-     * 绑定用户编号
+     * 有值表示已绑定订单, 不事先绑定, 入账完成也不一定有值, 因为可能入了多个订单
+     * TODO: 绑定后, 逻辑似乎有点复杂
+     * condition中体现
      */
     private String boundOrderId;
+
+    /**
+     * 辅助字段, 用于计算schema, 决定优惠某一期
+     */
+    private Integer instalment;
+
+    /**
+     * 辅助字段, 用于计算schema, 决定优惠某一元素
+     */
+    private String element;
 
     /**
      * 使用限制, json字段, CouponConditionEntity的缩小版本
@@ -62,14 +82,20 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
     private BigDecimal entryAmount;
 
     /**
-     * 生效起始时间, 冗余, 会在condition 中体现
+     * 生效起始时间, 本来这两限制可以加在condition 中的
+     * 但是由于这两参数经常用于显示, 且所有优惠券都会有, 而写在condition中不方便取, 所以另立字段
      */
     private Long effectiveDate;
 
     /**
-     * 有效天数
+     * 失效日期
      */
-    private Integer effectiveDays;
+    private Long expireDate;
+
+    /**
+     * 已入账的次数,
+     */
+    private Integer enteredFrequency;
 
     /**
      * 开始使用时间
@@ -121,6 +147,7 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
         this.boundOrderId = boundOrderId;
     }
 
+    @Override
     public String getCondition() {
         return condition;
     }
@@ -169,12 +196,12 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
         this.effectiveDate = effectiveDate;
     }
 
-    public Integer getEffectiveDays() {
-        return effectiveDays;
+    public Long getExpireDate() {
+        return expireDate;
     }
 
-    public void setEffectiveDays(Integer effectiveDays) {
-        this.effectiveDays = effectiveDays;
+    public void setExpireDate(Long expireDate) {
+        this.expireDate = expireDate;
     }
 
     public Long getApplyTime() {
@@ -193,6 +220,38 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
         this.endTime = endTime;
     }
 
+    public String getCouponBatchId() {
+        return couponBatchId;
+    }
+
+    public void setCouponBatchId(String couponBatchId) {
+        this.couponBatchId = couponBatchId;
+    }
+
+    public Integer getInstalment() {
+        return instalment;
+    }
+
+    public void setInstalment(Integer instalment) {
+        this.instalment = instalment;
+    }
+
+    public String getElement() {
+        return element;
+    }
+
+    public void setElement(String element) {
+        this.element = element;
+    }
+
+    public Integer getEnteredFrequency() {
+        return enteredFrequency;
+    }
+
+    public void setEnteredFrequency(Integer enteredFrequency) {
+        this.enteredFrequency = enteredFrequency;
+    }
+
     @Override
     public String getUniqueId() {
         return couponId;
@@ -201,5 +260,10 @@ public class CouponEntity extends AbstractBaseEntity implements IStateEntity  {
     @Override
     public String getState() {
         return couponState;
+    }
+
+    @Override
+    public BillTypeEnum getBillType() {
+        return BillTypeEnum.COUPON;
     }
 }

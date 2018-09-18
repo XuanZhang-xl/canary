@@ -1,7 +1,7 @@
 package com.xl.canary.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xl.canary.bean.dto.CouponCondition;
+import com.xl.canary.bean.dto.ConditionDescription;
 import com.xl.canary.entity.*;
 import com.xl.canary.enums.*;
 import com.xl.canary.enums.coupon.CouponTypeEnum;
@@ -9,7 +9,6 @@ import com.xl.canary.exception.CouponException;
 import com.xl.canary.exception.InnerException;
 import com.xl.canary.mapper.CouponMapper;
 import com.xl.canary.service.*;
-import com.xl.canary.utils.EssentialConstance;
 import com.xl.canary.utils.IDWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,23 +50,22 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public CouponEntity getInitCoupon(CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Integer effectiveDays) throws CouponException {
+    public CouponEntity getInitCoupon(CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Long expireDate) throws CouponException {
         if (weightAmount == null || weightAmount.compareTo(BigDecimal.ZERO) < 0 || weightAmount.compareTo(BigDecimal.ONE) > 0) {
             throw new CouponException("不合法的优惠比例: " + (weightAmount == null ? "优惠比例为空" : weightAmount.toPlainString()));
         }
         long now = System.currentTimeMillis();
-        long effectiveDateEnd = effectiveDate + effectiveDays * EssentialConstance.DAY_MILLISECOND;
-        if (effectiveDateEnd < now) {
-            throw new CouponException("不合法的优惠结束时间: " + effectiveDateEnd);
+        if (expireDate < now) {
+            throw new CouponException("不合法的优惠结束时间: " + expireDate);
         }
 
         // 使用限制
         List<ConditionEntity> couponConditionEntities = couponConditionService.listByCouponType(SubjectEnum.COUPON.name(), couponType.name());
-        List<CouponCondition> couponConditions = new ArrayList<CouponCondition>();
+        List<ConditionDescription> couponConditions = new ArrayList<ConditionDescription>();
         for (ConditionEntity conditionEntity : couponConditionEntities) {
-            couponConditions.add(new CouponCondition(conditionEntity.getCondition(), conditionEntity.getOperator(), conditionEntity.getTarget()));
+            couponConditions.add(new ConditionDescription(conditionEntity.getCondition(), conditionEntity.getOperator(), conditionEntity.getTarget()));
         }
-        return this.saveCoupon(couponType, weightAmount, effectiveDate, effectiveDays, JSONObject.toJSONString(couponConditions));
+        return this.saveCoupon(couponType, weightAmount, effectiveDate, expireDate, JSONObject.toJSONString(couponConditions));
     }
 
     @Override
@@ -128,14 +126,14 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CouponEntity saveCoupon(CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Integer effectiveDays, String condition) {
+    public CouponEntity saveCoupon(CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Long expireDate, String condition) {
         CouponEntity couponEntity = new CouponEntity();
         couponEntity.setCouponId(String.valueOf(idWorker.nextId()));
         couponEntity.setCouponType(CouponTypeEnum.INTEREST_COUPON.name());
         couponEntity.setCouponState(StateEnum.PENDING.name());
         couponEntity.setEquivalent(equivalent);
         couponEntity.setEffectiveDate(effectiveDate);
-        couponEntity.setEffectiveDays(effectiveDays);
+        couponEntity.setExpireDate(expireDate);
         couponEntity.setDefaultAmount(weightAmount);
         couponEntity.setCondition(condition);
         couponMapper.insertSelective(couponEntity);
