@@ -1,6 +1,9 @@
 package com.xl.canary.engine.calculate;
 
 import com.xl.canary.bean.structure.Schema;
+import com.xl.canary.entity.ISchemaEntity;
+
+import java.util.List;
 
 /**
  * 基础计算器
@@ -10,8 +13,8 @@ public interface SchemaCalculator {
 
     /**
      * 获取订单的原始账单, 下单时的账单, 一分未还的账单
-     * @param orderId   订单号
+     * @param schemaEntities   订单号
      * @return
      */
-    Schema getOriginalSchema(String orderId);
+    Schema getOriginalSchema(List<ISchemaEntity> schemaEntities);
 }
