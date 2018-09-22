@@ -2,7 +2,7 @@ package com.xl.canary.handler.condition;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.bean.dto.ConditionDescription;
-import com.xl.canary.bean.dto.Situation;
+import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.entity.AbstractConditionEntity;
 import com.xl.canary.exception.CompareException;
 import com.xl.canary.exception.NotExistException;

@@ -18,5 +18,5 @@ public interface CouponCalculator extends SchemaCalculator {
      * @param payOrder         还款订单, 用于检查条件
      * @return   schema
      */
-    Schema getCurrentSchema(List<ISchemaEntity> schemaEntities, PayOrderEntity payOrder);
+    Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, PayOrderEntity payOrder);
 }

@@ -1,6 +1,6 @@
 package com.xl.canary.utils;
 
-import com.xl.canary.bean.dto.Situation;
+import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.enums.coupon.CouponConditionEnum;
 
 import java.util.HashMap;

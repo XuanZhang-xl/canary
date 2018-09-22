@@ -18,7 +18,7 @@ public interface LoanSchemaCalculator extends SchemaCalculator {
      * @param date   用户时间, 一般都为当前时间
      * @return
      */
-    Schema getCurrentSchema(Long date, List<ISchemaEntity> schemaEntities);
+    Schema getCurrentSchema(Long date, List<? extends ISchemaEntity> schemaEntities);
 
     /**
      * 获取订单的计划账单, 当前时间到订单结束如果不提前还款, 在还款日还清的账单
@@ -26,13 +26,13 @@ public interface LoanSchemaCalculator extends SchemaCalculator {
      * @param date   用户时间, 一般都为当前时间
      * @return
      */
-    Schema getPlanSchema(Long date, List<ISchemaEntity> schemaEntities);
+    Schema getPlanSchema(Long date, List<? extends ISchemaEntity> schemaEntities);
 
     /**
      * 还款日
      * @param schemaEntities   借款订单
      * @return
      */
-    Map<Integer, Long> repaymentDates(List<ISchemaEntity> schemaEntities);
+    Map<Integer, Long> repaymentDates(List<? extends ISchemaEntity> schemaEntities);
 
 }

@@ -2,6 +2,7 @@ package com.xl.canary.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.xl.canary.bean.condition.LoanOrderCondition;
+import com.xl.canary.engine.calculate.siuation.SituationSource;
 import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.mapper.LoanOrderMapper;
@@ -32,6 +33,7 @@ public class LoanOrderServiceImpl implements LoanOrderService {
      * @return
      */
     @Override
+    @SituationSource
     @Transactional(rollbackFor = Exception.class)
     public LoanOrderEntity save(LoanOrderEntity loanOrder) {
         loanOrderMapper.insert(loanOrder);

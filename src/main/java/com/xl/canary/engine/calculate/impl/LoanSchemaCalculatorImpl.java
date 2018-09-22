@@ -17,22 +17,22 @@ public class LoanSchemaCalculatorImpl implements LoanSchemaCalculator {
 
 
     @Override
-    public Schema getCurrentSchema(Long date, List<ISchemaEntity> schemaEntities) {
+    public Schema getCurrentSchema(Long date, List<? extends ISchemaEntity> schemaEntities) {
         return null;
     }
 
     @Override
-    public Schema getPlanSchema(Long date, List<ISchemaEntity> schemaEntities) {
+    public Schema getPlanSchema(Long date, List<? extends ISchemaEntity> schemaEntities) {
         return null;
     }
 
     @Override
-    public Map<Integer, Long> repaymentDates(List<ISchemaEntity> schemaEntities) {
+    public Map<Integer, Long> repaymentDates(List<? extends ISchemaEntity> schemaEntities) {
         return null;
     }
 
     @Override
-    public Schema getOriginalSchema(List<ISchemaEntity> schemaEntities) {
+    public Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities) {
         return null;
     }
 }

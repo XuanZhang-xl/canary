@@ -16,12 +16,12 @@ import java.util.List;
 public class CouponCalculatorImpl implements CouponCalculator {
 
     @Override
-    public Schema getCurrentSchema(List<ISchemaEntity> schemaEntities, PayOrderEntity payOrder) {
+    public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, PayOrderEntity payOrder) {
         return null;
     }
 
     @Override
-    public Schema getOriginalSchema(List<ISchemaEntity> schemaEntities) {
+    public Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities) {
         return null;
     }
 }
