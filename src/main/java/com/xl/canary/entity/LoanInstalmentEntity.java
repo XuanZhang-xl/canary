@@ -258,7 +258,7 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
     }
 
     @Override
-    public BillTypeEnum getBillType() {
+    public BillTypeEnum getSchemaType() {
         return BillTypeEnum.LOAN_ORDER;
     }
 }

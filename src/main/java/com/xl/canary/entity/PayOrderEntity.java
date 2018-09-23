@@ -214,7 +214,7 @@ public class PayOrderEntity extends AbstractBaseEntity implements IOrderEntity, 
     }
 
     @Override
-    public BillTypeEnum getBillType() {
+    public BillTypeEnum getSchemaType() {
         return BillTypeEnum.PAY_ORDER;
     }
 }

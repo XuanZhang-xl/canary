@@ -2,11 +2,14 @@ package com.xl.canary.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.bean.dto.ConditionDescription;
+import com.xl.canary.engine.calculate.siuation.Situation;
+import com.xl.canary.engine.calculate.siuation.SituationHolder;
 import com.xl.canary.entity.*;
 import com.xl.canary.enums.*;
 import com.xl.canary.enums.coupon.CouponTypeEnum;
 import com.xl.canary.exception.CouponException;
 import com.xl.canary.exception.InnerException;
+import com.xl.canary.handler.condition.ConditionHandler;
 import com.xl.canary.mapper.CouponMapper;
 import com.xl.canary.service.*;
 import com.xl.canary.utils.IDWorker;
@@ -37,6 +40,9 @@ public class CouponServiceImpl implements CouponService {
 
     @Autowired
     private LoanOrderService loanOrderService;
+
+    @Autowired
+    private ConditionHandler conditionHandler;
 
     @Autowired
     private IDWorker idWorker;
@@ -138,5 +144,11 @@ public class CouponServiceImpl implements CouponService {
         couponEntity.setCondition(condition);
         couponMapper.insertSelective(couponEntity);
         return couponEntity;
+    }
+
+    @Override
+    public Boolean checkCoupons(List<CouponEntity> couponEntities) {
+        Situation situation = SituationHolder.getSituation();
+        return conditionHandler.checkConditions(couponEntities, situation);
     }
 }

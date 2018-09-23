@@ -2,6 +2,7 @@ package com.xl.canary.handler.condition;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.bean.dto.ConditionDescription;
+import com.xl.canary.controller.LoanOrderController;
 import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.entity.AbstractConditionEntity;
 import com.xl.canary.exception.CompareException;
@@ -9,6 +10,8 @@ import com.xl.canary.exception.NotExistException;
 import com.xl.canary.handler.aoperator.ArithmeticOperatorHandlerFactory;
 import com.xl.canary.handler.aoperator.IArithmeticOperatorHandler;
 import com.xl.canary.utils.ConditionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,6 +22,9 @@ import java.util.List;
  */
 @Component("conditionHandler")
 public class ConditionHandler {
+
+    Logger logger = LoggerFactory.getLogger(ConditionHandler.class);
+
 
     /**
      * 检查是否通过
@@ -49,6 +55,8 @@ public class ConditionHandler {
             }
             IArithmeticOperatorHandler operatorHandler = ArithmeticOperatorHandlerFactory.instance(conditionDescription.getOperator());
             if (!operatorHandler.operate(conditionDescription.getStandardParam(), conditionDescription.getCurrentParam())) {
+                // TODO:优惠券id?
+                logger.error("条件[{}], 当前值[{}], 目标值[{}], 操作符[{}]", conditionDescription.getCondition().name(), conditionDescription.getCurrentParam(), conditionDescription.getStandardParam(), conditionDescription.getOperator());
                 return false;
             }
         }

@@ -326,7 +326,7 @@ public class LoanOrderEntity extends AbstractBaseEntity implements IOrderEntity,
     }
 
     @Override
-    public BillTypeEnum getBillType() {
+    public BillTypeEnum getSchemaType() {
         return BillTypeEnum.LOAN_ORDER;
     }
 }

@@ -1,7 +1,7 @@
 package com.xl.canary.bean.structure;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xl.canary.enums.SchemaTypeEnum;
+import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.pay.PayTypeEnum;
 import com.xl.canary.utils.TimeUtils;
 
@@ -13,6 +13,11 @@ import java.util.Set;
 
 /**
  * 账单基础结构
+ * 销账目标, 值都为正
+ * 销账来源, 值都为负
+ *
+ * 一个schema的值可能有正有负, 比如策略和优惠券
+ *
  * Created by xzhang on 2018/9/6.
  */
 public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable {
@@ -22,7 +27,7 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
     /**
      * schema的类型
      */
-    private SchemaTypeEnum schemaType;
+    private BillTypeEnum schemaType;
 
     /**
      * 获取当前用户还款时的还款类型
@@ -128,5 +133,13 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
     @Override
     public int hashCode() {
         return this.schemaMap.hashCode();
+    }
+
+    public BillTypeEnum getSchemaType() {
+        return schemaType;
+    }
+
+    public void setSchemaType(BillTypeEnum schemaType) {
+        this.schemaType = schemaType;
     }
 }

@@ -105,7 +105,7 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
     }
 
     @Override
-    public BillTypeEnum getBillType() {
+    public BillTypeEnum getSchemaType() {
         return BillTypeEnum.STRATEGY;
     }
 }
