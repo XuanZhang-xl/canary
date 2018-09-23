@@ -1,6 +1,6 @@
 package com.xl.canary.entity;
 
-import com.xl.canary.enums.BillTypeEnum;
+import com.xl.canary.enums.SchemaTypeEnum;
 
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -263,7 +263,7 @@ public class CouponEntity extends AbstractConditionEntity implements IStateEntit
     }
 
     @Override
-    public BillTypeEnum getSchemaType() {
-        return BillTypeEnum.COUPON;
+    public SchemaTypeEnum getSchemaType() {
+        return SchemaTypeEnum.COUPON;
     }
 }

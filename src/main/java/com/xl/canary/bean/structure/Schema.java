@@ -1,7 +1,7 @@
 package com.xl.canary.bean.structure;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xl.canary.enums.BillTypeEnum;
+import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.pay.PayTypeEnum;
 import com.xl.canary.utils.TimeUtils;
 
@@ -27,7 +27,7 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
     /**
      * schema的类型
      */
-    private BillTypeEnum schemaType;
+    private SchemaTypeEnum schemaType;
 
     /**
      * 获取当前用户还款时的还款类型
@@ -45,14 +45,6 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
             }
         }
         return PayTypeEnum.REPAY_IN_ADVANCE;
-    }
-
-    public Schema() {
-        this.schemaMap = new HashMap<Integer, Instalment>();
-    }
-
-    public Schema(Map<Integer, Instalment> schemaMap) {
-        this.schemaMap = schemaMap;
     }
 
     @Override
@@ -135,11 +127,24 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
         return this.schemaMap.hashCode();
     }
 
-    public BillTypeEnum getSchemaType() {
+    public SchemaTypeEnum getSchemaType() {
         return schemaType;
     }
 
-    public void setSchemaType(BillTypeEnum schemaType) {
+    public void setSchemaType(SchemaTypeEnum schemaType) {
         this.schemaType = schemaType;
+    }
+
+    public Schema() {
+        this.schemaMap = new HashMap<Integer, Instalment>();
+    }
+
+    public Schema(Map<Integer, Instalment> schemaMap) {
+        this.schemaMap = schemaMap;
+    }
+
+    public Schema(SchemaTypeEnum writeOffSource) {
+        this.schemaType = writeOffSource;
+        this.schemaMap = new HashMap<Integer, Instalment>();
     }
 }

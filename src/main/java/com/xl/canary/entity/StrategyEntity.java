@@ -1,6 +1,6 @@
 package com.xl.canary.entity;
 
-import com.xl.canary.enums.BillTypeEnum;
+import com.xl.canary.enums.SchemaTypeEnum;
 
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -105,7 +105,7 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
     }
 
     @Override
-    public BillTypeEnum getSchemaType() {
-        return BillTypeEnum.STRATEGY;
+    public SchemaTypeEnum getSchemaType() {
+        return SchemaTypeEnum.STRATEGY;
     }
 }

@@ -3,9 +3,7 @@ package com.xl.canary.service;
 import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.CouponEntity;
 import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.exception.CompareException;
-import com.xl.canary.exception.CouponException;
-import com.xl.canary.exception.NotExistException;
+import com.xl.canary.exception.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,7 +30,7 @@ public interface BillService {
      * @param couponEntities    优惠券
      * @return
      */
-    Schema payOffLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws NotExistException, CompareException, CouponException;
+    Schema payOffLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException;
 
     /**
      * 部分还款的schema

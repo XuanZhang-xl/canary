@@ -2,6 +2,7 @@ package com.xl.canary.enums.pay;
 
 /**
  * 销帐类型
+ * 与 SchemaTypeEnum 合并?
  * created by XUAN on 2018/09/02
  */
 public enum WriteOffTypeEnum {

@@ -2,6 +2,7 @@ package com.xl.canary.bean.structure;
 
 import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -87,5 +88,12 @@ public class Element implements Cloneable, Serializable {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public Element clone() {
+        Element element = new Element();
+        BeanUtils.copyProperties(this, element);
+        return element;
     }
 }

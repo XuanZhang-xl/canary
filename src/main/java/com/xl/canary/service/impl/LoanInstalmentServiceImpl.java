@@ -14,6 +14,7 @@ import com.xl.canary.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -98,5 +99,13 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
             }
         }
         return loanInstalmentEntities;
+    }
+
+    @Override
+    public List<LoanInstalmentEntity> listInstalments(String orderId) {
+        //TODO: Example是这样用吗?
+        Example example = new Example(LoanInstalmentEntity.class);
+        example.createCriteria().andEqualTo("orderId", orderId);
+        return loanInstalmentMapper.selectByExample(example);
     }
 }

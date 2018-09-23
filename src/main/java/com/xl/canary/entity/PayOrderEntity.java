@@ -1,6 +1,6 @@
 package com.xl.canary.entity;
 
-import com.xl.canary.enums.BillTypeEnum;
+import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.SubjectEnum;
 
 import javax.persistence.Table;
@@ -214,7 +214,7 @@ public class PayOrderEntity extends AbstractBaseEntity implements IOrderEntity, 
     }
 
     @Override
-    public BillTypeEnum getSchemaType() {
-        return BillTypeEnum.PAY_ORDER;
+    public SchemaTypeEnum getSchemaType() {
+        return SchemaTypeEnum.REPAY;
     }
 }

@@ -30,5 +30,24 @@ public enum  SchemaTypeEnum {
      * 策略
      */
     STRATEGY(),
+
+    /**
+     * 还款
+     */
+    REPAY(),
+
+
+    /*********************************WriteOffTypeEnum, 上下两种类虽不同, 却是冲突的, 暂时合并, 以后有处理不了的情况再改*******************************/
+
+    /**
+     * 销账来源
+     */
+    WRITE_OFF_SOURCE(),
+
+    /**
+     * 销账目标
+     */
+    WRITE_OFF_DESTINATION(),
+
     ;
 }

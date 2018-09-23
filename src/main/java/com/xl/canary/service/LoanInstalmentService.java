@@ -17,9 +17,16 @@ public interface LoanInstalmentService {
     void saveLoanInstalments(List<LoanInstalmentEntity> loanInstalments);
 
     /**
-     * 根据订单获得分期
+     * 根据订单计算分期
      * @param loanOrder
      * @return
      */
     List<LoanInstalmentEntity> generateInstalments(LoanOrderEntity loanOrder);
+
+    /**
+     * 根据借款订单号查询分期
+     * @param orderId
+     * @return
+     */
+    List<LoanInstalmentEntity> listInstalments(String orderId);
 }
