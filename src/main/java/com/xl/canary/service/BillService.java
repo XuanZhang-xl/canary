@@ -50,6 +50,4 @@ public interface BillService {
      * @return
      */
     Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, BigDecimal payAmount);
-
-
 }

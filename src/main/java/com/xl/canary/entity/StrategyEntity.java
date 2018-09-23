@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 
 /**
  * 策略entity
+ * 单独列策略的原因:
+ * 1. 策略是可以一直存在的, 可以一直用于入账, 而优惠券是有额度的
+ * 2. 策略是无状态的, 或者说只有有效无效两个状态, 是系统级的,  而优惠券是需要分配的, 给某个人或某订单
  * created by XUAN on 2018/09/09
  */
 @Table(name = "t_canary_strategy")
@@ -23,14 +26,25 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
     private String strategyType;
 
     /**
-     * 策略应用主体
+     * 辅助字段, 用于计算schema, 决定优惠某一期, 空表示都有效
      */
-    private String subject;
+    private Integer instalment;
+
+    /**
+     * 辅助字段, 用于计算schema, 决定优惠某一元素, 空表示都有效
+     */
+    private String element;
 
     /**
      * 限制条件, 可能时List
+     * 包括了subject的限制
      */
     private String condition;
+
+    /**
+     * 一般等价物
+     */
+    private String equivalent;
 
     /**
      * 默认值
@@ -61,14 +75,6 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
 
     public void setStrategyType(String strategyType) {
         this.strategyType = strategyType;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
     }
 
     @Override
@@ -102,6 +108,30 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
 
     public void setExpireDate(Long expireDate) {
         this.expireDate = expireDate;
+    }
+
+    public Integer getInstalment() {
+        return instalment;
+    }
+
+    public void setInstalment(Integer instalment) {
+        this.instalment = instalment;
+    }
+
+    public String getElement() {
+        return element;
+    }
+
+    public void setElement(String element) {
+        this.element = element;
+    }
+
+    public String getEquivalent() {
+        return equivalent;
+    }
+
+    public void setEquivalent(String equivalent) {
+        this.equivalent = equivalent;
     }
 
     @Override

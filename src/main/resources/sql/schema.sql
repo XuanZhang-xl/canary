@@ -136,11 +136,14 @@ CREATE TABLE t_canary_pay_order_detail (
 DROP TABLE IF EXISTS t_canary_coupon;
 CREATE TABLE t_canary_coupon (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `coupon_id` varchar(64) NOT NULL COMMENT '优惠券号',
+  `coupon_batch_id` varchar(64) NOT NULL COMMENT '批量优惠券编号, 有多张优惠券组成',
+  `coupon_id` varchar(64) NOT NULL COMMENT '优惠券号, 唯一编号',
   `coupon_type` varchar(64) NOT NULL COMMENT '优惠券类型',
   `coupon_state` varchar(64) NOT NULL COMMENT '优惠券状态',
   `user_code` varchar(64) COMMENT '绑定用户唯一标识',
   `bound_order_id` varchar(64) COMMENT '绑定订单号, 绑定订单后有值',
+  `instalment` INT COMMENT '辅助字段, 用于计算schema, 决定优惠某一期, 空表示都有效',
+  `element` varchar(64) COMMENT '辅助字段, 用于计算schema, 决定优惠某一元素, 空表示都有效',
   `condition` JSON COMMENT '使用特别限制',
   `equivalent` varchar(64) NOT NULL COMMENT '一般等价物, 锚定币种',
   `default_amount` DECIMAL(18,8) NOT NULL COMMENT '优惠券默认值, 根据类型可能时百分比或固定量, 如果是固定量, 则应与apply_amount相等 ',
@@ -148,6 +151,7 @@ CREATE TABLE t_canary_coupon (
   `entry_amount` DECIMAL(18,8) DEFAULT 0  COMMENT '已入账金额, 绑定订单后有值',
   `effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期',
   `expire_date` BIGINT DEFAULT -1 COMMENT '失效日期',
+  `entered_frequency` INT DEFAULT 0 COMMENT '已入账的次数',
   `apply_time` bigint(20) DEFAULT -1 COMMENT '使用时间',
   `end_time` bigint(20) DEFAULT -1 COMMENT '入账结束时间',
   `remark` text COMMENT '备注',
@@ -167,8 +171,10 @@ CREATE TABLE t_canary_strategy (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `strategy_id` varchar(64) NOT NULL COMMENT '策略号',
   `strategy_type` varchar(64) NOT NULL COMMENT '策略类型',
-  `subject` varchar(64) NOT NULL COMMENT '策略应用主体',
+  `instalment` INT COMMENT '辅助字段, 用于计算schema, 决定优惠某一期, 空表示都有效',
+  `element` varchar(64) NOT NULL COMMENT '辅助字段, 用于计算schema, 决定优惠某一元素, 空表示都有效',
   `condition` JSON COMMENT '使用特别限制',
+  `equivalent` varchar(64) COMMENT '一般等价物, 百分比时为空',
   `default_amount` DECIMAL(18,8) NOT NULL COMMENT '策略的默认值, 根据类型可能时百分比或固定量',
   `effective_date` BIGINT DEFAULT -1 COMMENT '生效起始日期, 包括头',
   `expire_date` BIGINT DEFAULT -1 COMMENT '失效日期, 不包括尾',
@@ -179,9 +185,6 @@ CREATE TABLE t_canary_strategy (
 PRIMARY KEY (`id`),
 UNIQUE INDEX `index_strategy_id` (`strategy_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
-
-INSERT INTO t_canary_strategy (id, strategy_id, strategy_type, `condition`, effective_date, expire_date, remark, create_time, update_time, is_deleted)
-VALUES (1, '217990908229603328', 'GENERAL', '', -1, -1, '', 21331313, 1231231231, 0);
 
 
 /***************************条件设置表 *************************/
