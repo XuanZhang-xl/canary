@@ -1,13 +1,11 @@
 package com.xl.canary.service;
 
-import com.xl.canary.bean.dto.Situation;
-import com.xl.canary.entity.AbstractConditionEntity;
+import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.entity.StrategyEntity;
 import com.xl.canary.exception.CompareException;
 import com.xl.canary.exception.NotExistException;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by xzhang on 2018/9/10.

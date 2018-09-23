@@ -22,25 +22,32 @@ public enum  SchemaTypeEnum {
     LOAN_PLAN(),
 
     /**
-     * 优惠券作为销帐目标时的类型, 也就是惩罚券
+     * 优惠券
      */
-    COUPON_LOAN(),
+    COUPON(),
 
     /**
-     * 优惠券作为销帐来源时的类型
+     * 策略
      */
-    COUPON_REPAY(),
+    STRATEGY(),
 
     /**
-     * 策略作为销帐目标时的类型
+     * 还款
      */
-    STRATEGY_LOAN(),
+    REPAY(),
+
+
+    /*********************************WriteOffTypeEnum, 上下两种类虽不同, 却是冲突的, 暂时合并, 以后有处理不了的情况再改*******************************/
 
     /**
-     * 策略作为销帐来源时的类型
+     * 销账来源
      */
-    STRATEGY_REPAY(),
+    WRITE_OFF_SOURCE(),
 
+    /**
+     * 销账目标
+     */
+    WRITE_OFF_DESTINATION(),
 
     ;
 }

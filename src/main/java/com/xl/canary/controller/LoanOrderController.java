@@ -6,6 +6,7 @@ import com.xl.canary.bean.BaseResponse;
 import com.xl.canary.bean.condition.LoanOrderCondition;
 import com.xl.canary.bean.req.LoanOrderReq;
 import com.xl.canary.bean.res.LoanOrderRes;
+import com.xl.canary.engine.calculate.siuation.SituationHolder;
 import com.xl.canary.engine.event.order.AuditLaunchEvent;
 import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.LoanOrderEntity;
@@ -155,6 +156,7 @@ public class LoanOrderController {
 
                 // 放款操作, 必须在最后做, 否则可能出现幻读, 虚读等错误
                 loanOrderEventLauncher.launch(new AuditLaunchEvent(userCode, loanOrder.getOrderId()));
+                logger.info("获取situation ： {}", SituationHolder.getSituation());
             } else {
                 logger.error("用户[{}]下单锁竞争失败", userCode);
                 return response.buildFailedResponse(ResponseNutEnum.LOCK_ERROR);

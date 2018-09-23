@@ -16,5 +16,5 @@ public interface SchemaCalculator {
      * @param schemaEntities   订单号
      * @return
      */
-    Schema getOriginalSchema(List<ISchemaEntity> schemaEntities);
+    Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities);
 }

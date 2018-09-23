@@ -8,8 +8,10 @@ import com.xl.canary.entity.UserEntity;
 import com.xl.canary.enums.CurrencyEnum;
 import com.xl.canary.enums.ResponseNutEnum;
 import com.xl.canary.enums.StateEnum;
+import com.xl.canary.enums.pay.PayTypeEnum;
 import com.xl.canary.lock.RedisService;
 import com.xl.canary.service.LoanOrderService;
+import com.xl.canary.service.PayOrderService;
 import com.xl.canary.service.UserService;
 import com.xl.canary.simulator.ExchangeRateSimulator;
 import com.xl.canary.utils.IDWorker;
@@ -40,6 +42,9 @@ public class PayOrderController {
 
     @Autowired
     private LoanOrderService loanOrderService;
+
+    @Autowired
+    private PayOrderService payOrderService;
 
     @Autowired
     private UserService userService;
@@ -75,15 +80,21 @@ public class PayOrderController {
                 payOrder.setPayOrderId(String.valueOf(idWorker.nextId()));
                 payOrder.setPayBatchId(String.valueOf(idWorker.nextId()));
                 payOrder.setUserCode(userCode);
-                // payOrder.setPayOrderType();
+                // 再改好了
+                payOrder.setPayOrderType(PayTypeEnum.REPAY_AS_PLAN.name());
                 payOrder.setPayOrderState(StateEnum.PENDING.name());
                 payOrder.setApplyCurrency(applyCurrency.name());
                 payOrder.setApplyAmount(amount);
                 payOrder.setEquivalent(equivalent);
-                payOrder.setEquivalentRate(ExchangeRateSimulator.getTicker(applyCurrency.name(), equivalent));
+                BigDecimal ticker = ExchangeRateSimulator.getTicker(applyCurrency.name(), equivalent);
+                payOrder.setEquivalentRate(ticker);
+                payOrder.setEquivalentAmount(ticker.multiply(amount));
 
-
-
+                long now = System.currentTimeMillis();
+                payOrder.setCreateTime(now);
+                payOrder.setUpdateTime(now);
+                payOrder.setIsDeleted(0);
+                payOrderService.save(payOrder);
             } else {
                 logger.error("用户[{}]下单锁竞争失败", userCode);
                 return response.buildFailedResponse(ResponseNutEnum.LOCK_ERROR);
@@ -93,8 +104,6 @@ public class PayOrderController {
         } finally {
             redisService.unlock(userCode);
         }
-
         return response;
     }
-
 }

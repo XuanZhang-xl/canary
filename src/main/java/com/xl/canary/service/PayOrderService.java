@@ -13,4 +13,11 @@ public interface PayOrderService {
      * @return
      */
     PayOrderEntity getByPayOrderId(String orderId);
+
+    /**
+     * 保存
+     * @param payOrder   要保存的订单
+     * @return           保存后的订单
+     */
+    PayOrderEntity save(PayOrderEntity payOrder);
 }

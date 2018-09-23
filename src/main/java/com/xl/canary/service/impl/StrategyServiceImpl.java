@@ -1,6 +1,6 @@
 package com.xl.canary.service.impl;
 
-import com.xl.canary.bean.dto.Situation;
+import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.entity.StrategyEntity;
 import com.xl.canary.enums.SubjectEnum;
 import com.xl.canary.exception.CompareException;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 策略service

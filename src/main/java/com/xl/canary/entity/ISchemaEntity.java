@@ -1,9 +1,6 @@
 package com.xl.canary.entity;
 
-import com.xl.canary.enums.BillTypeEnum;
-import com.xl.canary.enums.SubjectEnum;
-
-import java.math.BigDecimal;
+import com.xl.canary.enums.SchemaTypeEnum;
 
 /**
  * 可以抽象出Schema的类
@@ -12,8 +9,8 @@ import java.math.BigDecimal;
 public interface ISchemaEntity {
 
     /**
-     * 获取bill的类型, schema是bill的具体实现
-     * @return   bill类型
+     * 获取Schema的类型
+     * @return   Schema类型
      */
-    BillTypeEnum getBillType();
+    SchemaTypeEnum getSchemaType();
 }

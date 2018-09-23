@@ -4,7 +4,7 @@ package com.xl.canary.enums;
  * 账单类型
  * created by XUAN on 2018/09/02
  */
-public enum  BillTypeEnum {
+public enum BillTypeEnum {
 
     /**
      * 借款

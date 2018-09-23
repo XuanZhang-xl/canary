@@ -1,7 +1,7 @@
 package com.xl.canary.entity;
 
 
-import com.xl.canary.enums.BillTypeEnum;
+import com.xl.canary.enums.SchemaTypeEnum;
 
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -258,7 +258,7 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
     }
 
     @Override
-    public BillTypeEnum getBillType() {
-        return BillTypeEnum.LOAN_ORDER;
+    public SchemaTypeEnum getSchemaType() {
+        return SchemaTypeEnum.LOAN_CURRENT;
     }
 }

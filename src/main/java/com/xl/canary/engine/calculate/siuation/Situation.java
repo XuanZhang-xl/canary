@@ -1,4 +1,4 @@
-package com.xl.canary.bean.dto;
+package com.xl.canary.engine.calculate.siuation;
 
 import com.xl.canary.enums.coupon.CouponConditionEnum;
 

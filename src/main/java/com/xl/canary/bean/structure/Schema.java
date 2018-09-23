@@ -13,6 +13,11 @@ import java.util.Set;
 
 /**
  * 账单基础结构
+ * 销账目标, 值都为正
+ * 销账来源, 值都为负
+ *
+ * 一个schema的值可能有正有负, 比如策略和优惠券
+ *
  * Created by xzhang on 2018/9/6.
  */
 public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable {
@@ -40,14 +45,6 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
             }
         }
         return PayTypeEnum.REPAY_IN_ADVANCE;
-    }
-
-    public Schema() {
-        this.schemaMap = new HashMap<Integer, Instalment>();
-    }
-
-    public Schema(Map<Integer, Instalment> schemaMap) {
-        this.schemaMap = schemaMap;
     }
 
     @Override
@@ -128,5 +125,26 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
     @Override
     public int hashCode() {
         return this.schemaMap.hashCode();
+    }
+
+    public SchemaTypeEnum getSchemaType() {
+        return schemaType;
+    }
+
+    public void setSchemaType(SchemaTypeEnum schemaType) {
+        this.schemaType = schemaType;
+    }
+
+    public Schema() {
+        this.schemaMap = new HashMap<Integer, Instalment>();
+    }
+
+    public Schema(Map<Integer, Instalment> schemaMap) {
+        this.schemaMap = schemaMap;
+    }
+
+    public Schema(SchemaTypeEnum writeOffSource) {
+        this.schemaType = writeOffSource;
+        this.schemaMap = new HashMap<Integer, Instalment>();
     }
 }

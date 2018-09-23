@@ -56,4 +56,11 @@ public interface CouponService {
      * @return  保存后的实体
      */
     CouponEntity saveCoupon(CouponTypeEnum couponType, BigDecimal weightAmount, Long effectiveDate, Long expireDate, String condition);
+
+    /**
+     * 检查优惠券是否可用
+     * @param couponEntities
+     * @return
+     */
+    Boolean checkCoupons(List<CouponEntity> couponEntities);
 }

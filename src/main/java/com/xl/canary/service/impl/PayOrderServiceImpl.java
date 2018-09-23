@@ -20,4 +20,10 @@ public class PayOrderServiceImpl implements PayOrderService {
     public PayOrderEntity getByPayOrderId(String payOrderId) {
         return payOrderMapper.getByPayOrderId(payOrderId);
     }
+
+    @Override
+    public PayOrderEntity save(PayOrderEntity payOrder) {
+        payOrderMapper.insert(payOrder);
+        return payOrder;
+    }
 }

@@ -13,9 +13,9 @@ import java.util.Set;
  * 每期账单
  * Created by xzhang on 2018/9/6.
  */
-public class Instalment implements Map<LoanOrderElementEnum, Element>, Cloneable, Serializable {
+public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, Serializable {
 
-    private final Map<LoanOrderElementEnum, Element> instalmentMap;
+    private final Map<LoanOrderElementEnum, Unit> instalmentMap;
 
     /**
      * 当期的还款日
@@ -43,22 +43,22 @@ public class Instalment implements Map<LoanOrderElementEnum, Element>, Cloneable
     }
 
     @Override
-    public Element get(Object key) {
+    public Unit get(Object key) {
         return this.instalmentMap.get(key);
     }
 
     @Override
-    public Element put(LoanOrderElementEnum key, Element value) {
+    public Unit put(LoanOrderElementEnum key, Unit value) {
         return this.instalmentMap.put(key, value);
     }
 
     @Override
-    public Element remove(Object key) {
+    public Unit remove(Object key) {
         return this.instalmentMap.remove(key);
     }
 
     @Override
-    public void putAll(Map<? extends LoanOrderElementEnum, ? extends Element> m) {
+    public void putAll(Map<? extends LoanOrderElementEnum, ? extends Unit> m) {
         this.instalmentMap.putAll(m);
     }
 
@@ -73,12 +73,12 @@ public class Instalment implements Map<LoanOrderElementEnum, Element>, Cloneable
     }
 
     @Override
-    public Collection<Element> values() {
+    public Collection<Unit> values() {
         return this.instalmentMap.values();
     }
 
     @Override
-    public Set<Entry<LoanOrderElementEnum, Element>> entrySet() {
+    public Set<Entry<LoanOrderElementEnum, Unit>> entrySet() {
         return this.instalmentMap.entrySet();
     }
 
@@ -103,10 +103,10 @@ public class Instalment implements Map<LoanOrderElementEnum, Element>, Cloneable
     }
 
     public Instalment() {
-        this.instalmentMap = new HashMap<LoanOrderElementEnum, Element>();
+        this.instalmentMap = new HashMap<LoanOrderElementEnum, Unit>();
     }
 
-    public Instalment(Map<LoanOrderElementEnum, Element> instalmentMap) {
+    public Instalment(Map<LoanOrderElementEnum, Unit> instalmentMap) {
         this.instalmentMap = instalmentMap;
     }
 

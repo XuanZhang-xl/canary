@@ -1,12 +1,12 @@
 package com.xl.canary.entity;
 
-import com.xl.canary.enums.BillTypeEnum;
+import com.xl.canary.enums.SchemaTypeEnum;
 
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
 /**
- * 优惠券实体
+ * 优惠券实体, 支持惩罚券
  * Created by xzhang on 2018/9/5.
  */
 @Table(name = "t_canary_coupon")
@@ -263,7 +263,7 @@ public class CouponEntity extends AbstractConditionEntity implements IStateEntit
     }
 
     @Override
-    public BillTypeEnum getBillType() {
-        return BillTypeEnum.COUPON;
+    public SchemaTypeEnum getSchemaType() {
+        return SchemaTypeEnum.COUPON;
     }
 }
