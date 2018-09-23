@@ -2,6 +2,7 @@ package com.xl.canary.engine.calculate;
 
 import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.ISchemaEntity;
+import com.xl.canary.exception.SchemaException;
 
 import java.util.List;
 
@@ -16,5 +17,5 @@ public interface SchemaCalculator {
      * @param schemaEntities   订单号
      * @return
      */
-    Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities);
+    Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities) throws SchemaException;
 }

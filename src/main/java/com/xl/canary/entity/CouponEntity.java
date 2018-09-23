@@ -46,12 +46,12 @@ public class CouponEntity extends AbstractConditionEntity implements IStateEntit
     private String boundOrderId;
 
     /**
-     * 辅助字段, 用于计算schema, 决定优惠某一期
+     * 辅助字段, 用于计算schema, 决定优惠某一期, 空表示都有效
      */
     private Integer instalment;
 
     /**
-     * 辅助字段, 用于计算schema, 决定优惠某一元素
+     * 辅助字段, 用于计算schema, 决定优惠某一元素, 空表示都有效
      */
     private String element;
 
