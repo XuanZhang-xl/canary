@@ -37,7 +37,7 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
     public PayTypeEnum getPayType () {
         for (Entry<Integer, Instalment> entry : this.schemaMap.entrySet()) {
             long repaymentDate = entry.getValue().getRepaymentDate();
-            long now = TimeUtils.truncateToDay(System.currentTimeMillis());
+            long now = TimeUtils.truncateToHour(System.currentTimeMillis());
             if (repaymentDate < now) {
                 return PayTypeEnum.REPAY_OVERDUE;
             } else if (repaymentDate == now) {

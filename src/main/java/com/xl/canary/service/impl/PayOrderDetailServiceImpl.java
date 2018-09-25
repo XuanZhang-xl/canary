@@ -12,6 +12,7 @@ import com.xl.canary.exception.SchemaException;
 import com.xl.canary.mapper.PayOrderDetailMapper;
 import com.xl.canary.service.PayOrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
@@ -22,6 +23,7 @@ import java.util.Map;
 /**
  * Created by xzhang on 2018/9/25.
  */
+@Service("payOrderDetailServiceImpl")
 public class PayOrderDetailServiceImpl implements PayOrderDetailService {
 
     @Autowired
