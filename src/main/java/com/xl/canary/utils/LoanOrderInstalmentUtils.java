@@ -2,6 +2,7 @@ package com.xl.canary.utils;
 
 import com.xl.canary.bean.dto.BasicInstalment;
 import com.xl.canary.bean.dto.Fee;
+import com.xl.canary.enums.TimeUnitEnum;
 import com.xl.canary.enums.loan.FeeAllocateEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,5 +153,13 @@ public class LoanOrderInstalmentUtils {
                 .divide(instalmentsCompoundRate.subtract(BigDecimal.ONE), LoanLimitation.RESULT_SCALE, BigDecimal.ROUND_UP);
 
         return instalmentAverage;
+    }
+
+
+    public static BigDecimal dailyInterest(BigDecimal principal, TimeUnitEnum timeUnit, BigDecimal interestRate) {
+        return principal.multiply(interestRate).divide(new BigDecimal(timeUnit.getDays()));
+    }
+    public static BigDecimal dailyPenalty(BigDecimal principal, TimeUnitEnum timeUnit, BigDecimal penaltyRate) {
+        return principal.multiply(penaltyRate).divide(new BigDecimal(timeUnit.getDays()));
     }
 }

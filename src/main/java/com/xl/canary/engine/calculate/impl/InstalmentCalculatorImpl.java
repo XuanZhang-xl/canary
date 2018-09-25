@@ -16,6 +16,7 @@ import com.xl.canary.service.LoanOrderService;
 import com.xl.canary.service.PayOrderDetailService;
 import com.xl.canary.utils.EssentialConstance;
 import com.xl.canary.utils.LoanLimitation;
+import com.xl.canary.utils.LoanOrderInstalmentUtils;
 import com.xl.canary.utils.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,12 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
     @Autowired
     private LoanOrderService loanOrderService;
 
+    /**
+     * 似乎并没有什么卵用
+     * @param schemaEntities   订单号
+     * @return
+     * @throws SchemaException
+     */
     @Override
     public Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities) throws SchemaException {
         // 检查传入的实体是否符合要求
@@ -64,11 +71,12 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
 
             // 加入利息
             Long shouldPayTime = instalmentEntity.getShouldPayTime();
-            BigDecimal passPercent = this.passPercent(instalmentUnit, now, shouldPayTime, instalmentEntity.getTimeZone());
-            BigDecimal originalInterest = originalPrincipal.multiply(instalmentRate).multiply(passPercent);
+            TimeUnitEnum timeUnit = TimeUnitEnum.valueOf(loanOrder.getInstalmentUnit());
+            Integer passDays = TimeUtils.passDays(shouldPayTime - EssentialConstance.DAY_MILLISECOND * timeUnit.getDays(), now, instalmentEntity.getTimeZone());
+            BigDecimal dailyInterest = LoanOrderInstalmentUtils.dailyInterest(originalPrincipal, timeUnit, instalmentRate);
             Unit interestUnit = new Unit();
             Element interestElement = new Element();
-            interestElement.setAmount(originalInterest);
+            interestElement.setAmount(dailyInterest.multiply(new BigDecimal(passDays)));
             interestElement.setElement(LoanOrderElementEnum.INTEREST);
             interestElement.setSource(BillTypeEnum.LOAN_ORDER);
             interestElement.setSourceId(instalmentEntity.getOrderId());
@@ -79,11 +87,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             if (now > shouldPayTime) {
                 Unit penaltyUnit = new Unit();
                 Element penaltyElement = new Element();
-                Integer passDays = TimeUtils.passDays(now, shouldPayTime, instalmentEntity.getTimeZone());
-
-
-
-
+                passDays = TimeUtils.passDays(now, shouldPayTime, instalmentEntity.getTimeZone());
                 penaltyElement.setAmount(originalPrincipal.multiply(loanOrder.getPenaltyRate()).multiply(new BigDecimal(passDays)));
                 penaltyElement.setElement(LoanOrderElementEnum.PENALTY);
                 penaltyElement.setSource(BillTypeEnum.LOAN_ORDER);
@@ -91,9 +95,6 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 interestUnit.add(penaltyElement);
                 instalment.put(LoanOrderElementEnum.PENALTY, penaltyUnit);
             }
-
-
-
 
             // 加入各种服务费
             String originalFee = instalmentEntity.getOriginalFee();
