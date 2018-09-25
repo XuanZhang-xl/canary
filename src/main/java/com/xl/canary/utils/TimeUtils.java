@@ -1,6 +1,8 @@
 package com.xl.canary.utils;
 
 import com.xl.canary.enums.TimeZoneEnum;
+import com.xl.canary.exception.BaseException;
+import com.xl.canary.exception.DateCalaulateException;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -45,14 +47,56 @@ public class TimeUtils {
      * @param timeZone
      * @return
      */
-    public static int passDays(Long now, Long shouldPayTime, Integer timeZone) {
-        Calendar todayCalendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
-        todayCalendar.setTimeInMillis(now);
-        todayCalendar = TimeUtils.truncateToDay(todayCalendar);
-        Calendar shouldPayCalendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
-        shouldPayCalendar.setTimeInMillis(shouldPayTime);
-        shouldPayCalendar = TimeUtils.truncateToDay(shouldPayCalendar);
-        Long temp = (todayCalendar.getTimeInMillis() - shouldPayCalendar.getTimeInMillis()) / EssentialConstance.DAY_MILLISECOND;
+    public static int passDays(Long from, Long to, Integer timeZone) {
+        Calendar fromCalendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
+        fromCalendar.setTimeInMillis(from);
+        fromCalendar = TimeUtils.truncateToDay(fromCalendar);
+        Calendar toCalendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
+        toCalendar.setTimeInMillis(to);
+        toCalendar = TimeUtils.truncateToDay(toCalendar);
+        Long temp = (fromCalendar.getTimeInMillis() - toCalendar.getTimeInMillis()) / EssentialConstance.DAY_MILLISECOND;
         return temp.intValue() + 1;
+    }
+
+    /**
+     * 计算间隔天数, 不足一天算一天
+     * @param begin
+     * @param end
+     * @return
+     */
+    public static int passDays(Calendar begin, Calendar end) throws DateCalaulateException {
+        if (begin.after(end)) {
+            throw new DateCalaulateException("begin必须在end之前");
+        }
+        begin = TimeUtils.truncateToDay(begin);
+        end = TimeUtils.truncateToDay(end);
+        long diffDays = (end.getTimeInMillis() - begin.getTimeInMillis()) / EssentialConstance.DAY_MILLISECOND;
+        return (int) diffDays;
+    }
+
+    /**
+     * utc时间戳---> 本地时间
+     * 截取至当前 的 天
+     * @param time      utc时间
+     * @param timeZone  时区
+     * @return
+     */
+    public static Calendar localCalendarTruncateDay(Long time, Integer timeZone) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
+        calendar.setTimeInMillis(time);
+        calendar = TimeUtils.truncateToDay(calendar);
+        return calendar;
+    }
+
+    /**
+     * utc时间戳---> 本地时间
+     * @param time      utc时间
+     * @param timeZone  时区
+     * @return
+     */
+    public static Calendar getLocalCalendar(Long time, Integer timeZone) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
+        calendar.setTimeInMillis(time);
+        return calendar;
     }
 }
