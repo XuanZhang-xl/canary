@@ -1,6 +1,7 @@
 package com.xl.canary.entity;
 
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 /**
  * 还款详情, 包括了还款. 策略. 优惠券
@@ -12,7 +13,7 @@ public class PayOrderDetailEntity {
     /**
      * 来源类型
      */
-    private String sourceType;
+    private String source;
 
     /**
      * 来源id
@@ -37,12 +38,12 @@ public class PayOrderDetailEntity {
     /**
      * 分期
      */
-    private String instalment;
+    private Integer instalment;
 
     /**
      * 还款日
      */
-    private String repaymentDate;
+    private Long repaymentDate;
 
     /**
      * 等价物
@@ -57,19 +58,19 @@ public class PayOrderDetailEntity {
     /**
      * 还款时应还
      */
-    private String shouldPay;
+    private BigDecimal shouldPay;
 
     /**
      * 还款金额
      */
-    private String paid;
+    private BigDecimal paid;
 
-    public String getSourceType() {
-        return sourceType;
+    public String getSource() {
+        return source;
     }
 
-    public void setSourceType(String sourceType) {
-        this.sourceType = sourceType;
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public String getSourceId() {
@@ -104,22 +105,6 @@ public class PayOrderDetailEntity {
         this.userCode = userCode;
     }
 
-    public String getInstalment() {
-        return instalment;
-    }
-
-    public void setInstalment(String instalment) {
-        this.instalment = instalment;
-    }
-
-    public String getRepaymentDate() {
-        return repaymentDate;
-    }
-
-    public void setRepaymentDate(String repaymentDate) {
-        this.repaymentDate = repaymentDate;
-    }
-
     public String getEquivalent() {
         return equivalent;
     }
@@ -136,19 +121,36 @@ public class PayOrderDetailEntity {
         this.element = element;
     }
 
-    public String getShouldPay() {
+
+    public Integer getInstalment() {
+        return instalment;
+    }
+
+    public void setInstalment(Integer instalment) {
+        this.instalment = instalment;
+    }
+
+    public Long getRepaymentDate() {
+        return repaymentDate;
+    }
+
+    public void setRepaymentDate(Long repaymentDate) {
+        this.repaymentDate = repaymentDate;
+    }
+
+    public BigDecimal getShouldPay() {
         return shouldPay;
     }
 
-    public void setShouldPay(String shouldPay) {
+    public void setShouldPay(BigDecimal shouldPay) {
         this.shouldPay = shouldPay;
     }
 
-    public String getPaid() {
+    public BigDecimal getPaid() {
         return paid;
     }
 
-    public void setPaid(String paid) {
+    public void setPaid(BigDecimal paid) {
         this.paid = paid;
     }
 }

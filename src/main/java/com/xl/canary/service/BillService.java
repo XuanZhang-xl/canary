@@ -21,7 +21,7 @@ public interface BillService {
      * @param loanOrder
      * @return
      */
-    Schema payOffLoanOrder(LoanOrderEntity loanOrder);
+    Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException;
 
     /**
      * 用了优惠券后还清一个订单所要的schema

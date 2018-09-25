@@ -1,5 +1,8 @@
 package com.xl.canary.enums;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 账单类型
  * created by XUAN on 2018/09/02
@@ -25,4 +28,11 @@ public enum BillTypeEnum {
      * 策略
      */
     STRATEGY(),
+
+    ;
+
+    /**
+     * 支持还原的type
+     */
+    public static final List<BillTypeEnum> RECOVERABLE_TYPE = Arrays.asList(PAY_ORDER, COUPON);
 }

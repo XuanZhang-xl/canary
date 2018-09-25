@@ -109,7 +109,7 @@ CREATE TABLE t_canary_pay_order (
 DROP TABLE IF EXISTS t_canary_pay_order_detail;
 CREATE TABLE t_canary_pay_order_detail (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `source_type` varchar(64) NOT NULL COMMENT '来源类型',
+  `source` varchar(64) NOT NULL COMMENT '来源类型',
   `source_id` varchar(64) NOT NULL COMMENT '来源id',
   `destination` varchar(64) NOT NULL COMMENT '目标',
   `destination_id` varchar(64) NOT NULL COMMENT '目标id',
