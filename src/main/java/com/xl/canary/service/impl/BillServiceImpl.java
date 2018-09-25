@@ -59,7 +59,7 @@ public class BillServiceImpl implements BillService {
     private LoanInstalmentService instalmentService;
 
     @Override
-    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) {
+    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException {
         // 订单schema
         List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
         return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);

@@ -18,14 +18,12 @@ public class LoanOrderDateUtils {
         LoanOrderTypeEnum loanOrderType = LoanOrderTypeEnum.valueOf(loanOrder.getOrderType());
         RepaymentDateTypeEnum repaymentDateType = loanOrderType.getRepaymentDateType();
         Integer instalment = loanOrder.getInstalment();
-        loanOrder.getInstalmentUnit();
         switch (repaymentDateType) {
             case FIX_MONTH_INTERVAL: {
                 Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.HOUR_OF_DAY, 0);
-                calendar.set(Calendar.MINUTE, 0);
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
+                // 当天也算一天, 要减一
+                calendar.setTimeInMillis(System.currentTimeMillis() - EssentialConstance.DAY_MILLISECOND);
+                // 存数据库的都不要截取, 取出来后在代码中截取
                 for (Integer i = 1; i <= instalment; i++) {
                     calendar.add(Calendar.DAY_OF_MONTH, EssentialConstance.MONTH_DAYS);
                     repayments.put(i, calendar.getTimeInMillis());

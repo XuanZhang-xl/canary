@@ -22,6 +22,8 @@ public enum ResponseNutEnum {
     LOCK_ERROR(10000003, "系统内部异常", "锁竞争失败"),
     NO_ORDER(10000004, "无订单", "无订单"),
 
+    NO_TIME_ZONE(10000005, "无时区", "无时区"),
+
 
     UNKNOWN_EXCEPTION(10009999, "系统内部异常", "未知异常"),
 

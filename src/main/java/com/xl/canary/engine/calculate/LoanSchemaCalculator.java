@@ -27,7 +27,7 @@ public interface LoanSchemaCalculator extends SchemaCalculator {
      * @param date   用户时间, 一般都为当前时间
      * @return
      */
-    Schema getPlanSchema(Long date, List<? extends ISchemaEntity> schemaEntities);
+    Schema getPlanSchema(Long date, List<? extends ISchemaEntity> schemaEntities) throws SchemaException;
 
     /**
      * 还款日

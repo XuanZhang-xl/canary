@@ -7,12 +7,12 @@ package com.xl.canary.enums;
 public enum  SchemaTypeEnum {
 
     /**
-     * 订单原始, 下单时schema
+     * 订单原始, 在完全没还过的情况下现在的应还schema
      */
     LOAN_ORIGINAL(),
 
     /**
-     * 订单当前, 当前一下还清schema
+     * 订单当前, 当前一下还清schema, 如果没还过款, 则和LOAN_ORIGINAL一样
      */
     LOAN_CURRENT(),
 
@@ -20,6 +20,11 @@ public enum  SchemaTypeEnum {
      * 订单计划, 按期还清schema
      */
     LOAN_PLAN(),
+
+    /**
+     * 订单已还的schema
+     */
+    LOAN_PAID(),
 
     /**
      * 优惠券

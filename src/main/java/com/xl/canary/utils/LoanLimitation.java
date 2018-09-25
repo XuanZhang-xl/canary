@@ -1,5 +1,7 @@
 package com.xl.canary.utils;
 
+import java.math.BigDecimal;
+
 /**
  * Created by gqwu on 2018/3/29.
  */
@@ -29,5 +31,15 @@ public interface LoanLimitation {
      * 结果保留位数
      */
     int RESULT_SCALE = 8;
+
+    /**
+     * 向上取整
+     */
+    int RESULT_UP = BigDecimal.ROUND_UP;
+
+    /**
+     * 向下取整
+     */
+    int RESULT_DOWN = BigDecimal.ROUND_DOWN;
 
 }
