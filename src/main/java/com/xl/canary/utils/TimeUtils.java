@@ -42,8 +42,8 @@ public class TimeUtils {
 
     /**
      * 计算间隔天数, 不足一天算一天
-     * @param now
-     * @param shouldPayTime
+     * @param from
+     * @param to
      * @param timeZone
      * @return
      */

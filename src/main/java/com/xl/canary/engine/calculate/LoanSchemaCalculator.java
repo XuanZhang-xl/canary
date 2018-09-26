@@ -34,6 +34,6 @@ public interface LoanSchemaCalculator extends SchemaCalculator {
      * @param schemaEntities   借款订单
      * @return
      */
-    Map<Integer, Long> repaymentDates(List<? extends ISchemaEntity> schemaEntities);
+    Map<Integer, Long> repaymentDates(List<? extends ISchemaEntity> schemaEntities) throws SchemaException;
 
 }
