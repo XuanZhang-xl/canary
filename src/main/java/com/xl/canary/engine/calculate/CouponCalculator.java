@@ -4,8 +4,10 @@ import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.ISchemaEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.PayOrderEntity;
+import com.xl.canary.enums.WeightEnum;
 import com.xl.canary.exception.SchemaException;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -21,4 +23,13 @@ public interface CouponCalculator extends SchemaCalculator {
      * @return   schema
      */
     Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder) throws SchemaException;
+
+    /**
+     * 根据比重获取实际的金额
+     * @param weight
+     * @param defaultAmount
+     * @param orderAmount
+     * @return
+     */
+    BigDecimal getApplyAmount(WeightEnum weight, BigDecimal defaultAmount, BigDecimal orderAmount);
 }

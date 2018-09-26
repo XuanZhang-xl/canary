@@ -47,6 +47,20 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
         return PayTypeEnum.REPAY_IN_ADVANCE;
     }
 
+    /**
+     * 获得当前schema 的反转schema
+     * 会获得一个新的schema
+     * @return
+     */
+    public Schema reverse () {
+        Schema clone = this.clone();
+        for (Entry<Integer, Instalment> entry : clone.entrySet()) {
+            Instalment instalment = entry.getValue();
+            instalment.reverse();
+        }
+        return clone;
+    }
+
     @Override
     public int size() {
         return this.schemaMap.size();

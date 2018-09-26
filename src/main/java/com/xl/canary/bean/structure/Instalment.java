@@ -22,6 +22,18 @@ public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, S
      */
     private long repaymentDate = -1L;
 
+    /**
+     * 当前Instalment反转
+     */
+    public void reverse() {
+        for (Entry<LoanOrderElementEnum, Unit> entry : this.entrySet()) {
+            Unit unit = entry.getValue();
+            for (Element element : unit) {
+                element.reverse();
+            }
+        }
+    }
+
     @Override
     public int size() {
         return this.instalmentMap.size();
