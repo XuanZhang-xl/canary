@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 
 /**
  * 优惠券实体, 支持惩罚券
+ * 如果是惩罚券, 则defaultAmount等是负的, 惩罚券最好是一次性的, 多次暂不做实现
+ * 如果是百分比的优惠券
+ *
  * Created by xzhang on 2018/9/5.
  */
 @Table(name = "t_canary_coupon")

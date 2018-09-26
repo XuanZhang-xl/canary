@@ -4,6 +4,7 @@ import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.ISchemaEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.PayOrderEntity;
+import com.xl.canary.exception.SchemaException;
 
 import java.util.List;
 
@@ -19,5 +20,5 @@ public interface CouponCalculator extends SchemaCalculator {
      * @param payOrder         loanOrder, 优惠百分比时依赖于借款订单
      * @return   schema
      */
-    Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder);
+    Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder) throws SchemaException;
 }

@@ -41,7 +41,8 @@ public enum StateEnum {
     /**
      * 优惠券状态
      */
-    BUNDLED("已绑定"),
+    BUNDLED_USER("已绑定用户"),
+    BUNDLED_ORDER("已绑定订单"),
 
     /**
      * 策略状态
@@ -68,6 +69,11 @@ public enum StateEnum {
      * 已放款, 待还款状态
      */
     public static List<StateEnum> lent  = Arrays.asList(LENT);
+
+    /**
+     * 优惠券可用的状态
+     */
+    public static List<StateEnum> coupon  = Arrays.asList(BUNDLED_USER, BUNDLED_ORDER);
 
     /**
      * 失败订单
