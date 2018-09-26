@@ -42,6 +42,13 @@ public class Element implements Cloneable, Serializable {
      */
     private BigDecimal amount = BigDecimal.ZERO;
 
+    /**
+     * 反转
+     */
+    public void reverse() {
+        this.amount = BigDecimal.ZERO.subtract(this.amount);
+    }
+
     public LoanOrderElementEnum getElement() {
         return element;
     }

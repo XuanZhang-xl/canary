@@ -80,14 +80,14 @@ public class CouponCalculatorImpl implements CouponCalculator {
             Element element = new Element();
             CouponTypeEnum couponType = CouponTypeEnum.valueOf(couponEntity.getCouponType());
             WeightEnum weight = couponType.getWeight();
-            BigDecimal amount = this.getCouponAmount(weight, couponEntity.getDefaultAmount(), orderAmount);
+            BigDecimal amount = this.getApplyAmount(weight, couponEntity.getDefaultAmount(), orderAmount);
             element.setAmount(amount.subtract(couponEntity.getEntryAmount()));
             element.setElement(elementKey);
             element.setSource(BillTypeEnum.COUPON);
             element.setSourceId(couponEntity.getCouponBatchId());
             unit.add(element);
         }
-        return schema;
+        return schema.reverse();
     }
 
     @Override
@@ -132,7 +132,8 @@ public class CouponCalculatorImpl implements CouponCalculator {
         return couponEntities;
     }
 
-    private BigDecimal getCouponAmount(WeightEnum weight, BigDecimal defaultAmount, BigDecimal orderAmount) {
+    @Override
+    public BigDecimal getApplyAmount(WeightEnum weight, BigDecimal defaultAmount, BigDecimal orderAmount) {
         if (WeightEnum.NUMBER.equals(weight)) {
             return defaultAmount;
         } else {
