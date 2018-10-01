@@ -21,7 +21,15 @@ public interface BillService {
      * @param loanOrder
      * @return
      */
-    Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException;
+    Schema payOffAll(LoanOrderEntity loanOrder) throws SchemaException;
+
+    /**
+     * 还清一个订单及策略所要的schema
+     * 可以获得应还总额
+     * @param loanOrder
+     * @return
+     */
+    Schema payOffLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException;
 
     /**
      * 用了优惠券后还清一个订单所要的schema
@@ -30,24 +38,24 @@ public interface BillService {
      * @param couponEntities    优惠券
      * @return
      */
-    Schema payOffLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException;
+    Schema payOffAll(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException;
 
     /**
-     * 部分还款的schema
+     * 部分还款的schema, 返回的都是负数
      * 计算策略
      * @param loanOrder
      * @param payAmount
      * @return
      */
-    Schema payLoanOrder(LoanOrderEntity loanOrder, BigDecimal payAmount);
+    Schema payLoanOrder(LoanOrderEntity loanOrder, BigDecimal payAmount) throws BaseException;
 
     /**
-     * 部分还款的schema
+     * 部分还款的schema, 返回的都是负数
      * 计算策略
      * @param loanOrder
      * @param couponEntities    优惠券
      * @param payAmount
      * @return
      */
-    Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, BigDecimal payAmount);
+    Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, BigDecimal payAmount) throws BaseException;
 }

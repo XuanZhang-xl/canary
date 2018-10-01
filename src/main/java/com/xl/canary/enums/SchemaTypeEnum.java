@@ -41,6 +41,16 @@ public enum  SchemaTypeEnum {
      */
     REPAY(),
 
+    /**
+     * 订单 + 优惠券 + 策略 应还的schema
+     */
+    SHOULD_PAY(),
+
+    /**
+     * 入账用schema
+     */
+    ENTRY(),
+
 
     /*********************************WriteOffTypeEnum, 上下两种类虽不同, 却是冲突的, 暂时合并, 以后有处理不了的情况再改*******************************/
 
