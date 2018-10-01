@@ -15,13 +15,12 @@ import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.StrategyEntity;
 import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
-import com.xl.canary.exception.BaseException;
-import com.xl.canary.exception.CouponException;
-import com.xl.canary.exception.SchemaException;
+import com.xl.canary.exception.*;
 import com.xl.canary.service.BillService;
 import com.xl.canary.service.CouponService;
 import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.service.StrategyService;
+import com.xl.canary.utils.LoanOrderInstalmentUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,14 +58,58 @@ public class BillServiceImpl implements BillService {
     private LoanInstalmentService instalmentService;
 
     @Override
-    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException {
+    public Schema payOffAll(LoanOrderEntity loanOrder) throws SchemaException {
         // 订单schema
         List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
         return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
     }
 
     @Override
-    public Schema payOffLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException {
+    public Schema payOffLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException {
+        return this.mergeSchemas(this.loanOrderCouponSchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
+    }
+
+    @Override
+    public Schema payOffAll(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException {
+        return this.mergeSchemas(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), SchemaTypeEnum.SHOULD_PAY);
+    }
+
+    @Override
+    public Schema payLoanOrder(LoanOrderEntity loanOrder, BigDecimal payAmount) throws BaseException {
+        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderCouponSchemas(loanOrder), SchemaTypeEnum.ENTRY);
+        return this.entrySchema(shouldPaySchemaForEntry, payAmount);
+    }
+
+    @Override
+    public Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, BigDecimal payAmount) throws BaseException {
+        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), SchemaTypeEnum.ENTRY);
+        return this.entrySchema(shouldPaySchemaForEntry, payAmount);
+    }
+
+    /**
+     * 计算入账用schema
+     * @param payOffSchema
+     * @param payAmount
+     * @return
+     */
+    private Schema entrySchema(Schema payOffSchema, BigDecimal payAmount) {
+        Schema entrySchema = new Schema(SchemaTypeEnum.ENTRY);
+        //TODO: 入账schema逻辑
+
+
+
+        return entrySchema;
+
+    }
+
+    /**
+     * 获得schema
+     * @param loanOrder
+     * @param couponEntities
+     * @return
+     * @throws BaseException
+     */
+    private List<Schema> loanOrderStrategyCouponSchemas(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException {
         Situation situation = SituationHolder.getSituation();
         List<StrategyEntity> strategyEntities = strategyService.listStrategies(situation);
 
@@ -84,23 +127,45 @@ public class BillServiceImpl implements BillService {
         List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
 
         Schema loanSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
-
-        return this.getRepaySchema(Arrays.asList(loanSchema, couponSchema, strategySchema));
+        return Arrays.asList(loanSchema, couponSchema, strategySchema);
     }
 
-    @Override
-    public Schema payLoanOrder(LoanOrderEntity loanOrder, BigDecimal payAmount) {
-        return null;
+    /**
+     * 获得schema
+     * @param loanOrder
+     * @return
+     * @throws BaseException
+     */
+    private List<Schema> loanOrderCouponSchemas(LoanOrderEntity loanOrder) throws BaseException {
+        // 订单schema
+        List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
+        Schema currentSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
+        Situation situation = SituationHolder.getSituation();
+        List<StrategyEntity> strategyEntities = strategyService.listStrategies(situation);
+
+        // 策略schema
+        Schema strategySchema = strategyCalculator.getCurrentSchema(strategyEntities, loanOrder);
+        return Arrays.asList(currentSchema, strategySchema);
     }
 
-    @Override
-    public Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, BigDecimal payAmount) {
-        return null;
-    }
-
-    private Schema getRepaySchema(List<Schema> schemas) throws SchemaException {
+    /**
+     * 合并schema
+     * 思路:
+     * 1. 把所有传进来的schema分成两类:  应还和已还(可以体现为减免等), 应还为正, 已还为负
+     * 2. 用已还将应还抵消, 如果已还大于应还, 则直接抛异常(这里可优化), 如果小于等于, 正常扣掉已还就好
+     *
+     * 输出的schema是应还的schema
+     *
+     * @param schemas
+     * @return
+     * @throws SchemaException
+     */
+    private Schema mergeSchemas(List<Schema> schemas, SchemaTypeEnum schemaType) throws SchemaException {
+        if (SchemaTypeEnum.ENTRY.equals(schemaType) || SchemaTypeEnum.SHOULD_PAY.equals(schemaType)) {
+            throw new SchemaException("mergeSchemas方法仅支持SchemaTypeEnum.ENTRY与SchemaTypeEnum.SHOULD_PAY, 当前shcema类型" + schemaType.name());
+        }
         // 应还schema
-        Schema repaySchema = new Schema();
+        Schema repaySchema = new Schema(schemaType);
         Schema sourceSchema = getWriteOffTypeSchema(schemas, SchemaTypeEnum.WRITE_OFF_SOURCE);
         Schema destinationSchema = getWriteOffTypeSchema(schemas, SchemaTypeEnum.WRITE_OFF_DESTINATION);
 
@@ -143,13 +208,36 @@ public class BillServiceImpl implements BillService {
                     if (iterator.hasNext()) {
                         sourceElement = iterator.next();
                         BigDecimal sourceAmount = sourceElement.getAmount();
-                        if (amount.compareTo(sourceAmount) > 0) {
-                            // 不够还, 减掉后放入应还schema
+                        if (amount.add(sourceAmount).compareTo(BigDecimal.ZERO) > 0) {
+                            // 不够还, 由于来源本来就是负的, 加上后放入应还schema
                             Element repayElement = element.clone();
-                            repayElement.setAmount(amount.subtract(sourceAmount));
+                            repayElement.setAmount(amount.add(sourceAmount));
                             repayUnit.add(repayElement);
+                            if (SchemaTypeEnum.ENTRY.equals(schemaType)) {
+                                // 入账schema要加入已入账的明细
+                                Element paidElement = element.clone();
+                                element.setSource(sourceElement.getSource());
+                                element.setSourceId(sourceElement.getSourceId());
+                                // 入账后的值都是正的
+                                // TODO: 有更好的方法吗?
+                                element.setAmount(sourceAmount.abs());
+                                repayUnit.add(paidElement);
+                            }
+                        } else if (amount.add(sourceAmount).compareTo(BigDecimal.ZERO) == 0) {
+                            // 正好还完了
+                            if (SchemaTypeEnum.ENTRY.equals(schemaType)) {
+                                // 入账schema要加入已入账的明细
+                                Element paidElement = element.clone();
+                                element.setSource(sourceElement.getSource());
+                                element.setSourceId(sourceElement.getSourceId());
+                                // 入账后的值都是正的
+                                // TODO: 有更好的方法吗?
+                                element.setAmount(amount);
+                                repayUnit.add(paidElement);
+                            }
                         } else {
-                            // 还完了, do nothing
+                            // 已还超过了应还, 抛异常
+                            throw new SchemaException(element.getDestination().name() + "[" + element.getDestinationId() + "], 第" + instalmentKey + "期" + element.getElement().name() + "应还[" + amount.toPlainString() + "], 已还却有[" + sourceAmount +"], 不合法!");
                         }
                     } else {
                         // 已还的匹配完, 剩下的全是没还的
@@ -158,6 +246,7 @@ public class BillServiceImpl implements BillService {
                 }
             }
         }
+        // 应还schema, 都是正的, 不用反转
         return repaySchema;
     }
 
