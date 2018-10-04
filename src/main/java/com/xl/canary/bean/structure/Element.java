@@ -13,6 +13,11 @@ import java.math.BigDecimal;
 public class Element implements Cloneable, Serializable {
 
     /**
+     * 期数
+     */
+    private Integer instalment;
+
+    /**
      * 元素
      */
     private LoanOrderElementEnum element;
@@ -47,6 +52,14 @@ public class Element implements Cloneable, Serializable {
      */
     public void reverse() {
         this.amount = BigDecimal.ZERO.subtract(this.amount);
+    }
+
+    public Integer getInstalment() {
+        return instalment;
+    }
+
+    public void setInstalment(Integer instalment) {
+        this.instalment = instalment;
     }
 
     public LoanOrderElementEnum getElement() {

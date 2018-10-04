@@ -98,6 +98,7 @@ public class PayOrderDetailServiceImpl implements PayOrderDetailService {
             element.setDestination(BillTypeEnum.valueOf(detail.getDestination()));
             element.setDestinationId(detail.getDestinationId());
             element.setElement(detailElement);
+            element.setInstalment(detail.getInstalment());
             unit.add(element);
         }
         return schema;

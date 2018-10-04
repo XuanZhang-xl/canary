@@ -59,4 +59,12 @@ public enum LoanOrderElementEnum {
     LoanOrderElementEnum(LoanOrderElementTypeEnum loanOrderElementType) {
         this.loanOrderElementType = loanOrderElementType;
     }
+
+    public LoanOrderElementTypeEnum getLoanOrderElementType() {
+        return loanOrderElementType;
+    }
+
+    public void setLoanOrderElementType(LoanOrderElementTypeEnum loanOrderElementType) {
+        this.loanOrderElementType = loanOrderElementType;
+    }
 }

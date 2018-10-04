@@ -3,6 +3,7 @@ package com.xl.canary.service;
 import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.CouponEntity;
 import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.exception.*;
 
 import java.math.BigDecimal;
@@ -21,7 +22,7 @@ public interface BillService {
      * @param loanOrder
      * @return
      */
-    Schema payOffAll(LoanOrderEntity loanOrder) throws SchemaException;
+    Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException;
 
     /**
      * 还清一个订单及策略所要的schema
@@ -44,18 +45,18 @@ public interface BillService {
      * 部分还款的schema, 返回的都是负数
      * 计算策略
      * @param loanOrder
-     * @param payAmount
+     * @param payOrder
      * @return
      */
-    Schema payLoanOrder(LoanOrderEntity loanOrder, BigDecimal payAmount) throws BaseException;
+    Schema payLoanOrder(LoanOrderEntity loanOrder, PayOrderEntity payOrder) throws BaseException;
 
     /**
      * 部分还款的schema, 返回的都是负数
      * 计算策略
      * @param loanOrder
      * @param couponEntities    优惠券
-     * @param payAmount
+     * @param payOrder
      * @return
      */
-    Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, BigDecimal payAmount) throws BaseException;
+    Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException;
 }

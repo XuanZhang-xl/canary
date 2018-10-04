@@ -71,23 +71,58 @@ public enum EntrySequenceEnum {
         this.sixth = elementSix;
     }
 
-    public List<LoanOrderElementEnum> getEntrySequence () {
+    public static List<LoanOrderElementEnum> getDefaultEntrySequence () {
         List<LoanOrderElementEnum> entrySequence = new ArrayList<LoanOrderElementEnum>();
-        entrySequence.add(first);
-        entrySequence.add(second);
-        entrySequence.add(third);
-        entrySequence.add(fourth);
-        entrySequence.add(fifth);
-        entrySequence.add(sixth);
+        entrySequence.add(GENERAL_SEQUENCE.first);
+        entrySequence.add(GENERAL_SEQUENCE.second);
+        entrySequence.add(GENERAL_SEQUENCE.third);
+        entrySequence.add(GENERAL_SEQUENCE.fourth);
+        entrySequence.add(GENERAL_SEQUENCE.fifth);
+        entrySequence.add(GENERAL_SEQUENCE.sixth);
+        return entrySequence;
+    }
+
+    public static List<LoanOrderElementEnum> getEntrySequence (EntrySequenceEnum entrySequenceEnum) {
+        List<LoanOrderElementEnum> entrySequence = new ArrayList<LoanOrderElementEnum>();
+        entrySequence.add(entrySequenceEnum.fifth);
+        entrySequence.add(entrySequenceEnum.second);
+        entrySequence.add(entrySequenceEnum.third);
+        entrySequence.add(entrySequenceEnum.fourth);
+        entrySequence.add(entrySequenceEnum.fifth);
+        entrySequence.add(entrySequenceEnum.sixth);
         return entrySequence;
     }
 
     public LoanOrderElementEnum getTheLastElement () {
-        List<LoanOrderElementEnum> entrySequence = getEntrySequence();
+        List<LoanOrderElementEnum> entrySequence = getDefaultEntrySequence();
         LoanOrderElementEnum theLast = entrySequence.get(entrySequence.size() - 1);
         if (LoanOrderElementEnum.THE_LASTS.contains(theLast)) {
             return theLast;
         }
         throw new InnerException(ResponseNutEnum.ERROR_LAST_ELEMENT);
+    }
+
+    public LoanOrderElementEnum getFirst() {
+        return first;
+    }
+
+    public LoanOrderElementEnum getSecond() {
+        return second;
+    }
+
+    public LoanOrderElementEnum getThird() {
+        return third;
+    }
+
+    public LoanOrderElementEnum getFourth() {
+        return fourth;
+    }
+
+    public LoanOrderElementEnum getFifth() {
+        return fifth;
+    }
+
+    public LoanOrderElementEnum getSixth() {
+        return sixth;
     }
 }

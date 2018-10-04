@@ -84,6 +84,7 @@ public class CouponCalculatorImpl implements CouponCalculator {
             element.setAmount(amount.subtract(couponEntity.getEntryAmount()));
             element.setElement(elementKey);
             element.setSource(BillTypeEnum.COUPON);
+            element.setInstalment(instalment);
             element.setSourceId(couponEntity.getCouponBatchId());
             unit.add(element);
         }
