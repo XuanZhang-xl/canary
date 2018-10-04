@@ -78,6 +78,7 @@ public class StrategyCalculatorImpl implements CouponCalculator {
             BigDecimal amount = this.getApplyAmount(weight, strategyEntity.getDefaultAmount(), orderAmount);
             element.setAmount(amount);
             element.setElement(elementKey);
+            element.setInstalment(instalment);
             element.setSource(BillTypeEnum.COUPON);
             element.setSourceId(strategyEntity.getStrategyId());
             unit.add(element);

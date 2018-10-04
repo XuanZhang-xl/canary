@@ -9,26 +9,22 @@ import com.xl.canary.engine.calculate.impl.InstalmentCalculatorImpl;
 import com.xl.canary.engine.calculate.impl.StrategyCalculatorImpl;
 import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.engine.calculate.siuation.SituationHolder;
-import com.xl.canary.entity.CouponEntity;
-import com.xl.canary.entity.LoanInstalmentEntity;
-import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.entity.StrategyEntity;
+import com.xl.canary.entity.*;
+import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
+import com.xl.canary.enums.loan.LoanOrderElementTypeEnum;
+import com.xl.canary.enums.pay.EntrySequenceEnum;
 import com.xl.canary.exception.*;
 import com.xl.canary.service.BillService;
 import com.xl.canary.service.CouponService;
 import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.service.StrategyService;
-import com.xl.canary.utils.LoanOrderInstalmentUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * created by XUAN on 2018/09/22
@@ -36,9 +32,6 @@ import java.util.Map;
 @Service("billServiceImpl")
 public class BillServiceImpl implements BillService {
 
-    /**
-     * TODO: 使用factory
-     */
     @Autowired
     private InstalmentCalculatorImpl instalmentCalculator;
 
@@ -58,7 +51,7 @@ public class BillServiceImpl implements BillService {
     private LoanInstalmentService instalmentService;
 
     @Override
-    public Schema payOffAll(LoanOrderEntity loanOrder) throws SchemaException {
+    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException {
         // 订单schema
         List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
         return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
@@ -75,31 +68,115 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public Schema payLoanOrder(LoanOrderEntity loanOrder, BigDecimal payAmount) throws BaseException {
+    public Schema payLoanOrder(LoanOrderEntity loanOrder, PayOrderEntity payOrder) throws BaseException {
         Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderCouponSchemas(loanOrder), SchemaTypeEnum.ENTRY);
-        return this.entrySchema(shouldPaySchemaForEntry, payAmount);
+        return this.entrySchema(shouldPaySchemaForEntry, payOrder);
     }
 
     @Override
-    public Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, BigDecimal payAmount) throws BaseException {
+    public Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException {
         Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), SchemaTypeEnum.ENTRY);
-        return this.entrySchema(shouldPaySchemaForEntry, payAmount);
+        return this.entrySchema(shouldPaySchemaForEntry, payOrder);
     }
 
     /**
      * 计算入账用schema
-     * @param payOffSchema
+     * 传进来对应类型的schema就可以给出正确的入账schema
+     * @param shouldPaySchema
      * @param payAmount
      * @return
      */
-    private Schema entrySchema(Schema payOffSchema, BigDecimal payAmount) {
+    private Schema entrySchema(Schema shouldPaySchema, PayOrderEntity payOrder) {
         Schema entrySchema = new Schema(SchemaTypeEnum.ENTRY);
-        //TODO: 入账schema逻辑
+        BigDecimal paid = payOrder.getEquivalentAmount();
+        /**
+         * 入账schema逻辑
+         *
+         * 只要入账逻辑是单个订单相关的， 不会几个订单杂糅到一起， 改这个方法中的代码就可以实现.
+         * 如果订单杂糅在一起, 比如用户的逾期费全部一起入账, 则需要另写实现, 或者说需要重构
+         *
+         * 同一订单内决定入账顺序的元素有:
+         * 1. 元素类型/元素入账类型
+         * 2. 期数
+         * 3. 还款日, 也就是到期还是没到期
+         *
+         * 根据以上参数, 重新整理schema来把需要入账的元素排序, 就可以入账了
+         *
+         * TODO: 扩展到多订单的时候也一样
+         */
+        for (Map.Entry<Integer, Instalment> instalmentEntry : shouldPaySchema.entrySet()) {
+            if (BigDecimal.ZERO.compareTo(paid) >= 0) {
+                break;
+            }
+            Integer instalmentKey = instalmentEntry.getKey();
+            Instalment instalment = instalmentEntry.getValue();
+            Instalment entryInstalment = entrySchema.get(instalmentKey);
+            if (entryInstalment == null) {
+                entryInstalment = new Instalment();
+                entrySchema.put(instalmentKey, entryInstalment);
+            }
 
+            List<LoanOrderElementEnum> defaultEntrySequence = EntrySequenceEnum.getDefaultEntrySequence();
+            for (LoanOrderElementEnum elementEnum : defaultEntrySequence) {
+                if (BigDecimal.ZERO.compareTo(paid) >= 0) {
+                    break;
+                }
+                Unit unit = instalment.get(elementEnum);
+                if (unit != null && unit.size() > 0) {
+                    Unit entryUnit = entryInstalment.get(elementEnum);
+                    if (entryUnit == null) {
+                        entryUnit = new Unit();
+                        entryInstalment.put(elementEnum, entryUnit);
+                    }
 
-
+                    LoanOrderElementTypeEnum elementType = elementEnum.getLoanOrderElementType();
+                    // 这种类型要做特殊处理, 把之后的期数都一起入账
+                    // TODO: 可能有更好的处理方式
+                    if (LoanOrderElementTypeEnum.PRIVILEGE.equals(elementType)) {
+                        Integer totalInstalment = shouldPaySchema.size();
+                        for (Integer i = 0; i < totalInstalment; i++) {
+                            if (BigDecimal.ZERO.compareTo(paid) >= 0) {
+                                break;
+                            }
+                            Instalment privilegeInstalment = shouldPaySchema.get(i);
+                            Unit privilegeUnit = privilegeInstalment.get(elementEnum);
+                            if (privilegeUnit != null && privilegeUnit.size() > 0) {
+                                this.entryElement(privilegeUnit, entryUnit, paid, payOrder.getPayOrderId());
+                            }
+                        }
+                    } else {
+                        // 其他种类正常入账就行
+                        this.entryElement(unit, entryUnit, paid, payOrder.getPayOrderId());
+                    }
+                }
+            }
+        }
         return entrySchema;
+    }
 
+    /**
+     * 入账的元素入账逻辑
+     */
+    private void entryElement(Unit privilegeUnit, Unit entryUnit, BigDecimal paid, String payOrderId) {
+        for (Element element : privilegeUnit) {
+            // 如果source有值, 代表已经入账了
+            Element cloneElement = element.clone();
+            if (element.getSource() == null) {
+                BigDecimal amount = element.getAmount();
+                cloneElement.setSource(BillTypeEnum.PAY_ORDER);
+                cloneElement.setSourceId(payOrderId);
+                entryUnit.add(cloneElement);
+                if (paid.compareTo(amount) > 0) {
+                    paid = paid.subtract(amount);
+                } else {
+                    // 结束
+                    cloneElement.setAmount(paid);
+                    paid = BigDecimal.ZERO;
+                }
+            } else {
+                entryUnit.add(cloneElement);
+            }
+        }
     }
 
     /**

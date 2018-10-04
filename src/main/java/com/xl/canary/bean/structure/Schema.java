@@ -2,14 +2,12 @@ package com.xl.canary.bean.structure;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.enums.SchemaTypeEnum;
+import com.xl.canary.enums.loan.LoanOrderElementEnum;
 import com.xl.canary.enums.pay.PayTypeEnum;
 import com.xl.canary.utils.TimeUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 账单基础结构
@@ -59,6 +57,21 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
             instalment.reverse();
         }
         return clone;
+    }
+
+    /**
+     * 获取所有期数的指定元素类型
+     * @param loanOrderElement
+     * @return
+     */
+    public List<Unit> listUnits (LoanOrderElementEnum loanOrderElement) {
+        List<Unit> units = new ArrayList<Unit>();
+        for (Entry<Integer, Instalment> instalmentEntry : schemaMap.entrySet()) {
+            Instalment instalment = instalmentEntry.getValue();
+            Unit unit = instalment.get(loanOrderElement);
+            units.add(unit);
+        }
+        return units;
     }
 
     @Override
