@@ -171,6 +171,7 @@ CREATE TABLE t_canary_strategy (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `strategy_id` varchar(64) NOT NULL COMMENT '策略号',
   `strategy_type` varchar(64) NOT NULL COMMENT '策略类型',
+  `subject` varchar(64) NOT NULL COMMENT '应用主体',
   `instalment` INT COMMENT '辅助字段, 用于计算schema, 决定优惠某一期, 空表示都有效',
   `element` varchar(64) NOT NULL COMMENT '辅助字段, 用于计算schema, 决定优惠某一元素, 空表示都有效',
   `condition` JSON COMMENT '使用特别限制',
@@ -184,7 +185,7 @@ CREATE TABLE t_canary_strategy (
   `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
 PRIMARY KEY (`id`),
 UNIQUE INDEX `index_strategy_id` (`strategy_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='优惠表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='策略表';
 
 
 /***************************条件设置表 *************************/

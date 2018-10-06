@@ -25,9 +25,8 @@ public enum ResponseNutEnum {
     NO_TIME_ZONE(10000005, "无时区", "无时区"),
 
 
-    UNKNOWN_EXCEPTION(10009999, "系统内部异常", "未知异常"),
+    UNKNOWN_EXCEPTION(10009999, "系统内部异常", "未知异常");
 
-    ;
 
 
     ResponseNutEnum(Integer code, String message, String explanation) {

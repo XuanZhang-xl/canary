@@ -42,6 +42,22 @@ public interface BillService {
     Schema payOffAll(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException;
 
     /**
+     * 应还账单
+     * @param loanOrder
+     * @return
+     * @throws BaseException
+     */
+    Schema shouldPayLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException;
+
+    /**
+     * 计划账单
+     * @param loanOrder
+     * @return
+     * @throws BaseException
+     */
+    Schema planLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException;
+
+    /**
      * 部分还款的schema, 返回的都是负数
      * 计算策略
      * @param loanOrder

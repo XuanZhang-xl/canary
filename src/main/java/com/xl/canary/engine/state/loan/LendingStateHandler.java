@@ -1,8 +1,10 @@
 package com.xl.canary.engine.state.loan;
 
 import com.xl.canary.engine.action.IActionExecutor;
+import com.xl.canary.engine.action.impl.InstalmentLentAction;
 import com.xl.canary.engine.event.IEvent;
 import com.xl.canary.engine.event.order.loan.LendResponseEvent;
+import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.LoanInstalmentEntity;
@@ -30,8 +32,11 @@ public class LendingStateHandler implements IStateHandler<LoanOrderEntity> {
     @Autowired
     private LoanInstalmentService loanInstalmentService;
 
+    @Autowired
+    private IEventLauncher instalmentEventLauncher;
+
     @Override
-    public LoanOrderEntity handle(LoanOrderEntity loanOrder, IEvent event, IActionExecutor actionExecutor) throws InvalidEventException {
+    public LoanOrderEntity handle(LoanOrderEntity loanOrder, IEvent event, IActionExecutor actionExecutor) throws Exception {
 
         if (event instanceof LendResponseEvent) {
             LendResponseEvent lendResponseEvent = (LendResponseEvent) event;
@@ -45,6 +50,9 @@ public class LendingStateHandler implements IStateHandler<LoanOrderEntity> {
                 // 放款成功后, 生成账单
                 List<LoanInstalmentEntity> loanInstalmentEntities = loanInstalmentService.generateInstalments(loanOrder);
                 loanInstalmentService.saveLoanInstalments(loanInstalmentEntities);
+
+                // 更改分期状态
+                actionExecutor.append(new InstalmentLentAction(loanOrder.getOrderId(), loanInstalmentService, instalmentEventLauncher));
             } else {
                 loanOrder.setOrderState(StateEnum.FAILED.name());
             }

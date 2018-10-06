@@ -44,7 +44,7 @@ public class LoanOrderControllerTest implements Runnable {
         content.put("loanOrderType", LoanOrderTypeEnum.GENERAL_TYPE.name());
         content.put("applyCurrency", CurrencyEnum.USDT.name());
         content.put("amount", "12312");
-        content.put("instalment", "12");
+        content.put("instalment", "3");
         content.put("timeZone", "480");
         String newUrl = localhost + "/loan/apply_loan_order";
         HttpEntity<JSONObject> request = new HttpEntity<JSONObject>(content,headers); //组装

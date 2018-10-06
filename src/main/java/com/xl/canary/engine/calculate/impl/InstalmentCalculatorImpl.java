@@ -48,7 +48,6 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
         LoanOrderEntity loanOrder = loanOrderService.getByOrderId(orderId);
         // 分期利率
         BigDecimal instalmentRate = loanOrder.getInstalmentRate();
-        String instalmentUnit = loanOrder.getInstalmentUnit();
         Long now = System.currentTimeMillis();
 
         Schema schema = new Schema(SchemaTypeEnum.LOAN_ORIGINAL);
@@ -62,8 +61,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             principalElement.setAmount(originalPrincipal);
             principalElement.setElement(LoanOrderElementEnum.PRINCIPAL);
             principalElement.setInstalment(instalmentEntity.getInstalment());
-            principalElement.setSource(BillTypeEnum.LOAN_ORDER);
-            principalElement.setSourceId(instalmentEntity.getOrderId());
+            principalElement.setDestination(BillTypeEnum.LOAN_ORDER);
+            principalElement.setDestinationId(instalmentEntity.getOrderId());
             principalUnit.add(principalElement);
             instalment.put(LoanOrderElementEnum.PRINCIPAL, principalUnit);
 
@@ -77,8 +76,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             interestElement.setAmount(dailyInterest.multiply(new BigDecimal(passDays)));
             interestElement.setElement(LoanOrderElementEnum.INTEREST);
             interestElement.setInstalment(instalmentEntity.getInstalment());
-            interestElement.setSource(BillTypeEnum.LOAN_ORDER);
-            interestElement.setSourceId(instalmentEntity.getOrderId());
+            interestElement.setDestination(BillTypeEnum.LOAN_ORDER);
+            interestElement.setDestinationId(instalmentEntity.getOrderId());
             interestUnit.add(interestElement);
             instalment.put(LoanOrderElementEnum.INTEREST, interestUnit);
 
@@ -91,8 +90,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 penaltyElement.setAmount(originalPrincipal.multiply(dailyPenalty.multiply(new BigDecimal(passDays))));
                 penaltyElement.setElement(LoanOrderElementEnum.PENALTY);
                 penaltyElement.setInstalment(instalmentEntity.getInstalment());
-                penaltyElement.setSource(BillTypeEnum.LOAN_ORDER);
-                penaltyElement.setSourceId(instalmentEntity.getOrderId());
+                penaltyElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                penaltyElement.setDestinationId(instalmentEntity.getOrderId());
                 interestUnit.add(penaltyElement);
                 instalment.put(LoanOrderElementEnum.PENALTY, penaltyUnit);
             }
@@ -109,8 +108,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 feeElement.setAmount(fee);
                 feeElement.setElement(loanOrderElementEnum);
                 feeElement.setInstalment(instalmentEntity.getInstalment());
-                feeElement.setSource(BillTypeEnum.LOAN_ORDER);
-                feeElement.setSourceId(instalmentEntity.getOrderId());
+                feeElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                feeElement.setDestinationId(instalmentEntity.getOrderId());
                 feeUnit.add(feeElement);
                 instalment.put(loanOrderElementEnum, feeUnit);
             }
@@ -148,8 +147,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             principalElement.setAmount(principal);
             principalElement.setElement(LoanOrderElementEnum.PRINCIPAL);
             principalElement.setInstalment(instalmentEntity.getInstalment());
-            principalElement.setSource(BillTypeEnum.LOAN_ORDER);
-            principalElement.setSourceId(instalmentEntity.getOrderId());
+            principalElement.setDestination(BillTypeEnum.LOAN_ORDER);
+            principalElement.setDestinationId(instalmentEntity.getOrderId());
             principalUnit.add(principalElement);
             instalment.put(LoanOrderElementEnum.PRINCIPAL, principalUnit);
             // 加入利息
@@ -159,8 +158,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             interestElement.setAmount(interest);
             interestElement.setElement(LoanOrderElementEnum.INTEREST);
             interestElement.setInstalment(instalmentEntity.getInstalment());
-            interestElement.setSource(BillTypeEnum.LOAN_ORDER);
-            interestElement.setSourceId(instalmentEntity.getOrderId());
+            interestElement.setDestination(BillTypeEnum.LOAN_ORDER);
+            interestElement.setDestinationId(instalmentEntity.getOrderId());
             interestUnit.add(interestElement);
             instalment.put(LoanOrderElementEnum.INTEREST, interestUnit);
 
@@ -172,8 +171,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 penaltyElement.setAmount(penalty);
                 penaltyElement.setElement(LoanOrderElementEnum.PENALTY);
                 penaltyElement.setInstalment(instalmentEntity.getInstalment());
-                penaltyElement.setSource(BillTypeEnum.LOAN_ORDER);
-                penaltyElement.setSourceId(instalmentEntity.getOrderId());
+                penaltyElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                penaltyElement.setDestinationId(instalmentEntity.getOrderId());
                 interestUnit.add(penaltyElement);
                 instalment.put(LoanOrderElementEnum.PENALTY, penaltyUnit);
             }
@@ -190,14 +189,14 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 feeElement.setAmount(fee);
                 feeElement.setElement(loanOrderElementEnum);
                 feeElement.setInstalment(instalmentEntity.getInstalment());
-                feeElement.setSource(BillTypeEnum.LOAN_ORDER);
-                feeElement.setSourceId(instalmentEntity.getOrderId());
+                feeElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                feeElement.setDestinationId(instalmentEntity.getOrderId());
                 feeUnit.add(feeElement);
                 instalment.put(loanOrderElementEnum, feeUnit);
             }
 
             // 加入还款日
-            instalment.setRepaymentDate(instalment.getRepaymentDate());
+            instalment.setRepaymentDate(TimeUtils.truncateToDay(instalmentEntity.getShouldPayTime()));
 
             schema.put(instalmentEntity.getInstalment(), instalment);
         }
@@ -220,8 +219,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             principalElement.setAmount(originalPrincipal);
             principalElement.setElement(LoanOrderElementEnum.PRINCIPAL);
             principalElement.setInstalment(instalmentEntity.getInstalment());
-            principalElement.setSource(BillTypeEnum.LOAN_ORDER);
-            principalElement.setSourceId(instalmentEntity.getOrderId());
+            principalElement.setDestination(BillTypeEnum.LOAN_ORDER);
+            principalElement.setDestinationId(instalmentEntity.getOrderId());
             principalUnit.add(principalElement);
             instalment.put(LoanOrderElementEnum.PRINCIPAL, principalUnit);
             // 加入利息
@@ -231,8 +230,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             interestElement.setAmount(originalInterest);
             interestElement.setElement(LoanOrderElementEnum.INTEREST);
             interestElement.setInstalment(instalmentEntity.getInstalment());
-            interestElement.setSource(BillTypeEnum.LOAN_ORDER);
-            interestElement.setSourceId(instalmentEntity.getOrderId());
+            interestElement.setDestination(BillTypeEnum.LOAN_ORDER);
+            interestElement.setDestinationId(instalmentEntity.getOrderId());
             interestUnit.add(interestElement);
             instalment.put(LoanOrderElementEnum.INTEREST, interestUnit);
             // 加入各种服务费
@@ -247,8 +246,8 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 feeElement.setAmount(fee);
                 feeElement.setElement(loanOrderElementEnum);
                 feeElement.setInstalment(instalmentEntity.getInstalment());
-                feeElement.setSource(BillTypeEnum.LOAN_ORDER);
-                feeElement.setSourceId(instalmentEntity.getOrderId());
+                feeElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                feeElement.setDestinationId(instalmentEntity.getOrderId());
                 feeUnit.add(feeElement);
                 instalment.put(loanOrderElementEnum, feeUnit);
             }
@@ -266,7 +265,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
         List<LoanInstalmentEntity> instalmentEntities = checkSchemaEntity(schemaEntities);
         Map<Integer, Long> repaymentDates = new HashMap<Integer, Long>();
         for (LoanInstalmentEntity instalmentEntity : instalmentEntities) {
-            repaymentDates.put(instalmentEntity.getInstalment(), instalmentEntity.getShouldPayTime());
+            repaymentDates.put(instalmentEntity.getInstalment(), TimeUtils.truncateToDay(instalmentEntity.getShouldPayTime()));
         }
         return repaymentDates;
     }

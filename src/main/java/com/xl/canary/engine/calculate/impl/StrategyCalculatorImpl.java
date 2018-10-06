@@ -35,6 +35,9 @@ public class StrategyCalculatorImpl implements CouponCalculator {
 
     @Override
     public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder) throws SchemaException {
+        if (schemaEntities == null || schemaEntities.size() == 0) {
+            return null;
+        }
         List<StrategyEntity> strategyEntities = this.checkSchemaEntity(schemaEntities);
 
         Schema orderSchema = loanSchemaCalculator.getCurrentSchema(System.currentTimeMillis(), Arrays.asList(loanOrder));
@@ -101,9 +104,6 @@ public class StrategyCalculatorImpl implements CouponCalculator {
     }
 
     private List<StrategyEntity> checkSchemaEntity (List<? extends ISchemaEntity> schemaEntities) throws SchemaException {
-        if (schemaEntities == null || schemaEntities.size() == 0) {
-            throw new SchemaException("优惠券计算器传入实体为空!");
-        }
         List<StrategyEntity> strategyEntities = new ArrayList<StrategyEntity>();
         // 检查传入参数是否正确
         for (ISchemaEntity schemaEntity : schemaEntities) {

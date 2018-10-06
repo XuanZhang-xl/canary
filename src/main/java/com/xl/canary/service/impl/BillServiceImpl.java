@@ -20,6 +20,7 @@ import com.xl.canary.service.BillService;
 import com.xl.canary.service.CouponService;
 import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.service.StrategyService;
+import com.xl.canary.utils.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +66,28 @@ public class BillServiceImpl implements BillService {
     @Override
     public Schema payOffAll(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities) throws BaseException {
         return this.mergeSchemas(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), SchemaTypeEnum.SHOULD_PAY);
+    }
+
+    @Override
+    public Schema shouldPayLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException {
+        Schema schema = this.mergeSchemas(this.loanOrderCouponSchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
+        // 去除还没到期的期数
+        Iterator<Map.Entry<Integer, Instalment>> iterator = schema.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Instalment> instalmentEntry = iterator.next();
+            Instalment instalment = instalmentEntry.getValue();
+            Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
+            if (today < instalment.getRepaymentDate()) {
+                iterator.remove();
+            }
+        }
+        return schema;
+    }
+
+    @Override
+    public Schema planLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException {
+        List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
+        return instalmentCalculator.getPlanSchema(System.currentTimeMillis(), instalmentEntities);
     }
 
     @Override
@@ -238,8 +261,8 @@ public class BillServiceImpl implements BillService {
      * @throws SchemaException
      */
     private Schema mergeSchemas(List<Schema> schemas, SchemaTypeEnum schemaType) throws SchemaException {
-        if (SchemaTypeEnum.ENTRY.equals(schemaType) || SchemaTypeEnum.SHOULD_PAY.equals(schemaType)) {
-            throw new SchemaException("mergeSchemas方法仅支持SchemaTypeEnum.ENTRY与SchemaTypeEnum.SHOULD_PAY, 当前shcema类型" + schemaType.name());
+        if (!SchemaTypeEnum.REPAY_RELEVANT.contains(schemaType)) {
+            throw new SchemaException("mergeSchemas方法仅支持SchemaTypeEnum.ENTRY与SchemaTypeEnum.SHOULD_PAY, 当前schema类型" + schemaType.name());
         }
         // 应还schema
         Schema repaySchema = new Schema(schemaType);
@@ -259,6 +282,7 @@ public class BillServiceImpl implements BillService {
             Instalment repayInstalment = repaySchema.get(instalmentKey);
             if (repayInstalment == null) {
                 repayInstalment = new Instalment();
+                repayInstalment.setRepaymentDate(sourceInstalment.getRepaymentDate());
                 repaySchema.put(instalmentKey, repayInstalment);
             }
             // instalment 中有一部分还了
@@ -330,6 +354,9 @@ public class BillServiceImpl implements BillService {
     private Schema getWriteOffTypeSchema(List<Schema> schemas, SchemaTypeEnum writeOffSource) throws SchemaException {
         Schema writeOffSchema = new Schema(writeOffSource);
         for (Schema schema : schemas) {
+            if (schema == null) {
+                continue;
+            }
             for (Map.Entry<Integer, Instalment> instalmentEntry : schema.entrySet()) {
                 Integer instalmentKey = instalmentEntry.getKey();
                 Instalment instalment = instalmentEntry.getValue();
@@ -350,14 +377,16 @@ public class BillServiceImpl implements BillService {
                             // 数字是正的在这儿
                             writeOffElements.add(element);
                             writeOffInstalment.put(elementKey, writeOffElements);
+                            if (instalment.getRepaymentDate() > 0) {
+                                writeOffInstalment.setRepaymentDate(instalment.getRepaymentDate());
+                            }
                             writeOffSchema.put(instalmentKey, writeOffInstalment);
-                        } else if (SchemaTypeEnum.WRITE_OFF_SOURCE.equals(writeOffSource) && BigDecimal.ZERO.compareTo(amount) > 0) {
+                        }
+                        if (SchemaTypeEnum.WRITE_OFF_SOURCE.equals(writeOffSource) && BigDecimal.ZERO.compareTo(amount) > 0) {
                             // 数字是负的在这儿
                             writeOffElements.add(element);
                             writeOffInstalment.put(elementKey, writeOffElements);
                             writeOffSchema.put(instalmentKey, writeOffInstalment);
-                        } else {
-                            throw new SchemaException("计算销账schema时的SchemaType为" + writeOffSource.name() + ", 不符合要求!");
                         }
                     }
                 }

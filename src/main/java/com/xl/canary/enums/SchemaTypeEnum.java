@@ -1,5 +1,8 @@
 package com.xl.canary.enums;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * schema类型
  * created by XUAN on 2018/09/08
@@ -65,4 +68,12 @@ public enum  SchemaTypeEnum {
     WRITE_OFF_DESTINATION(),
 
     ;
+
+
+    /**
+     * 还款相关
+     */
+    public static final List<SchemaTypeEnum> REPAY_RELEVANT = Arrays.asList(SHOULD_PAY, ENTRY);
+
+
 }
