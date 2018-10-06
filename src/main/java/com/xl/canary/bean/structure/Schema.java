@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
 import com.xl.canary.enums.pay.PayTypeEnum;
+import com.xl.canary.exception.BaseException;
+import com.xl.canary.exception.InnerException;
 import com.xl.canary.utils.TimeUtils;
 
 import java.io.Serializable;
@@ -32,9 +34,13 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
      * TODO: HashMap 可能是乱排的, 这样获取对不对还要测试下
      * @return
      */
-    public PayTypeEnum getPayType () {
+    public PayTypeEnum getPayType () throws BaseException {
+        //限制条件
+        if (!SchemaTypeEnum.REPAY_RELEVANT.contains(this.schemaType)) {
+            throw new BaseException("schema类型" + schemaType.name() + "没有还款类型");
+        }
         for (Entry<Integer, Instalment> entry : this.schemaMap.entrySet()) {
-            long repaymentDate = entry.getValue().getRepaymentDate();
+            long repaymentDate = TimeUtils.truncateToHour(entry.getValue().getRepaymentDate());
             long now = TimeUtils.truncateToHour(System.currentTimeMillis());
             if (repaymentDate < now) {
                 return PayTypeEnum.REPAY_OVERDUE;

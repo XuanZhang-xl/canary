@@ -26,6 +26,11 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
     private String strategyType;
 
     /**
+     * 策略应用主体, 系统级的主体
+     */
+    private String subject;
+
+    /**
      * 辅助字段, 用于计算schema, 决定优惠某一期, 空表示都有效
      */
     private Integer instalment;
@@ -75,6 +80,14 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
 
     public void setStrategyType(String strategyType) {
         this.strategyType = strategyType;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     @Override

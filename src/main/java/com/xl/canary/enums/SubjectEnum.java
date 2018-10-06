@@ -47,5 +47,10 @@ public enum SubjectEnum {
      */
     public static final List<SubjectEnum> COUPON_BINDABLE_SUBJECT = Arrays.asList(USER, LOAN_ORDER);
 
+    /**
+     * 可绑定策略的主体
+     */
+    public static final List<SubjectEnum> STRATEGY_BINDABLE_SUBJECT = Arrays.asList(CANARY);
+
 
 }

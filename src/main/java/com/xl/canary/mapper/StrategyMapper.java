@@ -1,6 +1,7 @@
 package com.xl.canary.mapper;
 
 import com.xl.canary.entity.StrategyEntity;
+import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
@@ -17,5 +18,5 @@ public interface StrategyMapper  extends Mapper<StrategyEntity> {
      * @param time      当前时间
      * @return
      */
-    List<StrategyEntity> listAvailableStrategiesBySubject(String subject, long time);
+    List<StrategyEntity> listAvailableStrategiesBySubject(@Param("subject") String subject, @Param("time")long time);
 }

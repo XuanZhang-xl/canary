@@ -7,23 +7,13 @@ package com.xl.canary.utils;
 public interface RedisLockKeySuffix {
 
     /**
-     * 订单预下单锁
-     */
-    String PRE_LOAN_ORDER_KEY = "PRE_LOAN_ORDER_KEY";
-
-    /**
      * 下单锁
      */
-    String LOAN_ORDER_KEY = "LOAN_ORDER_KEY";
-
-    /**
-     * 预还款锁
-     */
-    String PRE_PAY_ORDER_KEY = "PRE_PAY_ORDER_KEY";
+    String LOAN_ORDER_KEY = "LOAN_ORDER_KEY_";
 
     /**
      * 还款锁
      */
-    String PAY_ORDER_KEY = "PAY_ORDER_KEY";
+    String PAY_ORDER_KEY = "PAY_ORDER_KEY_";
 
 }

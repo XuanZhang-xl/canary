@@ -42,6 +42,11 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
     }
 
     @Override
+    public void update(LoanInstalmentEntity instalment) {
+        loanInstalmentMapper.updateByPrimaryKey(instalment);
+    }
+
+    @Override
     public List<LoanInstalmentEntity> generateInstalments(LoanOrderEntity loanOrder) {
         List<LoanInstalmentEntity> loanInstalmentEntities = new ArrayList<LoanInstalmentEntity>();
         LoanOrderTypeEnum loanOrderType = LoanOrderTypeEnum.valueOf(loanOrder.getOrderType());
