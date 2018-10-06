@@ -2,7 +2,10 @@ package com.xl.canary.mapper;
 
 import com.xl.canary.entity.CouponEntity;
 import com.xl.canary.entity.PayOrderEntity;
+import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
+
+import java.util.List;
 
 /**
  * created by XUAN on 2018/08/20
@@ -16,4 +19,11 @@ public interface CouponMapper extends Mapper<CouponEntity>{
      * @return
      */
     CouponEntity getByCouponId(String couponId);
+
+    /**
+     * 批次号查询
+     * @param couponBatchIds
+     * @return
+     */
+    List<CouponEntity> listByCouponBatchId(@Param("couponBatchIds") List<String> couponBatchIds);
 }

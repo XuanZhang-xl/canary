@@ -151,4 +151,12 @@ public class CouponServiceImpl implements CouponService {
         Situation situation = SituationHolder.getSituation();
         return conditionHandler.checkConditions(couponEntities, situation);
     }
+
+    @Override
+    public List<CouponEntity> listByCouponBatchId(List<String> couponBatchIds) {
+        if (couponBatchIds == null || couponBatchIds.size() == 0) {
+            return null;
+        }
+        return couponMapper.listByCouponBatchId(couponBatchIds);
+    }
 }

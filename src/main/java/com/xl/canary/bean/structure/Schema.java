@@ -32,6 +32,8 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
     /**
      * 获取当前用户还款时的还款类型
      * TODO: HashMap 可能是乱排的, 这样获取对不对还要测试下
+     *
+     * 如果没有业务定义, 这个方法其实是多余的, 比如逾期还款也可以有一部分的提前还款
      * @return
      */
     public PayTypeEnum getPayType () throws BaseException {

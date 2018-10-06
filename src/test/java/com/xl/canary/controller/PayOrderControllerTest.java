@@ -30,7 +30,7 @@ public class PayOrderControllerTest {
         //放入body中的json参数
         JSONObject content = new JSONObject();
         content.put("orderId","1");
-        String newUrl = localhost + "/pay/should_pay?orderId=" + "233233150229762048";
+        String newUrl = localhost + "/pay/should_pay?orderId=" + "233351692778360832";
         HttpEntity<JSONObject> request = new HttpEntity<JSONObject>(content,headers); //组装
         ResponseEntity<String> response = restTemplate.exchange(newUrl, HttpMethod.GET,request,String.class);
         logger.info(response.getBody());

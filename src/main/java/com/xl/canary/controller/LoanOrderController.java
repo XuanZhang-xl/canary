@@ -14,6 +14,7 @@ import com.xl.canary.entity.UserEntity;
 import com.xl.canary.entity.UserLevelSettingEntity;
 import com.xl.canary.enums.*;
 import com.xl.canary.enums.loan.*;
+import com.xl.canary.lock.Lock;
 import com.xl.canary.lock.RedisService;
 import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.service.LoanOrderService;
@@ -23,6 +24,7 @@ import com.xl.canary.simulator.ExchangeRateSimulator;
 import com.xl.canary.utils.EssentialConstance;
 import com.xl.canary.bean.dto.Fee;
 import com.xl.canary.utils.IDWorker;
+import com.xl.canary.utils.RedisLockKeySuffix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,9 +106,10 @@ public class LoanOrderController {
         String level = user.getLevel();
         UserLevelSettingEntity userLevelSetting = userLevelSettingService.getByLevel(level);
 
+        Lock lock = new Lock(RedisLockKeySuffix.LOAN_ORDER_KEY + userCode, String.valueOf(idWorker.generateID()));
         try {
             // 强制锁用户30秒, 以防重复下单
-            if (redisService.lock(userCode, userCode, 30000, TimeUnit.MILLISECONDS)) {
+            if (redisService.lock(lock.getName(), lock.getValue(), 30000, TimeUnit.MILLISECONDS)) {
                 BigDecimal amount = req.getAmount();
                 CurrencyEnum applyCurrency = req.getApplyCurrency();
                 LoanOrderTypeEnum loanOrderType = req.getLoanOrderType();
@@ -157,15 +160,16 @@ public class LoanOrderController {
                 // 放款操作, 必须在最后做, 否则可能出现幻读, 虚读等错误
                 loanOrderEventLauncher.launch(new AuditLaunchEvent(userCode, loanOrder.getOrderId()));
                 logger.info("获取situation ： {}", SituationHolder.getSituation());
+                return response;
             } else {
                 logger.error("用户[{}]下单锁竞争失败", userCode);
                 return response.buildFailedResponse(ResponseNutEnum.LOCK_ERROR);
             }
         } catch (Exception e) {
             logger.error("下单报错:", e);
+            return response.buildFailedResponse(ResponseNutEnum.UNKNOWN_EXCEPTION);
         } finally {
-            redisService.unlock(userCode);
+            redisService.release(lock);
         }
-        return response;
     }
 }

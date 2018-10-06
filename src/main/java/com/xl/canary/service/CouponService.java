@@ -63,4 +63,11 @@ public interface CouponService {
      * @return
      */
     Boolean checkCoupons(List<CouponEntity> couponEntities);
+
+    /**
+     * 批次号查询
+     * @param couponIds
+     * @return
+     */
+    List<CouponEntity> listByCouponBatchId(List<String> couponBatchIds);
 }

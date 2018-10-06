@@ -81,7 +81,8 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
                     loanInstalment.setOriginalFee(jsonFee);
                     // 应还信息
                     loanInstalment.setPrincipal(basicInstalment.getPrincipal());
-                    loanInstalment.setInterest(basicInstalment.getInterest());
+                    // 当天不算利息, 从第二天开始算利息
+                    loanInstalment.setInterest(BigDecimal.ZERO);
                     loanInstalment.setPenalty(BigDecimal.ZERO);
                     loanInstalment.setFee(jsonFee);
                     // 还款日
