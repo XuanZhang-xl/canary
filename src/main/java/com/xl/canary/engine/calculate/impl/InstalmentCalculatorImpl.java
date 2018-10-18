@@ -133,6 +133,12 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
         // 检查传入的实体是否符合要求
         List<LoanInstalmentEntity> instalmentEntities = checkSchemaEntity(schemaEntities);
 
+        /**
+         * TODO: 这样取特别别扭, 可不可以外面传进来?
+         */
+        String orderId = instalmentEntities.get(0).getOrderId();
+        LoanOrderEntity loanOrder = loanOrderService.getByOrderId(orderId);
+
         Schema schema = new Schema(SchemaTypeEnum.LOAN_CURRENT);
         for (LoanInstalmentEntity instalmentEntity : instalmentEntities) {
             if (!StateEnum.LENT.name().equals(instalmentEntity.getState())) {
@@ -141,52 +147,28 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             }
             Instalment instalment = new Instalment();
             // 加入本金
-            BigDecimal principal = instalmentEntity.getPrincipal();
             Unit principalUnit = new Unit();
             Element principalElement = new Element();
-            principalElement.setAmount(principal);
+            principalElement.setAmount(instalmentEntity.getOriginalPrincipal().subtract(instalmentEntity.getPaidPrincipal()));
             principalElement.setElement(LoanOrderElementEnum.PRINCIPAL);
             principalElement.setInstalment(instalmentEntity.getInstalment());
             principalElement.setDestination(BillTypeEnum.LOAN_ORDER);
             principalElement.setDestinationId(instalmentEntity.getOrderId());
             principalUnit.add(principalElement);
             instalment.put(LoanOrderElementEnum.PRINCIPAL, principalUnit);
-            // 加入利息
-            BigDecimal interest = instalmentEntity.getInterest();
-            Unit interestUnit = new Unit();
-            Element interestElement = new Element();
-            interestElement.setAmount(interest);
-            interestElement.setElement(LoanOrderElementEnum.INTEREST);
-            interestElement.setInstalment(instalmentEntity.getInstalment());
-            interestElement.setDestination(BillTypeEnum.LOAN_ORDER);
-            interestElement.setDestinationId(instalmentEntity.getOrderId());
-            interestUnit.add(interestElement);
-            instalment.put(LoanOrderElementEnum.INTEREST, interestUnit);
-
-            // 加入罚息
-            BigDecimal penalty = instalmentEntity.getPenalty();
-            if (penalty != null && BigDecimal.ZERO.compareTo(penalty) < 0) {
-                Unit penaltyUnit = new Unit();
-                Element penaltyElement = new Element();
-                penaltyElement.setAmount(penalty);
-                penaltyElement.setElement(LoanOrderElementEnum.PENALTY);
-                penaltyElement.setInstalment(instalmentEntity.getInstalment());
-                penaltyElement.setDestination(BillTypeEnum.LOAN_ORDER);
-                penaltyElement.setDestinationId(instalmentEntity.getOrderId());
-                interestUnit.add(penaltyElement);
-                instalment.put(LoanOrderElementEnum.PENALTY, penaltyUnit);
-            }
 
             // 加入各种服务费
-            String totalFee = instalmentEntity.getFee();
-            JSONObject feeJson = JSONObject.parseObject(totalFee);
-            for (Map.Entry<String, Object> entry : feeJson.entrySet()) {
+            String originalFee = instalmentEntity.getOriginalFee();
+            String paidFee = instalmentEntity.getPaidFee();
+            JSONObject originalFeeJson = JSONObject.parseObject(originalFee);
+            JSONObject paidFeeJson = JSONObject.parseObject(paidFee);
+            for (Map.Entry<String, Object> entry : originalFeeJson.entrySet()) {
                 String feeName = entry.getKey();
                 LoanOrderElementEnum loanOrderElementEnum = LoanOrderElementEnum.valueOf(feeName);
-                BigDecimal fee = feeJson.getBigDecimal(feeName);
+                BigDecimal fee = originalFeeJson.getBigDecimal(feeName);
                 Unit feeUnit = new Unit();
                 Element feeElement = new Element();
-                feeElement.setAmount(fee);
+                feeElement.setAmount(fee.subtract(paidFeeJson.getBigDecimal(feeName)));
                 feeElement.setElement(loanOrderElementEnum);
                 feeElement.setInstalment(instalmentEntity.getInstalment());
                 feeElement.setDestination(BillTypeEnum.LOAN_ORDER);
@@ -195,9 +177,80 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 instalment.put(loanOrderElementEnum, feeUnit);
             }
 
-            // 加入还款日
-            instalment.setRepaymentDate(TimeUtils.truncateToDay(instalmentEntity.getShouldPayTime()));
+            Long today = TimeUtils.truncateToDay(date);
+            Long repaymentDate = TimeUtils.truncateToDay(instalmentEntity.getShouldPayTime());
+            // 加入利息, 到期和未到期的利息计算方式不同
+            if (today > repaymentDate) {
+                // 逾期
+                // 加入罚息
+                BigDecimal paidPenalty = instalmentEntity.getPaidPenalty();
+                Unit penaltyUnit = new Unit();
+                Element penaltyElement = new Element();
 
+                Long lastPaidPrincipalDate = instalmentEntity.getLastPaidPrincipalDate();
+                Long penaltyBeginDate = lastPaidPrincipalDate > repaymentDate ? lastPaidPrincipalDate : repaymentDate;
+                long overDueDays = TimeUtils.passDays(penaltyBeginDate, today, instalmentEntity.getTimeZone());
+                BigDecimal dailyPenalty = LoanOrderInstalmentUtils.dailyPenalty(principalElement.getAmount(), TimeUnitEnum.valueOf(loanOrder.getInstalmentUnit()), loanOrder.getPenaltyRate());
+                /**
+                 * 罚息每天一记
+                 */
+                penaltyElement.setAmount(dailyPenalty
+                        .multiply(new BigDecimal(overDueDays))
+                        .setScale(LoanLimitation.RESULT_SCALE, LoanLimitation.RESULT_UP));
+                penaltyElement.setElement(LoanOrderElementEnum.PENALTY);
+                penaltyElement.setInstalment(instalmentEntity.getInstalment());
+                penaltyElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                penaltyElement.setDestinationId(instalmentEntity.getOrderId());
+                penaltyUnit.add(penaltyElement);
+                instalment.put(LoanOrderElementEnum.PENALTY, penaltyUnit);
+
+                // 加入利息
+                Unit interestUnit = new Unit();
+                Element interestElement = new Element();
+                interestElement.setAmount(instalmentEntity.getOriginalInterest().subtract(instalmentEntity.getPaidInterest()));
+                interestElement.setElement(LoanOrderElementEnum.INTEREST);
+                interestElement.setInstalment(instalmentEntity.getInstalment());
+                interestElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                interestElement.setDestinationId(instalmentEntity.getOrderId());
+                interestUnit.add(interestElement);
+                instalment.put(LoanOrderElementEnum.INTEREST, interestUnit);
+            } else if (today.equals(repaymentDate)) {
+                // 到期
+                // 加入利息
+                Unit interestUnit = new Unit();
+                Element interestElement = new Element();
+                interestElement.setAmount(instalmentEntity.getOriginalInterest().subtract(instalmentEntity.getPaidInterest()));
+                interestElement.setElement(LoanOrderElementEnum.INTEREST);
+                interestElement.setInstalment(instalmentEntity.getInstalment());
+                interestElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                interestElement.setDestinationId(instalmentEntity.getOrderId());
+                interestUnit.add(interestElement);
+                instalment.put(LoanOrderElementEnum.INTEREST, interestUnit);
+            } else {
+                // 未到期
+                // 加入利息
+                Unit interestUnit = new Unit();
+                Element interestElement = new Element();
+
+                long passedDays = TimeUtils.passDays(loanOrder.getLentTime(), today, instalmentEntity.getTimeZone());
+                BigDecimal dailyInterest = LoanOrderInstalmentUtils.dailyInterest(principalElement.getAmount(), TimeUnitEnum.valueOf(loanOrder.getInstalmentUnit()), loanOrder.getInstalmentRate());
+
+                /**
+                 * 罚息每天一记
+                 */
+                interestElement.setAmount(dailyInterest
+                        .multiply(new BigDecimal(passedDays))
+                        .setScale(LoanLimitation.RESULT_SCALE, LoanLimitation.RESULT_UP));
+                interestElement.setElement(LoanOrderElementEnum.INTEREST);
+                interestElement.setInstalment(instalmentEntity.getInstalment());
+                interestElement.setDestination(BillTypeEnum.LOAN_ORDER);
+                interestElement.setDestinationId(instalmentEntity.getOrderId());
+                interestUnit.add(interestElement);
+                instalment.put(LoanOrderElementEnum.INTEREST, interestUnit);
+            }
+
+            // 加入还款日
+            instalment.setRepaymentDate(repaymentDate);
             schema.put(instalmentEntity.getInstalment(), instalment);
         }
         return schema;
