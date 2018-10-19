@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,11 @@ import java.util.Set;
 public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, Serializable {
 
     private final Map<LoanOrderElementEnum, Unit> instalmentMap;
+
+    /**
+     * 期数
+     */
+    private Integer instalment;
 
     /**
      * 当期的还款日
@@ -32,6 +38,32 @@ public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, S
                 element.reverse();
             }
         }
+    }
+
+    /**
+     * 合计
+     * @return
+     */
+    public BigDecimal sum() {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (Entry<LoanOrderElementEnum, Unit> entry : instalmentMap.entrySet()) {
+            sum = sum.add(entry.getValue().sum());
+        }
+        return sum;
+    }
+
+    /**
+     * 按元素合计
+     * @param element
+     * @return
+     */
+    public BigDecimal getElementAmount(LoanOrderElementEnum element) {
+        BigDecimal elementAmount = BigDecimal.ZERO;
+        Unit unit = this.instalmentMap.get(element);
+        if (unit != null) {
+            elementAmount = elementAmount.add(unit.sum());
+        }
+        return elementAmount;
     }
 
     @Override
@@ -101,7 +133,13 @@ public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, S
 
     @Override
     public Instalment clone() {
-        return new Instalment(this.instalmentMap);
+        Instalment instalment = new Instalment();
+        instalment.setRepaymentDate(this.repaymentDate);
+        instalment.setInstalment(this.instalment);
+        for (Entry<LoanOrderElementEnum, Unit> entry : instalment.entrySet()) {
+            instalment.put(entry.getKey(), entry.getValue().clone());
+        }
+        return instalment;
     }
 
     @Override
@@ -128,5 +166,13 @@ public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, S
 
     public void setRepaymentDate(long repaymentDate) {
         this.repaymentDate = repaymentDate;
+    }
+
+    public Integer getInstalment() {
+        return instalment;
+    }
+
+    public void setInstalment(Integer instalment) {
+        this.instalment = instalment;
     }
 }

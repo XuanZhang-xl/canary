@@ -109,9 +109,15 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
 
     @Override
     public List<LoanInstalmentEntity> listInstalments(String orderId) {
-        //TODO: Example是这样用吗?
         Example example = new Example(LoanInstalmentEntity.class);
         example.createCriteria().andEqualTo("orderId", orderId);
         return loanInstalmentMapper.selectByExample(example);
+    }
+
+    @Override
+    public LoanInstalmentEntity getByInstalmentId(String instalmentId) {
+        Example example = new Example(LoanInstalmentEntity.class);
+        example.createCriteria().andEqualTo("instalmentId", instalmentId);
+        return loanInstalmentMapper.selectOneByExample(example);
     }
 }

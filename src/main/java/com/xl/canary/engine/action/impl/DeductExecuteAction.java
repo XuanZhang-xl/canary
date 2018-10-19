@@ -1,5 +1,6 @@
 package com.xl.canary.engine.action.impl;
 import com.xl.canary.engine.action.IAction;
+import com.xl.canary.engine.event.pay.DeductResponseEvent;
 import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.ExecuteActionMethodEnum;
@@ -28,9 +29,18 @@ public class DeductExecuteAction implements IAction {
         /**
          * 进入真实扣款逻辑
          * 发送mq, 等待对方mq
-         * // TODO: 防止重复发送?
          */
         PayOrderEntity payOrder = payOrderService.getByPayOrderId(payOrderId);
+
+        try {
+            /**
+             * 直接模拟扣款成功事件
+             */
+            DeductResponseEvent event = new DeductResponseEvent(payOrderId, payOrder.getApplyAmount(), true, "扣款成功");
+            payOrderEventLauncher.launch(event);
+        } catch (Exception e) {
+            logger.error("扣款结果事件失败  ", e);
+        }
     }
 
     @Override

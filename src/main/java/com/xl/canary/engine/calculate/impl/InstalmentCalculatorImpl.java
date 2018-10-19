@@ -9,15 +9,19 @@ import com.xl.canary.engine.calculate.LoanSchemaCalculator;
 import com.xl.canary.entity.ISchemaEntity;
 import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.*;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
+import com.xl.canary.exception.BaseException;
+import com.xl.canary.exception.LoanEntryException;
 import com.xl.canary.exception.SchemaException;
 import com.xl.canary.service.LoanOrderService;
-import com.xl.canary.service.PayOrderDetailService;
 import com.xl.canary.utils.EssentialConstance;
 import com.xl.canary.utils.LoanLimitation;
 import com.xl.canary.utils.LoanOrderInstalmentUtils;
 import com.xl.canary.utils.TimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +34,8 @@ import java.util.*;
  */
 @Component("instalmentCalculatorImpl")
 public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
+
+    Logger logger = LoggerFactory.getLogger(InstalmentCalculatorImpl.class);
 
     @Autowired
     private LoanOrderService loanOrderService;
@@ -122,6 +128,65 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
     }
 
     /**
+     * 只有这里需要比较复杂的入账逻辑, 单独列一个方法
+     * @param schemaEntity
+     * @param payOrder
+     * @param entryInstalment
+     * @param realInstalment
+     * @return
+     */
+    public ISchemaEntity entryInstalment(ISchemaEntity schemaEntity, PayOrderEntity payOrder, Instalment entryInstalment, Instalment realInstalment) throws BaseException {
+        // 检查传入的实体是否符合要求
+        LoanInstalmentEntity instalmentEntity = checkSchemaEntity(Arrays.asList(schemaEntity)).get(0);
+
+        BigDecimal entrySum = entryInstalment.sum();
+        BigDecimal realSum = realInstalment.sum();
+
+        Long repaymentDate = TimeUtils.truncateToDay(instalmentEntity.getShouldPayTime());
+        Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
+        if (repaymentDate > today) {
+            // 提前还款, 重新分期? TODO
+        } else {
+            // 按期, 逾期还款
+            if (realSum.compareTo(entrySum) == 0) {
+                instalmentEntity.setPaidPrincipal(BigDecimal.ZERO);
+                instalmentEntity.setPaidInterest(BigDecimal.ZERO);
+                instalmentEntity.setPaidPenalty(BigDecimal.ZERO);
+                instalmentEntity.setLastPaidPrincipalDate(today);
+                String paidFee = instalmentEntity.getPaidFee();
+                JSONObject feeJson = JSONObject.parseObject(paidFee);
+                for (Map.Entry<String, Object> entry : feeJson.entrySet()) {
+                    feeJson.put(entry.getKey(), "0");
+                }
+                instalmentEntity.setPaidFee(feeJson.toJSONString());
+                instalmentEntity.setInstalmentState(StateEnum.PAYOFF.name());
+            } else if (realSum.compareTo(entrySum) > 0) {
+                // 修正已付本金
+                BigDecimal currentPaidPrincipal = realInstalment.getElementAmount(LoanOrderElementEnum.PRINCIPAL);
+                instalmentEntity.setPaidPrincipal(instalmentEntity.getPaidPrincipal().add(currentPaidPrincipal));
+                // 修正已付利息
+                BigDecimal currentPaidInterest = realInstalment.getElementAmount(LoanOrderElementEnum.INTEREST);
+                instalmentEntity.setPaidInterest(instalmentEntity.getPaidInterest().add(currentPaidInterest));
+                // 修正已付罚息
+                BigDecimal currentPaidPenalty = realInstalment.getElementAmount(LoanOrderElementEnum.PENALTY);
+                instalmentEntity.setPaidPenalty(instalmentEntity.getPaidPenalty().add(currentPaidPenalty));
+                // 修正已付手续费
+                String paidFee = instalmentEntity.getPaidFee();
+                JSONObject feeJson = JSONObject.parseObject(paidFee);
+                for (Map.Entry<String, Object> entry : feeJson.entrySet()) {
+                    String key = entry.getKey();
+                    BigDecimal currentPaidFee = realInstalment.getElementAmount(LoanOrderElementEnum.valueOf(key));
+                    feeJson.put(entry.getKey(), feeJson.getBigDecimal(key).add(currentPaidFee).toPlainString());
+                }
+            } else {
+                logger.error("订单[{}]第[{}]期, 应还[{}], 实际还款[{}], 无法入账!", instalmentEntity.getOrderId(), instalmentEntity.getInstalment(), realSum, entrySum);
+                throw new LoanEntryException("订单" + instalmentEntity.getOrderId() + "第" + instalmentEntity.getInstalment() + "期, 应还" + realSum + ", 实际还款" + entrySum + ", 无法入账!");
+            }
+        }
+        return instalmentEntity;
+    }
+
+    /**
      * 暂时先依赖每日结算
      * @param date   用户时间, 一般都为当前时间
      * @param schemaEntities   借款订单
@@ -183,7 +248,6 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
             if (today > repaymentDate) {
                 // 逾期
                 // 加入罚息
-                BigDecimal paidPenalty = instalmentEntity.getPaidPenalty();
                 Unit penaltyUnit = new Unit();
                 Element penaltyElement = new Element();
 
@@ -196,6 +260,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                  */
                 penaltyElement.setAmount(dailyPenalty
                         .multiply(new BigDecimal(overDueDays))
+                        .subtract(instalmentEntity.getPaidPenalty())
                         .setScale(LoanLimitation.RESULT_SCALE, LoanLimitation.RESULT_UP));
                 penaltyElement.setElement(LoanOrderElementEnum.PENALTY);
                 penaltyElement.setInstalment(instalmentEntity.getInstalment());
@@ -240,6 +305,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                  */
                 interestElement.setAmount(dailyInterest
                         .multiply(new BigDecimal(passedDays))
+                        .subtract(instalmentEntity.getPaidInterest())
                         .setScale(LoanLimitation.RESULT_SCALE, LoanLimitation.RESULT_UP));
                 interestElement.setElement(LoanOrderElementEnum.INTEREST);
                 interestElement.setInstalment(instalmentEntity.getInstalment());

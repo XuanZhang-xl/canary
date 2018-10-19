@@ -58,7 +58,7 @@ public interface BillService {
     Schema planLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException;
 
     /**
-     * 部分还款的schema, 返回的都是负数
+     * 还款订单入账获得的schema
      * 计算策略
      * @param loanOrder
      * @param payOrder
@@ -67,7 +67,7 @@ public interface BillService {
     Schema payLoanOrder(LoanOrderEntity loanOrder, PayOrderEntity payOrder) throws BaseException;
 
     /**
-     * 部分还款的schema, 返回的都是负数
+     * 还款订单入账获得的schema, 包括优惠券
      * 计算策略
      * @param loanOrder
      * @param couponEntities    优惠券

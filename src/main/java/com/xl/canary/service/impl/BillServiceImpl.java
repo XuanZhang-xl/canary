@@ -60,7 +60,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public Schema payOffLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException {
-        return this.mergeSchemas(this.loanOrderCouponSchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
+        return this.mergeSchemas(this.loanOrderStrategySchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public Schema shouldPayLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException {
-        Schema schema = this.mergeSchemas(this.loanOrderCouponSchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
+        Schema schema = this.mergeSchemas(this.loanOrderStrategySchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
         // 去除还没到期的期数
         Iterator<Map.Entry<Integer, Instalment>> iterator = schema.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -92,7 +92,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public Schema payLoanOrder(LoanOrderEntity loanOrder, PayOrderEntity payOrder) throws BaseException {
-        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderCouponSchemas(loanOrder), SchemaTypeEnum.ENTRY);
+        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategySchemas(loanOrder), SchemaTypeEnum.ENTRY);
         return this.entrySchema(shouldPaySchemaForEntry, payOrder);
     }
 
@@ -106,12 +106,12 @@ public class BillServiceImpl implements BillService {
      * 计算入账用schema
      * 传进来对应类型的schema就可以给出正确的入账schema
      * @param shouldPaySchema
-     * @param payAmount
+     * @param payOrder
      * @return
      */
     private Schema entrySchema(Schema shouldPaySchema, PayOrderEntity payOrder) {
         Schema entrySchema = new Schema(SchemaTypeEnum.ENTRY);
-        BigDecimal paid = payOrder.getEquivalentAmount();
+        BigDecimal paid = payOrder.getEquivalentAmount().subtract(payOrder.getEntryNumber());
         /**
          * 入账schema逻辑
          *
@@ -236,7 +236,7 @@ public class BillServiceImpl implements BillService {
      * @return
      * @throws BaseException
      */
-    private List<Schema> loanOrderCouponSchemas(LoanOrderEntity loanOrder) throws BaseException {
+    private List<Schema> loanOrderStrategySchemas(LoanOrderEntity loanOrder) throws BaseException {
         // 订单schema
         List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
         Schema currentSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
@@ -337,7 +337,7 @@ public class BillServiceImpl implements BillService {
                                 repayUnit.add(paidElement);
                             }
                         } else {
-                            // 已还超过了应还, 抛异常
+                            // 已还超过了应还, 抛异常, TODO: 根据需求, 可优化为按照最大可还入账
                             throw new SchemaException(element.getDestination().name() + "[" + element.getDestinationId() + "], 第" + instalmentKey + "期" + element.getElement().name() + "应还[" + amount.toPlainString() + "], 已还却有[" + sourceAmount +"], 不合法!");
                         }
                     } else {

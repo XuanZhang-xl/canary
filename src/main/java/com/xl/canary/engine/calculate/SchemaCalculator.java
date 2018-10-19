@@ -1,7 +1,10 @@
 package com.xl.canary.engine.calculate;
 
+import com.xl.canary.bean.structure.Instalment;
 import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.ISchemaEntity;
+import com.xl.canary.entity.LoanInstalmentEntity;
+import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.exception.SchemaException;
 
 import java.util.List;

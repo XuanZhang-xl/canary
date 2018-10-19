@@ -5,6 +5,8 @@ import com.xl.canary.bean.req.PayOrderReq;
 import com.xl.canary.bean.res.PayOrderRes;
 import com.xl.canary.bean.res.ShouldPayRes;
 import com.xl.canary.bean.structure.Schema;
+import com.xl.canary.engine.event.pay.DeductLaunchEvent;
+import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.CouponEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.PayOrderEntity;
@@ -60,6 +62,9 @@ public class PayOrderController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private IEventLauncher payOrderEventLauncher;
 
     @Value("${equivalent.currency}")
     private String equivalent;
@@ -146,7 +151,8 @@ public class PayOrderController {
                 payOrderService.save(payOrder);
 
                 // TODO: 发送还款事件
-
+                DeductLaunchEvent event = new DeductLaunchEvent(payOrder.getPayOrderId());
+                payOrderEventLauncher.launch(event);
 
 
                 PayOrderRes res = new PayOrderRes();

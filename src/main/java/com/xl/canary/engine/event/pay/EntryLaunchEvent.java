@@ -1,4 +1,4 @@
-package com.xl.canary.engine.event.order.pay;
+package com.xl.canary.engine.event.pay;
 
 import com.xl.canary.engine.event.AbstractStateEvent;
 import com.xl.canary.engine.event.IStateEvent;

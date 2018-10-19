@@ -35,4 +35,14 @@ public enum BillTypeEnum {
      * 支持还原的type
      */
     public static final List<BillTypeEnum> RECOVERABLE_TYPE = Arrays.asList(PAY_ORDER, COUPON);
+
+    /**
+     * 来源type
+     */
+    public static final List<BillTypeEnum> SOURCE = Arrays.asList(PAY_ORDER, COUPON, STRATEGY);
+
+    /**
+     * 目标type
+     */
+    public static final List<BillTypeEnum> DESTINATION = Arrays.asList(LOAN_ORDER, COUPON, STRATEGY);
 }

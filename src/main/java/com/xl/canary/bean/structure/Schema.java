@@ -1,6 +1,7 @@
 package com.xl.canary.bean.structure;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
 import com.xl.canary.enums.pay.PayTypeEnum;
@@ -9,6 +10,7 @@ import com.xl.canary.exception.InnerException;
 import com.xl.canary.utils.TimeUtils;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -67,6 +69,14 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
         return clone;
     }
 
+    public BigDecimal sum () {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (Entry<Integer, Instalment> entry : schemaMap.entrySet()) {
+            sum = sum.add(entry.getValue().sum());
+        }
+        return sum;
+    }
+
     /**
      * 获取所有期数的指定元素类型
      * @param loanOrderElement
@@ -80,6 +90,80 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
             units.add(unit);
         }
         return units;
+    }
+
+    /**
+     * 根据来源不同拆分同一个Schema
+     * @param billType
+     * @return
+     */
+    public Schema distinguishBySource(BillTypeEnum billType) {
+        if (billType == null) {
+            return null;
+        }
+        Schema schema = new Schema(schemaType);
+        for (Entry<Integer, Instalment> instalmentEntry : schemaMap.entrySet()) {
+            Integer instalment = instalmentEntry.getKey();
+            Instalment instalmentEntity = instalmentEntry.getValue();
+            Instalment targetInstalment = schema.get(instalment);
+            if (targetInstalment == null) {
+                targetInstalment = new Instalment();
+                targetInstalment.setRepaymentDate(instalmentEntity.getRepaymentDate());
+                schema.put(instalment, targetInstalment);
+            }
+            for (Entry<LoanOrderElementEnum, Unit> elementEntry : instalmentEntity.entrySet()) {
+                LoanOrderElementEnum loanOrderElement = elementEntry.getKey();
+                Unit unit = elementEntry.getValue();
+                Unit targetUnit = targetInstalment.get(loanOrderElement);
+                if (targetUnit == null) {
+                    targetUnit = new Unit();
+                    targetInstalment.put(loanOrderElement, targetUnit);
+                }
+                for (Element element : unit) {
+                    if (element.getSource() != null && billType.equals(element.getSource())) {
+                        targetUnit.add(element.clone());
+                    }
+                }
+            }
+        }
+        return schema;
+    }
+
+    /**
+     * 根据来源不同拆分同一个Schema
+     * @param billType
+     * @return
+     */
+    public Schema distinguishByDestination(BillTypeEnum billType) {
+        if (billType == null) {
+            return null;
+        }
+        Schema schema = new Schema(schemaType);
+        for (Entry<Integer, Instalment> instalmentEntry : schemaMap.entrySet()) {
+            Integer instalment = instalmentEntry.getKey();
+            Instalment instalmentEntity = instalmentEntry.getValue();
+            Instalment targetInstalment = schema.get(instalment);
+            if (targetInstalment == null) {
+                targetInstalment = new Instalment();
+                targetInstalment.setRepaymentDate(instalmentEntity.getRepaymentDate());
+                schema.put(instalment, targetInstalment);
+            }
+            for (Entry<LoanOrderElementEnum, Unit> elementEntry : instalmentEntity.entrySet()) {
+                LoanOrderElementEnum loanOrderElement = elementEntry.getKey();
+                Unit unit = elementEntry.getValue();
+                Unit targetUnit = targetInstalment.get(loanOrderElement);
+                if (targetUnit == null) {
+                    targetUnit = new Unit();
+                    targetInstalment.put(loanOrderElement, targetUnit);
+                }
+                for (Element element : unit) {
+                    if (element.getDestination() != null && billType.equals(element.getDestination())) {
+                        targetUnit.add(element.clone());
+                    }
+                }
+            }
+        }
+        return schema;
     }
 
     @Override
@@ -149,7 +233,12 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
 
     @Override
     public Schema clone() {
-        return new Schema(this.schemaMap);
+        Schema schema = new Schema();
+        schema.setSchemaType(this.schemaType);
+        for (Entry<Integer, Instalment> entry : schema.entrySet()) {
+            schema.put(entry.getKey(), entry.getValue().clone());
+        }
+        return schema;
     }
 
     @Override

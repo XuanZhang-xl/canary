@@ -1,8 +1,10 @@
 package com.xl.canary.engine.calculate.impl;
 
+import com.xl.canary.bean.structure.Instalment;
 import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.engine.calculate.SchemaCalculator;
 import com.xl.canary.entity.ISchemaEntity;
+import com.xl.canary.entity.PayOrderEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
