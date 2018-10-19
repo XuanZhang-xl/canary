@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by gqwu on 2018/4/4.
  */
-@Component("instalmentPendingState")
+@Component("instalmentLentState")
 @StateHandler(name = StateEnum.LENT)
 public class LentStateHandler implements IStateHandler<LoanInstalmentEntity> {
 
