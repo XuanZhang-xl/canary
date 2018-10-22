@@ -9,26 +9,35 @@ import com.xl.canary.engine.calculate.impl.InstalmentCalculatorImpl;
 import com.xl.canary.engine.calculate.impl.StrategyCalculatorImpl;
 import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.engine.calculate.siuation.SituationHolder;
+import com.xl.canary.engine.event.instalmet.InstalmentEntryEvent;
+import com.xl.canary.engine.event.loan.LoanOrderEntryEvent;
+import com.xl.canary.engine.event.pay.EntryLaunchEvent;
+import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.*;
 import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.SchemaTypeEnum;
+import com.xl.canary.enums.StateEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
 import com.xl.canary.enums.loan.LoanOrderElementTypeEnum;
 import com.xl.canary.enums.pay.EntrySequenceEnum;
-import com.xl.canary.exception.*;
-import com.xl.canary.service.BillService;
-import com.xl.canary.service.CouponService;
-import com.xl.canary.service.LoanInstalmentService;
-import com.xl.canary.service.StrategyService;
+import com.xl.canary.exception.BaseException;
+import com.xl.canary.exception.CouponException;
+import com.xl.canary.exception.SchemaException;
+import com.xl.canary.service.*;
 import com.xl.canary.utils.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * created by XUAN on 2018/09/22
+ * TODO: 剥离LoanOrder, 变成账单
  */
 @Service("billServiceImpl")
 public class BillServiceImpl implements BillService {
@@ -50,6 +59,21 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     private LoanInstalmentService instalmentService;
+
+    @Autowired
+    private PayOrderService payOrderService;
+
+    @Autowired
+    private LoanOrderService loanOrderService;
+
+    @Autowired
+    private IEventLauncher instalmentEventLauncher;
+
+    @Autowired
+    private IEventLauncher loanOrderEventLauncher;
+
+    @Autowired
+    private IEventLauncher payOrderEventLauncher;
 
     @Override
     public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException {
@@ -100,6 +124,41 @@ public class BillServiceImpl implements BillService {
     public Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException {
         Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), SchemaTypeEnum.ENTRY);
         return this.entrySchema(shouldPaySchemaForEntry, payOrder);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchEntry(String payOrderId) throws Exception {
+        PayOrderEntity payOrder = payOrderService.getByPayOrderId(payOrderId);
+        if (!payOrder.getState().equals(StateEnum.DEDUCTED)) {
+            return;
+        }
+        List<LoanOrderEntity> loanOrderEntities = loanOrderService.listByUserCode(payOrder.getUserCode(), StateEnum.lent);
+        for (LoanOrderEntity loanOrderEntity : loanOrderEntities) {
+            Schema entrySchema = this.payLoanOrder(loanOrderEntity, payOrder);
+            // 获得订单schema, 入账
+            Schema orderEntrySchema = entrySchema.distinguishByDestination(BillTypeEnum.LOAN_ORDER);
+            Schema realSchema = this.payOffLoanOrder(loanOrderEntity);
+            List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrderEntity.getOrderId());
+            for (LoanInstalmentEntity instalmentEntity : instalmentEntities) {
+                Integer instalment = instalmentEntity.getInstalment();
+                Instalment realInstalment = realSchema.get(instalment);
+                if (realInstalment != null) {
+                    Instalment orderEntryInstalment = orderEntrySchema.get(instalment);
+                    InstalmentEntryEvent instalmentEntryEvent = new InstalmentEntryEvent(instalmentEntity.getInstalmentId(), payOrder, orderEntryInstalment, realInstalment);
+                    instalmentEventLauncher.launch(instalmentEntryEvent);
+                }
+            }
+            // 如果完全还清, 则发送还清事件给订单
+            if (orderEntrySchema.sum().compareTo(realSchema.sum()) == 0) {
+                LoanOrderEntryEvent entryEvent = new LoanOrderEntryEvent(loanOrderEntity.getOrderId(), true);
+                loanOrderEventLauncher.launch(entryEvent);
+            }
+        }
+
+        // 全部正常入账完成, 发送入账成功事件
+        EntryLaunchEvent entryLaunchEvent = new EntryLaunchEvent(payOrderId);
+        payOrderEventLauncher.launch(entryLaunchEvent);
     }
 
     /**

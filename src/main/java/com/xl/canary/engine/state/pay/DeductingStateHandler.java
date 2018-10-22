@@ -11,6 +11,7 @@ import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import com.xl.canary.service.BillService;
+import com.xl.canary.service.LoanInstalmentService;
 import com.xl.canary.service.LoanOrderService;
 import com.xl.canary.service.PayOrderService;
 import org.slf4j.Logger;
@@ -28,15 +29,6 @@ public class DeductingStateHandler implements IStateHandler<PayOrderEntity> {
     private static final Logger logger = LoggerFactory.getLogger(DeductingStateHandler.class);
 
     @Autowired
-    private IEventLauncher loanOrderEventLauncher;
-
-    @Autowired
-    private PayOrderService payOrderService;
-
-    @Autowired
-    private LoanOrderService loanOrderService;
-
-    @Autowired
     private BillService billService;
 
     @Override
@@ -49,7 +41,7 @@ public class DeductingStateHandler implements IStateHandler<PayOrderEntity> {
                 payOrder.setPayNumber(deductResponseEvent.getActualDeducted());
                 payOrder.setPayTime(deductResponseEvent.getEventTime());
                 /** 此处相当于在扣款成功后，自动发起入账 */
-                actionExecutor.append(new EntryLaunchAction(payOrder.getPayOrderId(), loanOrderEventLauncher, payOrderService, loanOrderService, billService));
+                actionExecutor.append(new EntryLaunchAction(payOrder.getPayOrderId(), billService));
             } else {
                 payOrder.setPayOrderState(StateEnum.DEDUCT_FAILED.name());
             }

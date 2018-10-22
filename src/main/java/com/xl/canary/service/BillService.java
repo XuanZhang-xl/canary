@@ -75,4 +75,10 @@ public interface BillService {
      * @return
      */
     Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException;
+
+    /**
+     * 批量入账逻辑
+     * @param payOrderId  还款订单号
+     */
+    void batchEntry(String payOrderId) throws Exception;
 }
