@@ -7,4 +7,12 @@
         select * from t_canary_coupon WHERE coupon_id = #{couponId}
     </select>
 
+    <select id="listByCouponBatchId" resultType="com.xl.canary.entity.CouponEntity">
+        select * from t_canary_coupon WHERE coupon_batch_id in
+        <foreach collection="couponBatchIds" index="index" item="couponBatchId" open="(" separator="," close=")">
+            #{couponBatchId}
+        </foreach>
+    </select>
+
+
 </mapper>

@@ -64,24 +64,29 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
     private String originalFee;
 
     /**
-     * 应还本金
+     * 已还本金
      */
-    private BigDecimal principal = BigDecimal.ZERO;
+    private BigDecimal paidPrincipal = BigDecimal.ZERO;
 
     /**
-     * 应还利息
+     * 已还利息
      */
-    private BigDecimal interest = BigDecimal.ZERO;
+    private BigDecimal paidInterest = BigDecimal.ZERO;
 
     /**
-     * 应还罚息
+     * 已还罚息
      */
-    private BigDecimal penalty = BigDecimal.ZERO;
+    private BigDecimal paidPenalty = BigDecimal.ZERO;
 
     /**
-     * 应还其他费用, JSON
+     * 上一次还本金的时间
      */
-    private String fee;
+    private Long lastPaidPrincipalDate = -1L;
+
+    /**
+     * 已还其他费用, JSON
+     */
+    private String paidFee;
 
     /**
      * 应还清时间
@@ -193,36 +198,44 @@ public class LoanInstalmentEntity extends AbstractBaseEntity implements IStateEn
         this.originalFee = originalFee;
     }
 
-    public BigDecimal getPrincipal() {
-        return principal;
+    public BigDecimal getPaidPrincipal() {
+        return paidPrincipal;
     }
 
-    public void setPrincipal(BigDecimal principal) {
-        this.principal = principal;
+    public void setPaidPrincipal(BigDecimal paidPrincipal) {
+        this.paidPrincipal = paidPrincipal;
     }
 
-    public BigDecimal getInterest() {
-        return interest;
+    public BigDecimal getPaidInterest() {
+        return paidInterest;
     }
 
-    public void setInterest(BigDecimal interest) {
-        this.interest = interest;
+    public void setPaidInterest(BigDecimal paidInterest) {
+        this.paidInterest = paidInterest;
     }
 
-    public BigDecimal getPenalty() {
-        return penalty;
+    public BigDecimal getPaidPenalty() {
+        return paidPenalty;
     }
 
-    public void setPenalty(BigDecimal penalty) {
-        this.penalty = penalty;
+    public void setPaidPenalty(BigDecimal paidPenalty) {
+        this.paidPenalty = paidPenalty;
     }
 
-    public String getFee() {
-        return fee;
+    public Long getLastPaidPrincipalDate() {
+        return lastPaidPrincipalDate;
     }
 
-    public void setFee(String fee) {
-        this.fee = fee;
+    public void setLastPaidPrincipalDate(Long lastPaidPrincipalDate) {
+        this.lastPaidPrincipalDate = lastPaidPrincipalDate;
+    }
+
+    public String getPaidFee() {
+        return paidFee;
+    }
+
+    public void setPaidFee(String paidFee) {
+        this.paidFee = paidFee;
     }
 
     public Long getShouldPayTime() {

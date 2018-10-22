@@ -8,6 +8,7 @@ import com.xl.canary.engine.calculate.CouponCalculator;
 import com.xl.canary.engine.calculate.LoanSchemaCalculator;
 import com.xl.canary.entity.ISchemaEntity;
 import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.entity.StrategyEntity;
 import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.SchemaTypeEnum;
@@ -48,8 +49,8 @@ public class StrategyCalculatorImpl implements CouponCalculator {
 
         for (StrategyEntity strategyEntity : strategyEntities) {
             Integer instalment = strategyEntity.getInstalment();
-            String couponElement = strategyEntity.getElement();
-            LoanOrderElementEnum elementKey = LoanOrderElementEnum.valueOf(couponElement);
+            String strategyElement = strategyEntity.getElement();
+            LoanOrderElementEnum elementKey = LoanOrderElementEnum.valueOf(strategyElement);
 
             Instalment schemaInstalment = schema.get(instalment);
             if (schemaInstalment == null) {
@@ -82,7 +83,7 @@ public class StrategyCalculatorImpl implements CouponCalculator {
             element.setAmount(amount);
             element.setElement(elementKey);
             element.setInstalment(instalment);
-            element.setSource(BillTypeEnum.COUPON);
+            element.setSource(BillTypeEnum.STRATEGY);
             element.setSourceId(strategyEntity.getStrategyId());
             unit.add(element);
         }

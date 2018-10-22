@@ -3,6 +3,7 @@ package com.xl.canary.service;
 import com.xl.canary.bean.condition.LoanOrderCondition;
 import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.enums.StateEnum;
 
 import java.util.List;
 
@@ -36,4 +37,12 @@ public interface LoanOrderService {
      * @param entity
      */
     void update(LoanOrderEntity entity);
+
+    /**
+     * 根据用户和状态获得订单
+     * @param userCode
+     * @param lent
+     * @return
+     */
+    List<LoanOrderEntity> listByUserCode(String userCode, List<StateEnum> lent);
 }

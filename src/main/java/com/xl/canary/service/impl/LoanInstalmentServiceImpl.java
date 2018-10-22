@@ -80,10 +80,11 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
                     String jsonFee = JSONObject.toJSONString(basicInstalment.getFee());
                     loanInstalment.setOriginalFee(jsonFee);
                     // 应还信息
-                    loanInstalment.setPrincipal(basicInstalment.getPrincipal());
-                    loanInstalment.setInterest(basicInstalment.getInterest());
-                    loanInstalment.setPenalty(BigDecimal.ZERO);
-                    loanInstalment.setFee(jsonFee);
+                    loanInstalment.setPaidPrincipal(BigDecimal.ZERO);
+                    // 当天不算利息, 从第二天开始算利息
+                    loanInstalment.setPaidInterest(BigDecimal.ZERO);
+                    loanInstalment.setPaidPenalty(BigDecimal.ZERO);
+                    loanInstalment.setLastPaidPrincipalDate(-1L);
                     // 还款日
                     loanInstalment.setShouldPayTime(repaymentDates.get(instalmentDate));
 
@@ -108,9 +109,15 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
 
     @Override
     public List<LoanInstalmentEntity> listInstalments(String orderId) {
-        //TODO: Example是这样用吗?
         Example example = new Example(LoanInstalmentEntity.class);
         example.createCriteria().andEqualTo("orderId", orderId);
         return loanInstalmentMapper.selectByExample(example);
+    }
+
+    @Override
+    public LoanInstalmentEntity getByInstalmentId(String instalmentId) {
+        Example example = new Example(LoanInstalmentEntity.class);
+        example.createCriteria().andEqualTo("instalmentId", instalmentId);
+        return loanInstalmentMapper.selectOneByExample(example);
     }
 }

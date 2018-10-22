@@ -3,13 +3,16 @@ package com.xl.canary.engine.state.pay;
 import com.xl.canary.engine.action.IActionExecutor;
 import com.xl.canary.engine.action.impl.EntryLaunchAction;
 import com.xl.canary.engine.event.IEvent;
-import com.xl.canary.engine.event.order.pay.DeductResponseEvent;
+import com.xl.canary.engine.event.pay.DeductResponseEvent;
 import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
+import com.xl.canary.service.BillService;
+import com.xl.canary.service.LoanInstalmentService;
+import com.xl.canary.service.LoanOrderService;
 import com.xl.canary.service.PayOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +29,7 @@ public class DeductingStateHandler implements IStateHandler<PayOrderEntity> {
     private static final Logger logger = LoggerFactory.getLogger(DeductingStateHandler.class);
 
     @Autowired
-    private IEventLauncher payOrderEventLauncher;
-
-    @Autowired
-    private PayOrderService payOrderService;
+    private BillService billService;
 
     @Override
     public PayOrderEntity handle(PayOrderEntity payOrder, IEvent event, IActionExecutor actionExecutor) throws InvalidEventException {
@@ -41,8 +41,7 @@ public class DeductingStateHandler implements IStateHandler<PayOrderEntity> {
                 payOrder.setPayNumber(deductResponseEvent.getActualDeducted());
                 payOrder.setPayTime(deductResponseEvent.getEventTime());
                 /** 此处相当于在扣款成功后，自动发起入账 */
-                actionExecutor.append(new EntryLaunchAction(payOrder.getPayOrderId(), payOrderEventLauncher, payOrderService));
-
+                actionExecutor.append(new EntryLaunchAction(payOrder.getPayOrderId(), billService));
             } else {
                 payOrder.setPayOrderState(StateEnum.DEDUCT_FAILED.name());
             }

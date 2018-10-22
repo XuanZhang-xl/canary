@@ -1,4 +1,4 @@
-package com.xl.canary.engine.event.order.loan;
+package com.xl.canary.engine.event.loan;
 
 import com.xl.canary.engine.event.AbstractStateEvent;
 import com.xl.canary.engine.event.IStateEvent;

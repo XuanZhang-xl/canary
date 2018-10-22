@@ -35,4 +35,11 @@ public interface LoanInstalmentService {
      * @return
      */
     List<LoanInstalmentEntity> listInstalments(String orderId);
+
+    /**
+     * 根据id获取分期
+     * @param instalmentId
+     * @return
+     */
+    LoanInstalmentEntity getByInstalmentId(String instalmentId);
 }

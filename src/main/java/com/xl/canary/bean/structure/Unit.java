@@ -1,6 +1,9 @@
 package com.xl.canary.bean.structure;
 
+import com.xl.canary.enums.loan.LoanOrderElementEnum;
+
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -11,6 +14,20 @@ import java.util.*;
 public class Unit implements List<Element>, Cloneable, Serializable {
 
     private List<Element> unitList;
+
+    /**
+     * 元素
+     */
+    private LoanOrderElementEnum element;
+
+    public BigDecimal sum() {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (Element element : unitList) {
+            sum = sum.add(element.getAmount());
+        }
+        return sum;
+    }
+
 
     @Override
     public int size() {
@@ -127,7 +144,31 @@ public class Unit implements List<Element>, Cloneable, Serializable {
         return unitList.subList(fromIndex, toIndex);
     }
 
+    @Override
+    public Unit clone() {
+        Unit unit = new Unit();
+        unit.element = this.element;
+        for (Element element : this.unitList) {
+            unit.add(element.clone());
+        }
+        return unit;
+    }
+
+
     public Unit () {
         unitList = new ArrayList<Element>();
+    }
+
+    public Unit (LoanOrderElementEnum element) {
+        unitList = new ArrayList<Element>();
+        this.element = element;
+    }
+
+    public LoanOrderElementEnum getElement() {
+        return element;
+    }
+
+    public void setElement(LoanOrderElementEnum element) {
+        this.element = element;
     }
 }

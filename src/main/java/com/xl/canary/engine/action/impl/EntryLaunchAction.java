@@ -1,13 +1,26 @@
 package com.xl.canary.engine.action.impl;
 
+import com.xl.canary.bean.structure.Instalment;
+import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.engine.action.IAction;
-import com.xl.canary.engine.event.order.pay.EntryLaunchEvent;
+import com.xl.canary.engine.event.instalmet.InstalmentEntryEvent;
+import com.xl.canary.engine.event.loan.LoanOrderEntryEvent;
+import com.xl.canary.engine.event.pay.EntryLaunchEvent;
 import com.xl.canary.engine.launcher.IEventLauncher;
+import com.xl.canary.entity.LoanInstalmentEntity;
+import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.PayOrderEntity;
+import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.ExecuteActionMethodEnum;
+import com.xl.canary.enums.StateEnum;
+import com.xl.canary.service.BillService;
+import com.xl.canary.service.LoanInstalmentService;
+import com.xl.canary.service.LoanOrderService;
 import com.xl.canary.service.PayOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class EntryLaunchAction implements IAction {
 
@@ -15,25 +28,19 @@ public class EntryLaunchAction implements IAction {
 
     private String payOrderId;
 
-    private IEventLauncher payOrderEventLauncher;
+    private BillService billService;
 
-    private PayOrderService payOrderService;
-
-    public EntryLaunchAction(String payOrderId, IEventLauncher payOrderEventLauncher, PayOrderService payOrderService) {
+    public EntryLaunchAction(String payOrderId, BillService billService) {
         this.payOrderId = payOrderId;
-        this.payOrderEventLauncher = payOrderEventLauncher;
-        this.payOrderService = payOrderService;
+        this.billService = billService;
     }
 
     @Override
     public void run() {
-        EntryLaunchEvent entryLaunchEvent = new EntryLaunchEvent(payOrderId);
         try {
-            PayOrderEntity payOrder = payOrderService.getByPayOrderId(payOrderId);
-
-            this.payOrderEventLauncher.launch(entryLaunchEvent);
+            billService.batchEntry(payOrderId);
         } catch (Exception e) {
-            logger.error("自动发送发起入账事件异常，事件：[{}]", entryLaunchEvent, e);
+            logger.error("自动发送发起入账事件异常，payOrderId：[{}]", payOrderId, e);
         }
     }
 

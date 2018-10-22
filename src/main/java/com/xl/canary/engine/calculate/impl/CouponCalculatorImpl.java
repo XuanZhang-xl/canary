@@ -6,10 +6,7 @@ import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.bean.structure.Unit;
 import com.xl.canary.engine.calculate.CouponCalculator;
 import com.xl.canary.engine.calculate.LoanSchemaCalculator;
-import com.xl.canary.entity.CouponEntity;
-import com.xl.canary.entity.ISchemaEntity;
-import com.xl.canary.entity.LoanInstalmentEntity;
-import com.xl.canary.entity.LoanOrderEntity;
+import com.xl.canary.entity.*;
 import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.StateEnum;
@@ -37,6 +34,9 @@ public class CouponCalculatorImpl implements CouponCalculator {
 
     @Override
     public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder) throws SchemaException {
+        if (schemaEntities == null || schemaEntities.size() == 0) {
+            return null;
+        }
         List<CouponEntity> couponEntities = checkSchemaEntity(schemaEntities, loanOrder.getOrderId());
 
         Schema orderSchema = loanSchemaCalculator.getCurrentSchema(System.currentTimeMillis(), Arrays.asList(loanOrder));
@@ -97,9 +97,6 @@ public class CouponCalculatorImpl implements CouponCalculator {
     }
 
     private List<CouponEntity> checkSchemaEntity (List<? extends ISchemaEntity> schemaEntities, String orderId) throws SchemaException {
-        if (schemaEntities == null || schemaEntities.size() == 0) {
-            throw new SchemaException("优惠券计算器传入实体为空!");
-        }
         List<CouponEntity> couponEntities = new ArrayList<CouponEntity>();
         // 检查传入参数是否正确
         String couponBatchId = null;
