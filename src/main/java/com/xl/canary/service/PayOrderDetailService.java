@@ -18,11 +18,9 @@ public interface PayOrderDetailService {
      * 保存明细
      * @param payOrder         还款订单
      * @param orderSchema      借款schema
-     * @param paySchema        还款schema
-     * @param couponSchema     优惠券schema
-     * @param strategySchema   策略schema
+     * @param entrySchema      实际还款schema
      */
-    void saveScheme(PayOrderEntity payOrder, Schema orderSchema, Schema paySchema, Schema couponSchema, Schema strategySchema);
+    void saveScheme(PayOrderEntity payOrder, Schema orderSchema, Schema entrySchema);
 
     /**
      * 根据还款订单号查询还款详情

@@ -6,10 +6,7 @@ import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.bean.structure.Unit;
 import com.xl.canary.engine.calculate.CouponCalculator;
 import com.xl.canary.engine.calculate.LoanSchemaCalculator;
-import com.xl.canary.entity.ISchemaEntity;
-import com.xl.canary.entity.LoanOrderEntity;
-import com.xl.canary.entity.PayOrderEntity;
-import com.xl.canary.entity.StrategyEntity;
+import com.xl.canary.entity.*;
 import com.xl.canary.enums.BillTypeEnum;
 import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.WeightEnum;
@@ -32,16 +29,16 @@ import java.util.List;
 public class StrategyCalculatorImpl implements CouponCalculator {
 
     @Autowired
-    private LoanSchemaCalculator loanSchemaCalculator;
+    private LoanSchemaCalculator instalmentCalculator;
 
     @Override
-    public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder) throws SchemaException {
+    public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, List<LoanInstalmentEntity> instalmentEntities) throws SchemaException {
         if (schemaEntities == null || schemaEntities.size() == 0) {
             return null;
         }
         List<StrategyEntity> strategyEntities = this.checkSchemaEntity(schemaEntities);
 
-        Schema orderSchema = loanSchemaCalculator.getCurrentSchema(System.currentTimeMillis(), Arrays.asList(loanOrder));
+        Schema orderSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
 
         // 正的为惩罚, 负的为优惠
         BigDecimal orderAmount;

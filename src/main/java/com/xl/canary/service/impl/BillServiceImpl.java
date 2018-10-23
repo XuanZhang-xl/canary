@@ -9,6 +9,7 @@ import com.xl.canary.engine.calculate.impl.InstalmentCalculatorImpl;
 import com.xl.canary.engine.calculate.impl.StrategyCalculatorImpl;
 import com.xl.canary.engine.calculate.siuation.Situation;
 import com.xl.canary.engine.calculate.siuation.SituationHolder;
+import com.xl.canary.engine.calculate.siuation.SituationSource;
 import com.xl.canary.engine.event.instalmet.InstalmentEntryEvent;
 import com.xl.canary.engine.event.loan.LoanOrderEntryEvent;
 import com.xl.canary.engine.event.pay.EntryLaunchEvent;
@@ -37,7 +38,6 @@ import java.util.Map;
 
 /**
  * created by XUAN on 2018/09/22
- * TODO: 剥离LoanOrder, 变成账单
  */
 @Service("billServiceImpl")
 public class BillServiceImpl implements BillService {
@@ -64,6 +64,9 @@ public class BillServiceImpl implements BillService {
     private PayOrderService payOrderService;
 
     @Autowired
+    private PayOrderDetailService payOrderDetailService;
+
+    @Autowired
     private LoanOrderService loanOrderService;
 
     @Autowired
@@ -83,8 +86,18 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    public Schema payOffLoanOrder(List<LoanInstalmentEntity> instalmentEntities) throws SchemaException {
+        return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
+    }
+
+    @Override
     public Schema payOffLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException {
         return this.mergeSchemas(this.loanOrderStrategySchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
+    }
+
+    @Override
+    public Schema payOffLoanOrderAndStrategy(List<LoanInstalmentEntity> instalmentEntities) throws BaseException {
+        return this.mergeSchemas(this.loanOrderStrategySchemas(instalmentEntities), SchemaTypeEnum.SHOULD_PAY);
     }
 
     @Override
@@ -93,19 +106,20 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    public Schema payOffAll(List<LoanInstalmentEntity> instalmentEntities, List<CouponEntity> couponEntities) throws BaseException {
+        return this.mergeSchemas(this.loanOrderStrategyCouponSchemas(instalmentEntities, couponEntities), SchemaTypeEnum.SHOULD_PAY);
+}
+
+    @Override
     public Schema shouldPayLoanOrderAndStrategy(LoanOrderEntity loanOrder) throws BaseException {
         Schema schema = this.mergeSchemas(this.loanOrderStrategySchemas(loanOrder), SchemaTypeEnum.SHOULD_PAY);
-        // 去除还没到期的期数
-        Iterator<Map.Entry<Integer, Instalment>> iterator = schema.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Integer, Instalment> instalmentEntry = iterator.next();
-            Instalment instalment = instalmentEntry.getValue();
-            Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
-            if (today < instalment.getRepaymentDate()) {
-                iterator.remove();
-            }
-        }
-        return schema;
+        return removeFutureInstalment(schema);
+    }
+
+    @Override
+    public Schema shouldPayLoanOrderAndStrategy(List<LoanInstalmentEntity> instalmentEntities) throws BaseException {
+        Schema schema = this.mergeSchemas(this.loanOrderStrategySchemas(instalmentEntities), SchemaTypeEnum.SHOULD_PAY);
+        return removeFutureInstalment(schema);
     }
 
     @Override
@@ -115,16 +129,36 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    public Schema planLoanOrderAndStrategy(List<LoanInstalmentEntity> instalmentEntities) throws BaseException {
+        return instalmentCalculator.getPlanSchema(System.currentTimeMillis(), instalmentEntities);
+    }
+
+    @Override
+    @SituationSource
     public Schema payLoanOrder(LoanOrderEntity loanOrder, PayOrderEntity payOrder) throws BaseException {
         Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategySchemas(loanOrder), SchemaTypeEnum.ENTRY);
         return this.entrySchema(shouldPaySchemaForEntry, payOrder);
     }
 
     @Override
+    @SituationSource
+    public Schema payLoanOrder(List<LoanInstalmentEntity> instalmentEntities, PayOrderEntity payOrder) throws BaseException {
+        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategySchemas(instalmentEntities), SchemaTypeEnum.ENTRY);
+        return this.entrySchema(shouldPaySchemaForEntry, payOrder);
+    }
+
+    @Override
+    @SituationSource
     public Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException {
         Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), SchemaTypeEnum.ENTRY);
         return this.entrySchema(shouldPaySchemaForEntry, payOrder);
     }
+
+    @Override
+    @SituationSource
+    public Schema payLoanOrder(List<LoanInstalmentEntity> instalmentEntities, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException {
+        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategyCouponSchemas(instalmentEntities, couponEntities), SchemaTypeEnum.ENTRY);
+        return this.entrySchema(shouldPaySchemaForEntry, payOrder);    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -135,11 +169,11 @@ public class BillServiceImpl implements BillService {
         }
         List<LoanOrderEntity> loanOrderEntities = loanOrderService.listByUserCode(payOrder.getUserCode(), StateEnum.lent);
         for (LoanOrderEntity loanOrderEntity : loanOrderEntities) {
-            Schema entrySchema = this.payLoanOrder(loanOrderEntity, payOrder);
+            List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrderEntity.getOrderId());
+            Schema realSchema = this.payOffLoanOrder(instalmentEntities);
+            Schema entrySchema = this.payLoanOrder(instalmentEntities, payOrder);
             // 获得订单schema, 入账
             Schema orderEntrySchema = entrySchema.distinguishByDestination(BillTypeEnum.LOAN_ORDER);
-            Schema realSchema = this.payOffLoanOrder(loanOrderEntity);
-            List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrderEntity.getOrderId());
             for (LoanInstalmentEntity instalmentEntity : instalmentEntities) {
                 Integer instalment = instalmentEntity.getInstalment();
                 Instalment realInstalment = realSchema.get(instalment);
@@ -154,6 +188,9 @@ public class BillServiceImpl implements BillService {
                 LoanOrderEntryEvent entryEvent = new LoanOrderEntryEvent(loanOrderEntity.getOrderId(), true);
                 loanOrderEventLauncher.launch(entryEvent);
             }
+
+            // 保存明细
+            payOrderDetailService.saveScheme(payOrder, realSchema, entrySchema);
         }
 
         // 全部正常入账完成, 发送入账成功事件
@@ -272,18 +309,42 @@ public class BillServiceImpl implements BillService {
         Situation situation = SituationHolder.getSituation();
         List<StrategyEntity> strategyEntities = strategyService.listStrategies(situation);
 
+        List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
+
         // 策略schema
-        Schema strategySchema = strategyCalculator.getCurrentSchema(strategyEntities, loanOrder);
+        Schema strategySchema = strategyCalculator.getCurrentSchema(strategyEntities, instalmentEntities);
 
         // 优惠券schema
         Boolean isPassed = couponService.checkCoupons(couponEntities);
         if (!isPassed) {
             throw new CouponException("优惠券集合中含有不可用优惠券");
         }
-        Schema couponSchema = couponCalculator.getCurrentSchema(couponEntities, loanOrder);
+        Schema couponSchema = couponCalculator.getCurrentSchema(couponEntities, instalmentEntities);
 
-        // 订单schema
-        List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
+        Schema loanSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
+        return Arrays.asList(loanSchema, couponSchema, strategySchema);
+    }
+
+    /**
+     * 获得schema
+     * @param loanOrder
+     * @param couponEntities
+     * @return
+     * @throws BaseException
+     */
+    private List<Schema> loanOrderStrategyCouponSchemas(List<LoanInstalmentEntity> instalmentEntities, List<CouponEntity> couponEntities) throws BaseException {
+        Situation situation = SituationHolder.getSituation();
+        List<StrategyEntity> strategyEntities = strategyService.listStrategies(situation);
+
+        // 策略schema
+        Schema strategySchema = strategyCalculator.getCurrentSchema(strategyEntities, instalmentEntities);
+
+        // 优惠券schema
+        Boolean isPassed = couponService.checkCoupons(couponEntities);
+        if (!isPassed) {
+            throw new CouponException("优惠券集合中含有不可用优惠券");
+        }
+        Schema couponSchema = couponCalculator.getCurrentSchema(couponEntities, instalmentEntities);
 
         Schema loanSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
         return Arrays.asList(loanSchema, couponSchema, strategySchema);
@@ -303,7 +364,23 @@ public class BillServiceImpl implements BillService {
         List<StrategyEntity> strategyEntities = strategyService.listStrategies(situation);
 
         // 策略schema
-        Schema strategySchema = strategyCalculator.getCurrentSchema(strategyEntities, loanOrder);
+        Schema strategySchema = strategyCalculator.getCurrentSchema(strategyEntities, instalmentEntities);
+        return Arrays.asList(currentSchema, strategySchema);
+    }
+
+    /**
+     * 获得schema
+     * @param loanOrder
+     * @return
+     * @throws BaseException
+     */
+    private List<Schema> loanOrderStrategySchemas(List<LoanInstalmentEntity> instalmentEntities) throws BaseException {
+        Schema currentSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
+        Situation situation = SituationHolder.getSituation();
+        List<StrategyEntity> strategyEntities = strategyService.listStrategies(situation);
+
+        // 策略schema
+        Schema strategySchema = strategyCalculator.getCurrentSchema(strategyEntities, instalmentEntities);
         return Arrays.asList(currentSchema, strategySchema);
     }
 
@@ -452,5 +529,22 @@ public class BillServiceImpl implements BillService {
             }
         }
         return writeOffSchema;
+    }
+
+    /**
+     * 去除还没到期的期数
+     * @param schema
+     */
+    private Schema removeFutureInstalment (Schema schema) {
+        Iterator<Map.Entry<Integer, Instalment>> iterator = schema.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Instalment> instalmentEntry = iterator.next();
+            Instalment instalment = instalmentEntry.getValue();
+            Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
+            if (today < instalment.getRepaymentDate()) {
+                iterator.remove();
+            }
+        }
+        return schema;
     }
 }
