@@ -38,6 +38,9 @@ public class EntryLaunchAction implements IAction {
     @Override
     public void run() {
         try {
+            /**
+             * 直接发起入账   /滑稽
+             */
             billService.batchEntry(payOrderId);
         } catch (Exception e) {
             logger.error("自动发送发起入账事件异常，payOrderId：[{}]", payOrderId, e);

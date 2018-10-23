@@ -32,7 +32,7 @@ import java.util.*;
  * 分期schema计算器
  * created by XUAN on 2018/09/08
  */
-@Component("instalmentCalculatorImpl")
+@Component("instalmentCalculator")
 public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
 
     Logger logger = LoggerFactory.getLogger(InstalmentCalculatorImpl.class);

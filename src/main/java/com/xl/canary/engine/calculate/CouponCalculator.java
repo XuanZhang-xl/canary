@@ -2,6 +2,7 @@ package com.xl.canary.engine.calculate;
 
 import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.ISchemaEntity;
+import com.xl.canary.entity.LoanInstalmentEntity;
 import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.WeightEnum;
@@ -22,7 +23,7 @@ public interface CouponCalculator extends SchemaCalculator {
      * @param payOrder         loanOrder, 优惠百分比时依赖于借款订单
      * @return   schema
      */
-    Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder) throws SchemaException;
+    Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, List<LoanInstalmentEntity> instalmentEntities) throws SchemaException;
 
     /**
      * 根据比重获取实际的金额

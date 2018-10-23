@@ -31,10 +31,8 @@ public class PayOrderDetailServiceImpl implements PayOrderDetailService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void saveScheme(PayOrderEntity payOrder, Schema orderSchema, Schema paySchema, Schema couponSchema, Schema strategySchema) {
-        createSchemaDetail(payOrder, orderSchema, paySchema);
-        createSchemaDetail(payOrder, orderSchema, couponSchema);
-        createSchemaDetail(payOrder, orderSchema, strategySchema);
+    public void saveScheme(PayOrderEntity payOrder, Schema orderSchema, Schema entrySchema) {
+        createSchemaDetail(payOrder, orderSchema, entrySchema);
     }
 
     @Override

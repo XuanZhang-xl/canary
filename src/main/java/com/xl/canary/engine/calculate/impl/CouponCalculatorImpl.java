@@ -30,16 +30,16 @@ import java.util.List;
 public class CouponCalculatorImpl implements CouponCalculator {
 
     @Autowired
-    private LoanSchemaCalculator loanSchemaCalculator;
+    private LoanSchemaCalculator instalmentCalculator;
 
     @Override
-    public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, LoanOrderEntity loanOrder) throws SchemaException {
+    public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, List<LoanInstalmentEntity> instalmentEntities) throws SchemaException {
         if (schemaEntities == null || schemaEntities.size() == 0) {
             return null;
         }
-        List<CouponEntity> couponEntities = checkSchemaEntity(schemaEntities, loanOrder.getOrderId());
+        List<CouponEntity> couponEntities = checkSchemaEntity(schemaEntities, instalmentEntities.get(0).getOrderId());
 
-        Schema orderSchema = loanSchemaCalculator.getCurrentSchema(System.currentTimeMillis(), Arrays.asList(loanOrder));
+        Schema orderSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
 
         // 正的为惩罚, 负的为优惠
         BigDecimal orderAmount;

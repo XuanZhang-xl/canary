@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 @Aspect
 @Component
@@ -42,6 +43,9 @@ public class SituationAspect {
                 PayOrderEntity order = (PayOrderEntity) arg;
                 situation.collect(CouponConditionEnum.PAY_AMOUNT, order.getEquivalentAmount());
                 situation.collect(CouponConditionEnum.PAY_CURRENCY, order.getEquivalent());
+            }
+            if (arg instanceof List) {
+                // TODO: 获取泛型
             }
         }
         return point.proceed();

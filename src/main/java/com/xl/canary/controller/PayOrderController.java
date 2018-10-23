@@ -5,6 +5,7 @@ import com.xl.canary.bean.req.PayOrderReq;
 import com.xl.canary.bean.res.PayOrderRes;
 import com.xl.canary.bean.res.ShouldPayRes;
 import com.xl.canary.bean.structure.Schema;
+import com.xl.canary.engine.event.order.AuditLaunchEvent;
 import com.xl.canary.engine.event.pay.DeductLaunchEvent;
 import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.entity.CouponEntity;
@@ -151,7 +152,7 @@ public class PayOrderController {
                 payOrderService.save(payOrder);
 
                 // TODO: 发送还款事件
-                DeductLaunchEvent event = new DeductLaunchEvent(payOrder.getPayOrderId());
+                AuditLaunchEvent event = new AuditLaunchEvent(payOrder.getPayOrderId(), userCode);
                 payOrderEventLauncher.launch(event);
 
 
