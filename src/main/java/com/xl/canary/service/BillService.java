@@ -7,7 +7,6 @@ import com.xl.canary.entity.LoanOrderEntity;
 import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.exception.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -23,7 +22,7 @@ public interface BillService {
      * @param loanOrder
      * @return
      */
-    Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException;
+    Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException, DateCalaulateException;
 
     /**
      * 还清一个订单所要的schema
@@ -32,7 +31,7 @@ public interface BillService {
      * @param instalmentEntities
      * @return
      */
-    Schema payOffLoanOrder(List<LoanInstalmentEntity> instalmentEntities) throws SchemaException;
+    Schema payOffLoanOrder(List<LoanInstalmentEntity> instalmentEntities) throws SchemaException, DateCalaulateException;
 
     /**
      * 还清一个订单及策略所要的schema

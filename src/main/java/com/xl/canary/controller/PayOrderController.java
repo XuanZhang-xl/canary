@@ -134,10 +134,14 @@ public class PayOrderController {
                 payOrder.setPayOrderState(StateEnum.PENDING.name());
                 payOrder.setApplyCurrency(applyCurrency.name());
                 payOrder.setApplyAmount(amount);
+                payOrder.setPayAmount(BigDecimal.ZERO);
                 payOrder.setEquivalent(equivalent);
                 BigDecimal ticker = ExchangeRateSimulator.getTicker(applyCurrency.name(), equivalent);
                 payOrder.setEquivalentRate(ticker);
                 payOrder.setEquivalentAmount(ticker.multiply(amount));
+                payOrder.setEntryAmount(BigDecimal.ZERO);
+                payOrder.setPayTime(-1L);
+                payOrder.setEndTime(-1L);
 
                 /**
                  * 分配还款后的schema

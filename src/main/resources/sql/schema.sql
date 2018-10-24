@@ -126,7 +126,7 @@ CREATE TABLE t_canary_pay_order_detail (
   `update_time` bigint(20) NOT NULL,
   `is_deleted` int NOT NULL DEFAULT '0' COMMENT '是否删除（0：否；1:是）',
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `index_source_id` (`source_id`) USING BTREE,
+  INDEX `index_source_id` (`source_id`) USING BTREE,
   INDEX `index_user_code` (`user_code`) USING BTREE,
   INDEX `index_update_time` (`update_time`) USING BTREE,
   INDEX `index_destination_id` (`destination_id`) USING BTREE

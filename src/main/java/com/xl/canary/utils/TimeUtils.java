@@ -1,7 +1,6 @@
 package com.xl.canary.utils;
 
 import com.xl.canary.enums.TimeZoneEnum;
-import com.xl.canary.exception.BaseException;
 import com.xl.canary.exception.DateCalaulateException;
 
 import java.util.Calendar;
@@ -47,14 +46,17 @@ public class TimeUtils {
      * @param timeZone
      * @return
      */
-    public static int passDays(Long from, Long to, Integer timeZone) {
+    public static int passDays(Long from, Long to, Integer timeZone) throws DateCalaulateException {
         Calendar fromCalendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
         fromCalendar.setTimeInMillis(from);
         fromCalendar = TimeUtils.truncateToDay(fromCalendar);
         Calendar toCalendar = Calendar.getInstance(TimeZone.getTimeZone(TimeZoneEnum.getZoneId(timeZone)));
         toCalendar.setTimeInMillis(to);
         toCalendar = TimeUtils.truncateToDay(toCalendar);
-        Long temp = (fromCalendar.getTimeInMillis() - toCalendar.getTimeInMillis()) / EssentialConstance.DAY_MILLISECOND;
+        if (fromCalendar.after(toCalendar)) {
+            throw new DateCalaulateException("begin必须在end之前");
+        }
+        Long temp = (toCalendar.getTimeInMillis() - fromCalendar.getTimeInMillis()) / EssentialConstance.DAY_MILLISECOND;
         return temp.intValue() + 1;
     }
 
@@ -71,7 +73,7 @@ public class TimeUtils {
         begin = TimeUtils.truncateToDay(begin);
         end = TimeUtils.truncateToDay(end);
         long diffDays = (end.getTimeInMillis() - begin.getTimeInMillis()) / EssentialConstance.DAY_MILLISECOND;
-        return (int) diffDays;
+        return (int) diffDays + 1;
     }
 
     /**

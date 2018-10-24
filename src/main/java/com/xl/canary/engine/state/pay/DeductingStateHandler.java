@@ -4,16 +4,12 @@ import com.xl.canary.engine.action.IActionExecutor;
 import com.xl.canary.engine.action.impl.EntryLaunchAction;
 import com.xl.canary.engine.event.IEvent;
 import com.xl.canary.engine.event.pay.DeductResponseEvent;
-import com.xl.canary.engine.launcher.IEventLauncher;
 import com.xl.canary.engine.state.IStateHandler;
 import com.xl.canary.engine.state.StateHandler;
 import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.StateEnum;
 import com.xl.canary.exception.InvalidEventException;
 import com.xl.canary.service.BillService;
-import com.xl.canary.service.LoanInstalmentService;
-import com.xl.canary.service.LoanOrderService;
-import com.xl.canary.service.PayOrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +34,7 @@ public class DeductingStateHandler implements IStateHandler<PayOrderEntity> {
             DeductResponseEvent deductResponseEvent = (DeductResponseEvent) event;
             if (deductResponseEvent.isSucceeded()) {
                 payOrder.setPayOrderState(StateEnum.DEDUCTED.name());
-                payOrder.setPayNumber(deductResponseEvent.getActualDeducted());
+                payOrder.setPayAmount(deductResponseEvent.getActualDeducted());
                 payOrder.setPayTime(deductResponseEvent.getEventTime());
                 /** 此处相当于在扣款成功后，自动发起入账 */
                 actionExecutor.append(new EntryLaunchAction(payOrder.getPayOrderId(), billService));

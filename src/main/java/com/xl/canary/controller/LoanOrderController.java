@@ -158,7 +158,7 @@ public class LoanOrderController {
                 response.setData(res);
 
                 // 放款操作, 必须在最后做, 否则可能出现幻读, 虚读等错误
-                loanOrderEventLauncher.launch(new AuditLaunchEvent(userCode, loanOrder.getOrderId()));
+                loanOrderEventLauncher.launch(new AuditLaunchEvent(loanOrder.getOrderId(), userCode));
                 logger.info("获取situation ： {}", SituationHolder.getSituation());
                 return response;
             } else {

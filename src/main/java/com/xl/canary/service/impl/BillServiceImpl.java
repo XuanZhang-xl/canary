@@ -23,6 +23,7 @@ import com.xl.canary.enums.loan.LoanOrderElementTypeEnum;
 import com.xl.canary.enums.pay.EntrySequenceEnum;
 import com.xl.canary.exception.BaseException;
 import com.xl.canary.exception.CouponException;
+import com.xl.canary.exception.DateCalaulateException;
 import com.xl.canary.exception.SchemaException;
 import com.xl.canary.service.*;
 import com.xl.canary.utils.TimeUtils;
@@ -79,14 +80,14 @@ public class BillServiceImpl implements BillService {
     private IEventLauncher payOrderEventLauncher;
 
     @Override
-    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException {
+    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException, DateCalaulateException {
         // 订单schema
         List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
         return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
     }
 
     @Override
-    public Schema payOffLoanOrder(List<LoanInstalmentEntity> instalmentEntities) throws SchemaException {
+    public Schema payOffLoanOrder(List<LoanInstalmentEntity> instalmentEntities) throws SchemaException, DateCalaulateException {
         return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
     }
 
@@ -164,7 +165,7 @@ public class BillServiceImpl implements BillService {
     @Transactional(rollbackFor = Exception.class)
     public void batchEntry(String payOrderId) throws Exception {
         PayOrderEntity payOrder = payOrderService.getByPayOrderId(payOrderId);
-        if (!payOrder.getState().equals(StateEnum.DEDUCTED)) {
+        if (!payOrder.getState().equals(StateEnum.DEDUCTED.name())) {
             return;
         }
         List<LoanOrderEntity> loanOrderEntities = loanOrderService.listByUserCode(payOrder.getUserCode(), StateEnum.lent);
@@ -176,9 +177,9 @@ public class BillServiceImpl implements BillService {
             Schema orderEntrySchema = entrySchema.distinguishByDestination(BillTypeEnum.LOAN_ORDER);
             for (LoanInstalmentEntity instalmentEntity : instalmentEntities) {
                 Integer instalment = instalmentEntity.getInstalment();
-                Instalment realInstalment = realSchema.get(instalment);
-                if (realInstalment != null) {
-                    Instalment orderEntryInstalment = orderEntrySchema.get(instalment);
+                Instalment orderEntryInstalment = orderEntrySchema.get(instalment);
+                if (orderEntryInstalment != null) {
+                    Instalment realInstalment = realSchema.get(instalment);
                     InstalmentEntryEvent instalmentEntryEvent = new InstalmentEntryEvent(instalmentEntity.getInstalmentId(), payOrder, orderEntryInstalment, realInstalment);
                     instalmentEventLauncher.launch(instalmentEntryEvent);
                 }
@@ -207,7 +208,7 @@ public class BillServiceImpl implements BillService {
      */
     private Schema entrySchema(Schema shouldPaySchema, PayOrderEntity payOrder) {
         Schema entrySchema = new Schema(SchemaTypeEnum.ENTRY);
-        BigDecimal paid = payOrder.getEquivalentAmount().subtract(payOrder.getEntryNumber());
+        BigDecimal paid = payOrder.getEquivalentAmount().subtract(payOrder.getEntryAmount());
         /**
          * 入账schema逻辑
          *
@@ -222,6 +223,8 @@ public class BillServiceImpl implements BillService {
          * 根据以上参数, 重新整理schema来把需要入账的元素排序, 就可以入账了
          *
          * TODO: 扩展到多订单的时候也一样
+         * TODO: 如果是银行贷款的模式, 提前还款的话是需要本金利息按比例分配的， 这可以设置为一个可配置项
+         * TODO: 根据策略/优惠券 类型， 将入账schema分为入到策略/优惠券/订单里
          */
         for (Map.Entry<Integer, Instalment> instalmentEntry : shouldPaySchema.entrySet()) {
             if (BigDecimal.ZERO.compareTo(paid) >= 0) {
@@ -253,19 +256,19 @@ public class BillServiceImpl implements BillService {
                     // TODO: 可能有更好的处理方式
                     if (LoanOrderElementTypeEnum.PRIVILEGE.equals(elementType)) {
                         Integer totalInstalment = shouldPaySchema.size();
-                        for (Integer i = 0; i < totalInstalment; i++) {
+                        for (Integer i = 1; i <= totalInstalment; i++) {
                             if (BigDecimal.ZERO.compareTo(paid) >= 0) {
                                 break;
                             }
                             Instalment privilegeInstalment = shouldPaySchema.get(i);
                             Unit privilegeUnit = privilegeInstalment.get(elementEnum);
                             if (privilegeUnit != null && privilegeUnit.size() > 0) {
-                                this.entryElement(privilegeUnit, entryUnit, paid, payOrder.getPayOrderId());
+                                paid = this.entryElement(privilegeUnit, entryUnit, paid, payOrder.getPayOrderId());
                             }
                         }
                     } else {
                         // 其他种类正常入账就行
-                        this.entryElement(unit, entryUnit, paid, payOrder.getPayOrderId());
+                        paid = this.entryElement(unit, entryUnit, paid, payOrder.getPayOrderId());
                     }
                 }
             }
@@ -276,8 +279,11 @@ public class BillServiceImpl implements BillService {
     /**
      * 入账的元素入账逻辑
      */
-    private void entryElement(Unit privilegeUnit, Unit entryUnit, BigDecimal paid, String payOrderId) {
+    private BigDecimal entryElement(Unit privilegeUnit, Unit entryUnit, BigDecimal paid, String payOrderId) {
         for (Element element : privilegeUnit) {
+            if (BigDecimal.ZERO.compareTo(paid) >= 0) {
+                break;
+            }
             // 如果source有值, 代表已经入账了
             Element cloneElement = element.clone();
             if (element.getSource() == null) {
@@ -296,6 +302,7 @@ public class BillServiceImpl implements BillService {
                 entryUnit.add(cloneElement);
             }
         }
+        return paid;
     }
 
     /**
@@ -327,7 +334,7 @@ public class BillServiceImpl implements BillService {
 
     /**
      * 获得schema
-     * @param loanOrder
+     * @param instalmentEntities
      * @param couponEntities
      * @return
      * @throws BaseException
@@ -370,7 +377,7 @@ public class BillServiceImpl implements BillService {
 
     /**
      * 获得schema
-     * @param loanOrder
+     * @param instalmentEntities
      * @return
      * @throws BaseException
      */

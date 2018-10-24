@@ -12,6 +12,7 @@ import com.xl.canary.enums.SchemaTypeEnum;
 import com.xl.canary.enums.WeightEnum;
 import com.xl.canary.enums.coupon.StrategyTypeEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
+import com.xl.canary.exception.DateCalaulateException;
 import com.xl.canary.exception.SchemaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class StrategyCalculatorImpl implements CouponCalculator {
     private LoanSchemaCalculator instalmentCalculator;
 
     @Override
-    public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, List<LoanInstalmentEntity> instalmentEntities) throws SchemaException {
+    public Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, List<LoanInstalmentEntity> instalmentEntities) throws SchemaException, DateCalaulateException {
         if (schemaEntities == null || schemaEntities.size() == 0) {
             return null;
         }

@@ -30,7 +30,7 @@ public class PayOrderControllerTest {
         //放入body中的json参数
         JSONObject content = new JSONObject();
         content.put("orderId","1");
-        String newUrl = localhost + "/pay/should_pay?orderId=" + "233351692778360832";
+        String newUrl = localhost + "/pay/should_pay?orderId=" + "239871086744457216";
         HttpEntity<JSONObject> request = new HttpEntity<JSONObject>(content,headers); //组装
         ResponseEntity<String> response = restTemplate.exchange(newUrl, HttpMethod.GET,request,String.class);
         logger.info(response.getBody());
@@ -38,5 +38,20 @@ public class PayOrderControllerTest {
 
     @Test
     public void repayment() {
+
+        RestTemplate restTemplate = new RestTemplate();
+        //header参数
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(ReqHeaderParams.ACCOUNT_CODE, "1");
+        //放入body中的json参数
+        JSONObject content = new JSONObject();
+        content.put("userCode","1");
+        content.put("applyCurrency","ETH");
+        content.put("amount","1");
+        content.put("loanOrderId","239871086744457216");
+        String newUrl = localhost + "/pay/pay_order";
+        HttpEntity<JSONObject> request = new HttpEntity<JSONObject>(content,headers); //组装
+        ResponseEntity<String> response = restTemplate.exchange(newUrl, HttpMethod.POST,request,String.class);
+        logger.info(response.getBody());
     }
 }
