@@ -177,9 +177,9 @@ public class BillServiceImpl implements BillService {
             Schema orderEntrySchema = entrySchema.distinguishByDestination(BillTypeEnum.LOAN_ORDER);
             for (LoanInstalmentEntity instalmentEntity : instalmentEntities) {
                 Integer instalment = instalmentEntity.getInstalment();
-                Instalment realInstalment = realSchema.get(instalment);
-                if (realInstalment != null) {
-                    Instalment orderEntryInstalment = orderEntrySchema.get(instalment);
+                Instalment orderEntryInstalment = orderEntrySchema.get(instalment);
+                if (orderEntryInstalment != null) {
+                    Instalment realInstalment = realSchema.get(instalment);
                     InstalmentEntryEvent instalmentEntryEvent = new InstalmentEntryEvent(instalmentEntity.getInstalmentId(), payOrder, orderEntryInstalment, realInstalment);
                     instalmentEventLauncher.launch(instalmentEntryEvent);
                 }
@@ -223,6 +223,8 @@ public class BillServiceImpl implements BillService {
          * 根据以上参数, 重新整理schema来把需要入账的元素排序, 就可以入账了
          *
          * TODO: 扩展到多订单的时候也一样
+         * TODO: 如果是银行贷款的模式, 提前还款的话是需要本金利息按比例分配的， 这可以设置为一个可配置项
+         * TODO: 根据策略/优惠券 类型， 将入账schema分为入到策略/优惠券/订单里
          */
         for (Map.Entry<Integer, Instalment> instalmentEntry : shouldPaySchema.entrySet()) {
             if (BigDecimal.ZERO.compareTo(paid) >= 0) {
@@ -261,12 +263,12 @@ public class BillServiceImpl implements BillService {
                             Instalment privilegeInstalment = shouldPaySchema.get(i);
                             Unit privilegeUnit = privilegeInstalment.get(elementEnum);
                             if (privilegeUnit != null && privilegeUnit.size() > 0) {
-                                this.entryElement(privilegeUnit, entryUnit, paid, payOrder.getPayOrderId());
+                                paid = this.entryElement(privilegeUnit, entryUnit, paid, payOrder.getPayOrderId());
                             }
                         }
                     } else {
                         // 其他种类正常入账就行
-                        this.entryElement(unit, entryUnit, paid, payOrder.getPayOrderId());
+                        paid = this.entryElement(unit, entryUnit, paid, payOrder.getPayOrderId());
                     }
                 }
             }
@@ -277,8 +279,11 @@ public class BillServiceImpl implements BillService {
     /**
      * 入账的元素入账逻辑
      */
-    private void entryElement(Unit privilegeUnit, Unit entryUnit, BigDecimal paid, String payOrderId) {
+    private BigDecimal entryElement(Unit privilegeUnit, Unit entryUnit, BigDecimal paid, String payOrderId) {
         for (Element element : privilegeUnit) {
+            if (BigDecimal.ZERO.compareTo(paid) >= 0) {
+                break;
+            }
             // 如果source有值, 代表已经入账了
             Element cloneElement = element.clone();
             if (element.getSource() == null) {
@@ -297,6 +302,7 @@ public class BillServiceImpl implements BillService {
                 entryUnit.add(cloneElement);
             }
         }
+        return paid;
     }
 
     /**

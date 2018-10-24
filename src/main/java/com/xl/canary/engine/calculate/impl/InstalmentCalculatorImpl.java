@@ -146,7 +146,10 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
         Long repaymentDate = TimeUtils.truncateToDay(instalmentEntity.getShouldPayTime());
         Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
         if (repaymentDate > today) {
-            // 提前还款, 重新分期? TODO
+            /**
+             *  TODO: 如果是银行贷款的模式, 提前还款的话是需要重新分期的, 这可以设置为一个可配置项
+             */
+            partRepayEntry(instalmentEntity, entryInstalment);
         } else {
             // 按期, 逾期还款
             if (realSum.compareTo(entrySum) == 0) {
@@ -162,29 +165,39 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 instalmentEntity.setPaidFee(feeJson.toJSONString());
                 instalmentEntity.setInstalmentState(StateEnum.PAYOFF.name());
             } else if (realSum.compareTo(entrySum) > 0) {
-                // 修正已付本金
-                BigDecimal currentPaidPrincipal = realInstalment.getElementAmount(LoanOrderElementEnum.PRINCIPAL);
-                instalmentEntity.setPaidPrincipal(instalmentEntity.getPaidPrincipal().add(currentPaidPrincipal));
-                // 修正已付利息
-                BigDecimal currentPaidInterest = realInstalment.getElementAmount(LoanOrderElementEnum.INTEREST);
-                instalmentEntity.setPaidInterest(instalmentEntity.getPaidInterest().add(currentPaidInterest));
-                // 修正已付罚息
-                BigDecimal currentPaidPenalty = realInstalment.getElementAmount(LoanOrderElementEnum.PENALTY);
-                instalmentEntity.setPaidPenalty(instalmentEntity.getPaidPenalty().add(currentPaidPenalty));
-                // 修正已付手续费
-                String paidFee = instalmentEntity.getPaidFee();
-                JSONObject feeJson = JSONObject.parseObject(paidFee);
-                for (Map.Entry<String, Object> entry : feeJson.entrySet()) {
-                    String key = entry.getKey();
-                    BigDecimal currentPaidFee = realInstalment.getElementAmount(LoanOrderElementEnum.valueOf(key));
-                    feeJson.put(entry.getKey(), feeJson.getBigDecimal(key).add(currentPaidFee).toPlainString());
-                }
+                partRepayEntry(instalmentEntity, entryInstalment);
             } else {
                 logger.error("订单[{}]第[{}]期, 应还[{}], 实际还款[{}], 无法入账!", instalmentEntity.getOrderId(), instalmentEntity.getInstalment(), realSum, entrySum);
                 throw new LoanEntryException("订单" + instalmentEntity.getOrderId() + "第" + instalmentEntity.getInstalment() + "期, 应还" + realSum + ", 实际还款" + entrySum + ", 无法入账!");
             }
         }
         return instalmentEntity;
+    }
+
+    /**
+     * 部分还款入账逻辑
+     * @param instalmentEntity
+     * @param entryInstalment
+     */
+    private void partRepayEntry(LoanInstalmentEntity instalmentEntity, Instalment entryInstalment) {
+        // 修正已付本金
+        BigDecimal currentPaidPrincipal = entryInstalment.getElementAmount(LoanOrderElementEnum.PRINCIPAL);
+        instalmentEntity.setPaidPrincipal(instalmentEntity.getPaidPrincipal().add(currentPaidPrincipal));
+        // 修正已付利息
+        BigDecimal currentPaidInterest = entryInstalment.getElementAmount(LoanOrderElementEnum.INTEREST);
+        instalmentEntity.setPaidInterest(instalmentEntity.getPaidInterest().add(currentPaidInterest));
+        // 修正已付罚息
+        BigDecimal currentPaidPenalty = entryInstalment.getElementAmount(LoanOrderElementEnum.PENALTY);
+        instalmentEntity.setPaidPenalty(instalmentEntity.getPaidPenalty().add(currentPaidPenalty));
+        // 修正已付手续费
+        String paidFee = instalmentEntity.getPaidFee();
+        JSONObject feeJson = JSONObject.parseObject(paidFee);
+        for (Map.Entry<String, Object> entry : feeJson.entrySet()) {
+            String key = entry.getKey();
+            BigDecimal currentPaidFee = entryInstalment.getElementAmount(LoanOrderElementEnum.valueOf(key));
+            feeJson.put(entry.getKey(), feeJson.getBigDecimal(key).add(currentPaidFee).toPlainString());
+        }
+        instalmentEntity.setPaidFee(feeJson.toJSONString());
     }
 
     /**
