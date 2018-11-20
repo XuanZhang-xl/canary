@@ -416,7 +416,7 @@ public class BillServiceImpl implements BillService {
      * 2. 用已还将应还抵消, 如果已还大于应还, 则直接抛异常(这里可优化), 如果小于等于, 正常扣掉已还就好
      *
      * SchemaTypeEnum.SHOULD_PAY : 输出的schema是应还的schema
-     * SchemaTypeEnum.ENTRY : 输出的schema是入账优惠/策略后的已入账schema
+     * SchemaTypeEnum.ENTRY : 输出的schema是全额还款时 入账优惠/策略后的已入账schema
      *
      * @param schemas
      * @return
@@ -426,6 +426,8 @@ public class BillServiceImpl implements BillService {
         if (!SchemaTypeEnum.REPAY_RELEVANT.contains(schemaType)) {
             throw new SchemaException("mergeSchemas方法仅支持SchemaTypeEnum.ENTRY与SchemaTypeEnum.SHOULD_PAY, 当前schema类型" + schemaType.name());
         }
+        long now = System.currentTimeMillis();
+
         // 应还schema
         Schema repaySchema = new Schema(schemaType);
         Schema sourceSchema = getWriteOffTypeSchema(schemas, SchemaTypeEnum.WRITE_OFF_SOURCE);
@@ -435,7 +437,11 @@ public class BillServiceImpl implements BillService {
         for (Map.Entry<Integer, Instalment> instalmentEntry : destinationSchema.entrySet()) {
             Integer instalmentKey = instalmentEntry.getKey();
             Instalment instalment = instalmentEntry.getValue();
+            if (instalment.getRepaymentDate() > now) {
+                // 未出账单, 需要另外入账
+            }
             Instalment sourceInstalment = sourceSchema.get(instalmentKey);
+
             if (sourceInstalment == null) {
                 // 来源为空, 表示暂时没还, 需要还
                 repaySchema.put(instalmentKey, instalment);
@@ -466,6 +472,14 @@ public class BillServiceImpl implements BillService {
                 // unit中有部分还了
                 Iterator<Element> iterator = sourceUnit.iterator();
                 Element sourceElement = null;
+
+                Element orderBaseElement = unit.get(0);
+                unit.addAll(sourceUnit);
+                BigDecimal couponPercentInverse = unit.getCouponPercentInverse();
+                BigDecimal couponNumber = unit.getCouponNumber();
+
+
+
                 for (Element element : unit) {
                     BigDecimal amount = element.getAmount();
                     if (iterator.hasNext()) {
@@ -478,7 +492,6 @@ public class BillServiceImpl implements BillService {
                                 element.setSource(sourceElement.getSource());
                                 element.setSourceId(sourceElement.getSourceId());
                                 // 入账后的值都是正的
-                                // TODO: 有更好的方法吗?
                                 element.setAmount(sourceAmount.abs());
                                 repayUnit.add(paidElement);
                             } else {
@@ -495,7 +508,6 @@ public class BillServiceImpl implements BillService {
                                 element.setSource(sourceElement.getSource());
                                 element.setSourceId(sourceElement.getSourceId());
                                 // 入账后的值都是正的
-                                // TODO: 有更好的方法吗?
                                 element.setAmount(amount);
                                 repayUnit.add(paidElement);
                             }

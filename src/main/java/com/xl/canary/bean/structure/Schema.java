@@ -166,6 +166,37 @@ public class Schema implements Map<Integer, Instalment>, Cloneable, Serializable
         return schema;
     }
 
+
+    /**
+     * 获取提前还款总额, 每期相加
+     * @return
+     */
+    public Instalment getPrepayInstalment () {
+        Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
+        Instalment prepayInstalment = new Instalment();
+        prepayInstalment.setInstalment(0);
+        for (Entry<Integer, Instalment> entry : this.schemaMap.entrySet()) {
+            Instalment value = entry.getValue();
+            if (today < value.getRepaymentDate()) {
+                for (Entry<LoanOrderElementEnum, Unit> unitEntry : value.entrySet()) {
+                    LoanOrderElementEnum loanOrderElementEnum = unitEntry.getKey();
+                    Unit unit = unitEntry.getValue();
+                    Unit prepayUnit = prepayInstalment.get(loanOrderElementEnum);
+                    if (prepayUnit == null) {
+                        prepayUnit = unit.clone();
+                        prepayInstalment.put(loanOrderElementEnum, prepayUnit);
+                    } else {
+                        /**
+                         * 没有必要在这儿就把金额加起来, 在调用时也可以直接 .sum()就好
+                         */
+                        prepayUnit.addAll(unit.clone());
+                    }
+                }
+            }
+        }
+        return prepayInstalment;
+    }
+
     @Override
     public int size() {
         return this.schemaMap.size();

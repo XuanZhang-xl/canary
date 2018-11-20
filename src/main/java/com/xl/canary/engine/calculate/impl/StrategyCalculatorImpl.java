@@ -1,9 +1,6 @@
 package com.xl.canary.engine.calculate.impl;
 
-import com.xl.canary.bean.structure.Element;
-import com.xl.canary.bean.structure.Instalment;
-import com.xl.canary.bean.structure.Schema;
-import com.xl.canary.bean.structure.Unit;
+import com.xl.canary.bean.structure.*;
 import com.xl.canary.engine.calculate.CouponCalculator;
 import com.xl.canary.engine.calculate.LoanSchemaCalculator;
 import com.xl.canary.entity.*;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,10 +35,9 @@ public class StrategyCalculatorImpl implements CouponCalculator {
         }
         List<StrategyEntity> strategyEntities = this.checkSchemaEntity(schemaEntities);
 
-        Schema orderSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
+        // Schema orderSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
 
         // 正的为惩罚, 负的为优惠
-        BigDecimal orderAmount;
         Schema schema = new Schema(SchemaTypeEnum.STRATEGY);
 
         for (StrategyEntity strategyEntity : strategyEntities) {
@@ -61,28 +56,14 @@ public class StrategyCalculatorImpl implements CouponCalculator {
                 schemaInstalment.put(elementKey, unit);
             }
 
-            // 获取orderScehma的amount, 如果是没有, 则默认是0
-            Instalment orderInstalment = orderSchema.get(instalment);
-            if (orderInstalment == null) {
-                orderAmount = BigDecimal.ZERO;
-            } else {
-                Element orderElement = orderInstalment.get(elementKey).get(0);
-                if (orderElement == null) {
-                    orderAmount = BigDecimal.ZERO;
-                } else {
-                    orderAmount = orderElement.getAmount();
-                }
-            }
-
-            Element element = new Element();
+            CouponElement element = new CouponElement();
             StrategyTypeEnum strategyType = StrategyTypeEnum.valueOf(strategyEntity.getStrategyType());
-            WeightEnum weight = strategyType.getWeight();
-            BigDecimal amount = this.getApplyAmount(weight, strategyEntity.getDefaultAmount(), orderAmount);
-            element.setAmount(amount);
+            element.setAmount(strategyEntity.getDefaultAmount());
             element.setElement(elementKey);
             element.setInstalment(instalment);
             element.setSource(BillTypeEnum.STRATEGY);
             element.setSourceId(strategyEntity.getStrategyId());
+            element.setWeight(strategyType.getWeight());
             unit.add(element);
         }
         return schema.reverse();
@@ -91,15 +72,6 @@ public class StrategyCalculatorImpl implements CouponCalculator {
     @Override
     public Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities) throws SchemaException {
         throw new SchemaException("策略计算器不支持OriginalSchema");
-    }
-
-    @Override
-    public BigDecimal getApplyAmount(WeightEnum weight, BigDecimal defaultAmount, BigDecimal orderAmount) {
-        if (WeightEnum.NUMBER.equals(weight)) {
-            return defaultAmount;
-        } else {
-            return orderAmount.multiply(defaultAmount);
-        }
     }
 
     private List<StrategyEntity> checkSchemaEntity (List<? extends ISchemaEntity> schemaEntities) throws SchemaException {

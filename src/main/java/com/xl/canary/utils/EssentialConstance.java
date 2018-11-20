@@ -1,5 +1,7 @@
 package com.xl.canary.utils;
 
+import java.math.BigDecimal;
+
 /**
  * 基础常量
  * created by XUAN on 2018/08/20
@@ -40,4 +42,19 @@ public interface EssentialConstance {
      * 每天毫秒数
      */
     int DAY_MILLISECOND = 86400000;
+
+    /**
+     * 精确度
+     */
+    int SCALE = 8;
+
+    /**
+     * 向上取整
+     */
+    int UP = BigDecimal.ROUND_UP;
+
+    /**
+     * 向下取整
+     */
+    int DOWN = BigDecimal.ROUND_DOWN;
 }

@@ -1,9 +1,6 @@
 package com.xl.canary.engine.calculate.impl;
 
-import com.xl.canary.bean.structure.Element;
-import com.xl.canary.bean.structure.Instalment;
-import com.xl.canary.bean.structure.Schema;
-import com.xl.canary.bean.structure.Unit;
+import com.xl.canary.bean.structure.*;
 import com.xl.canary.engine.calculate.CouponCalculator;
 import com.xl.canary.engine.calculate.LoanSchemaCalculator;
 import com.xl.canary.entity.*;
@@ -40,10 +37,9 @@ public class CouponCalculatorImpl implements CouponCalculator {
         }
         List<CouponEntity> couponEntities = checkSchemaEntity(schemaEntities, instalmentEntities.get(0).getOrderId());
 
-        Schema orderSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
+        //Schema orderSchema = instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
 
         // 正的为惩罚, 负的为优惠
-        BigDecimal orderAmount;
         Schema schema = new Schema(SchemaTypeEnum.COUPON);
         for (CouponEntity couponEntity : couponEntities) {
             String couponState = couponEntity.getCouponState();
@@ -65,28 +61,19 @@ public class CouponCalculatorImpl implements CouponCalculator {
                 schemaInstalment.put(elementKey, unit);
             }
 
-            // 获取orderScehma的amount, 如果是没有, 则默认是0
-            Instalment orderInstalment = orderSchema.get(instalment);
-            if (orderInstalment == null) {
-                orderAmount = BigDecimal.ZERO;
-            } else {
-                Element orderElement = orderInstalment.get(elementKey).get(0);
-                if (orderElement == null) {
-                    orderAmount = BigDecimal.ZERO;
-                } else {
-                    orderAmount = orderElement.getAmount();
-                }
-            }
-
-            Element element = new Element();
+            CouponElement element = new CouponElement();
             CouponTypeEnum couponType = CouponTypeEnum.valueOf(couponEntity.getCouponType());
             WeightEnum weight = couponType.getWeight();
-            BigDecimal amount = this.getApplyAmount(weight, couponEntity.getDefaultAmount(), orderAmount);
-            element.setAmount(amount.subtract(couponEntity.getEntryAmount()));
+            if (WeightEnum.PERCENT.equals(weight)) {
+                element.setAmount(couponEntity.getDefaultAmount().subtract(couponEntity.getEntryAmount()));
+            } else {
+                element.setAmount(couponEntity.getDefaultAmount());
+            }
             element.setElement(elementKey);
             element.setSource(BillTypeEnum.COUPON);
             element.setInstalment(instalment);
             element.setSourceId(couponEntity.getCouponBatchId());
+            element.setWeight(couponType.getWeight());
             unit.add(element);
         }
         return schema.reverse();
@@ -129,15 +116,6 @@ public class CouponCalculatorImpl implements CouponCalculator {
             throw  new SchemaException("优惠券" + couponBatchId + "绑定了订单" + boundOrderId + " 而传入订单为 " + orderId);
         }
         return couponEntities;
-    }
-
-    @Override
-    public BigDecimal getApplyAmount(WeightEnum weight, BigDecimal defaultAmount, BigDecimal orderAmount) {
-        if (WeightEnum.NUMBER.equals(weight)) {
-            return defaultAmount;
-        } else {
-            return orderAmount.multiply(defaultAmount);
-        }
     }
 
 }
