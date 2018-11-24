@@ -11,7 +11,7 @@ public class AuditLaunchEvent extends AbstractStateEvent implements IStateEvent 
 
     private final String userCode;
 
-    public AuditLaunchEvent(String userCode, String orderId) {
+    public AuditLaunchEvent(String orderId, String userCode) {
         super(orderId);
         this.userCode = userCode;
     }

@@ -23,6 +23,7 @@ import com.xl.canary.enums.loan.LoanOrderElementTypeEnum;
 import com.xl.canary.enums.pay.EntrySequenceEnum;
 import com.xl.canary.exception.BaseException;
 import com.xl.canary.exception.CouponException;
+import com.xl.canary.exception.DateCalaulateException;
 import com.xl.canary.exception.SchemaException;
 import com.xl.canary.service.*;
 import com.xl.canary.utils.TimeUtils;
@@ -79,14 +80,14 @@ public class BillServiceImpl implements BillService {
     private IEventLauncher payOrderEventLauncher;
 
     @Override
-    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException {
+    public Schema payOffLoanOrder(LoanOrderEntity loanOrder) throws SchemaException, DateCalaulateException {
         // 订单schema
         List<LoanInstalmentEntity> instalmentEntities = instalmentService.listInstalments(loanOrder.getOrderId());
         return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
     }
 
     @Override
-    public Schema payOffLoanOrder(List<LoanInstalmentEntity> instalmentEntities) throws SchemaException {
+    public Schema payOffLoanOrder(List<LoanInstalmentEntity> instalmentEntities) throws SchemaException, DateCalaulateException {
         return instalmentCalculator.getCurrentSchema(System.currentTimeMillis(), instalmentEntities);
     }
 
@@ -164,7 +165,7 @@ public class BillServiceImpl implements BillService {
     @Transactional(rollbackFor = Exception.class)
     public void batchEntry(String payOrderId) throws Exception {
         PayOrderEntity payOrder = payOrderService.getByPayOrderId(payOrderId);
-        if (!payOrder.getState().equals(StateEnum.DEDUCTED)) {
+        if (!payOrder.getState().equals(StateEnum.DEDUCTED.name())) {
             return;
         }
         List<LoanOrderEntity> loanOrderEntities = loanOrderService.listByUserCode(payOrder.getUserCode(), StateEnum.lent);
@@ -207,7 +208,7 @@ public class BillServiceImpl implements BillService {
      */
     private Schema entrySchema(Schema shouldPaySchema, PayOrderEntity payOrder) {
         Schema entrySchema = new Schema(SchemaTypeEnum.ENTRY);
-        BigDecimal paid = payOrder.getEquivalentAmount().subtract(payOrder.getEntryNumber());
+        BigDecimal paid = payOrder.getEquivalentAmount().subtract(payOrder.getEntryAmount());
         /**
          * 入账schema逻辑
          *
@@ -253,7 +254,7 @@ public class BillServiceImpl implements BillService {
                     // TODO: 可能有更好的处理方式
                     if (LoanOrderElementTypeEnum.PRIVILEGE.equals(elementType)) {
                         Integer totalInstalment = shouldPaySchema.size();
-                        for (Integer i = 0; i < totalInstalment; i++) {
+                        for (Integer i = 1; i <= totalInstalment; i++) {
                             if (BigDecimal.ZERO.compareTo(paid) >= 0) {
                                 break;
                             }
@@ -327,7 +328,7 @@ public class BillServiceImpl implements BillService {
 
     /**
      * 获得schema
-     * @param loanOrder
+     * @param instalmentEntities
      * @param couponEntities
      * @return
      * @throws BaseException
@@ -370,7 +371,7 @@ public class BillServiceImpl implements BillService {
 
     /**
      * 获得schema
-     * @param loanOrder
+     * @param instalmentEntities
      * @return
      * @throws BaseException
      */

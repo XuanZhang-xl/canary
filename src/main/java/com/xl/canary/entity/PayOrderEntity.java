@@ -51,7 +51,7 @@ public class PayOrderEntity extends AbstractBaseEntity implements IOrderEntity, 
     /**
      * 实际扣款金额, 默认0
      */
-    private BigDecimal payNumber;
+    private BigDecimal payAmount;
 
     /**
      * 实际扣款时间. 默认-1
@@ -76,12 +76,12 @@ public class PayOrderEntity extends AbstractBaseEntity implements IOrderEntity, 
     /**
      * 入账金额, 默认0
      */
-    private BigDecimal entryNumber;
+    private BigDecimal entryAmount;
 
     /**
      * 入账结束时间. 默认-1
      */
-    private Long entryOverTime;
+    private Long endTime;
 
     public String getPayOrderId() {
         return payOrderId;
@@ -145,14 +145,6 @@ public class PayOrderEntity extends AbstractBaseEntity implements IOrderEntity, 
         this.applyAmount = applyAmount;
     }
 
-    public BigDecimal getPayNumber() {
-        return payNumber;
-    }
-
-    public void setPayNumber(BigDecimal payNumber) {
-        this.payNumber = payNumber;
-    }
-
     public Long getPayTime() {
         return payTime;
     }
@@ -187,20 +179,28 @@ public class PayOrderEntity extends AbstractBaseEntity implements IOrderEntity, 
         this.equivalentAmount = equivalentAmount;
     }
 
-    public BigDecimal getEntryNumber() {
-        return entryNumber;
+    public BigDecimal getPayAmount() {
+        return payAmount;
     }
 
-    public void setEntryNumber(BigDecimal entryNumber) {
-        this.entryNumber = entryNumber;
+    public void setPayAmount(BigDecimal payAmount) {
+        this.payAmount = payAmount;
     }
 
-    public Long getEntryOverTime() {
-        return entryOverTime;
+    public BigDecimal getEntryAmount() {
+        return entryAmount;
     }
 
-    public void setEntryOverTime(Long entryOverTime) {
-        this.entryOverTime = entryOverTime;
+    public void setEntryAmount(BigDecimal entryAmount) {
+        this.entryAmount = entryAmount;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
     }
 
     @Override

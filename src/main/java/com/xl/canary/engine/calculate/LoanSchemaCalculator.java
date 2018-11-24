@@ -2,6 +2,7 @@ package com.xl.canary.engine.calculate;
 
 import com.xl.canary.bean.structure.Schema;
 import com.xl.canary.entity.ISchemaEntity;
+import com.xl.canary.exception.DateCalaulateException;
 import com.xl.canary.exception.SchemaException;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public interface LoanSchemaCalculator extends SchemaCalculator {
      * @param date   用户时间, 一般都为当前时间
      * @return
      */
-    Schema getCurrentSchema(Long date, List<? extends ISchemaEntity> schemaEntities) throws SchemaException;
+    Schema getCurrentSchema(Long date, List<? extends ISchemaEntity> schemaEntities) throws SchemaException, DateCalaulateException;
 
     /**
      * 获取订单的计划账单, 当前时间到订单结束如果不提前还款, 在还款日还清的账单

@@ -22,13 +22,13 @@ public class EntryDoingStateHandler implements IStateHandler<PayOrderEntity> {
 
         if (event instanceof EntryResponseEvent) {
             EntryResponseEvent entryResponseEvent = (EntryResponseEvent) event;
-            payOrder.setEntryNumber(payOrder.getEntryNumber().add(entryResponseEvent.getActualEntry()));
-            if (payOrder.getEntryNumber().compareTo(payOrder.getEquivalentAmount()) == 0) {
+            payOrder.setEntryAmount(payOrder.getEntryAmount().add(entryResponseEvent.getActualEntry()));
+            if (payOrder.getEntryAmount().compareTo(payOrder.getEquivalentAmount()) == 0) {
                 payOrder.setPayOrderState(StateEnum.ENTRY_DONE.name());
             } else {
                 payOrder.setPayOrderState(StateEnum.ENTRY_FAILED.name());
             }
-            payOrder.setEntryOverTime(entryResponseEvent.getEventTime());
+            payOrder.setEndTime(entryResponseEvent.getEventTime());
         }  else {
             throw new InvalidEventException(
                     "还款订单状态与事件类型不匹配，状态：" + payOrder.getState() + "，事件：" + event);

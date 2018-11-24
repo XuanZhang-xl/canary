@@ -130,6 +130,10 @@ public class PayOrderDetailServiceImpl implements PayOrderDetailService {
                     detail.setElement(unitKey.name());
                     detail.setShouldPay(orderElement.getAmount());
                     detail.setPaid(element.getAmount());
+                    long now = System.currentTimeMillis();
+                    detail.setCreateTime(now);
+                    detail.setUpdateTime(now);
+                    detail.setIsDeleted(0);
                     payOrderDetailMapper.insert(detail);
                 }
             }

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.xl.canary.mapper.PayOrderMapper">
 
-    <select id="getByOrderId" resultType="com.xl.canary.entity.PayOrderEntity">
+    <select id="getByPayOrderId" resultType="com.xl.canary.entity.PayOrderEntity">
         select * from t_canary_pay_order WHERE pay_order_id = #{payOrderId}
     </select>
 

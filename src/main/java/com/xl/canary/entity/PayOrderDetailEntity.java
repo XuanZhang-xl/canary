@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * Created by xzhang on 2018/9/6.
  */
 @Table(name = "t_canary_pay_order_detail")
-public class PayOrderDetailEntity {
+public class PayOrderDetailEntity extends AbstractBaseEntity {
 
     /**
      * 来源类型

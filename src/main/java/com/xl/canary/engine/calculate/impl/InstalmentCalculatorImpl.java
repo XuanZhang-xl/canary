@@ -13,6 +13,7 @@ import com.xl.canary.entity.PayOrderEntity;
 import com.xl.canary.enums.*;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
 import com.xl.canary.exception.BaseException;
+import com.xl.canary.exception.DateCalaulateException;
 import com.xl.canary.exception.LoanEntryException;
 import com.xl.canary.exception.SchemaException;
 import com.xl.canary.service.LoanOrderService;
@@ -47,7 +48,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
      * @throws SchemaException
      */
     @Override
-    public Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities) throws SchemaException {
+    public Schema getOriginalSchema(List<? extends ISchemaEntity> schemaEntities) throws SchemaException, DateCalaulateException {
         // 检查传入的实体是否符合要求
         List<LoanInstalmentEntity> instalmentEntities = checkSchemaEntity(schemaEntities);
         String orderId = instalmentEntities.get(0).getOrderId();
@@ -194,7 +195,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
      * @throws SchemaException
      */
     @Override
-    public Schema getCurrentSchema(Long date, List<? extends ISchemaEntity> schemaEntities) throws SchemaException {
+    public Schema getCurrentSchema(Long date, List<? extends ISchemaEntity> schemaEntities) throws SchemaException, DateCalaulateException {
         // 检查传入的实体是否符合要求
         List<LoanInstalmentEntity> instalmentEntities = checkSchemaEntity(schemaEntities);
 
@@ -301,7 +302,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
                 BigDecimal dailyInterest = LoanOrderInstalmentUtils.dailyInterest(principalElement.getAmount(), TimeUnitEnum.valueOf(loanOrder.getInstalmentUnit()), loanOrder.getInstalmentRate());
 
                 /**
-                 * 罚息每天一记
+                 * 利息每天一记
                  */
                 interestElement.setAmount(dailyInterest
                         .multiply(new BigDecimal(passedDays))

@@ -77,13 +77,19 @@ public class LoanInstalmentServiceImpl implements LoanInstalmentService {
                     // 原始应还信息
                     loanInstalment.setOriginalPrincipal(basicInstalment.getPrincipal());
                     loanInstalment.setOriginalInterest(basicInstalment.getInterest());
-                    String jsonFee = JSONObject.toJSONString(basicInstalment.getFee());
+                    Map<String, BigDecimal> feeMap = basicInstalment.getFee();
+                    String jsonFee = JSONObject.toJSONString(feeMap);
                     loanInstalment.setOriginalFee(jsonFee);
                     // 应还信息
                     loanInstalment.setPaidPrincipal(BigDecimal.ZERO);
                     // 当天不算利息, 从第二天开始算利息
                     loanInstalment.setPaidInterest(BigDecimal.ZERO);
                     loanInstalment.setPaidPenalty(BigDecimal.ZERO);
+                    // 初始化已还服务费
+                    for (Map.Entry<String, BigDecimal> entry : feeMap.entrySet()) {
+                        feeMap.put(entry.getKey(), BigDecimal.ZERO);
+                    }
+                    loanInstalment.setPaidFee(JSONObject.toJSONString(feeMap));
                     loanInstalment.setLastPaidPrincipalDate(-1L);
                     // 还款日
                     loanInstalment.setShouldPayTime(repaymentDates.get(instalmentDate));
