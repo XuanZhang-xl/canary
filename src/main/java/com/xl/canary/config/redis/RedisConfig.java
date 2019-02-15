@@ -12,14 +12,15 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
  * Created by xzhang on 2018/8/24.
+ * springboot 在  RedisAutoConfiguration 中已自动配置, 自己不用配置了
  */
-@Configuration
+//@Configuration
 public class RedisConfig {
 
     /**
      * Redis操作模板
      */
-    @Bean(value = "canaryRedis")
+    //@Bean(value = "canaryRedis")
     public RedisTemplate<String, Object> gluttonRedisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);

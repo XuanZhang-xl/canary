@@ -26,11 +26,11 @@ public class RedisLockImpl implements RedisService {
     private static Logger logger = LoggerFactory.getLogger(RedisLockImpl.class);
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     @Override
     public boolean lock(String key, String value, long expire, TimeUnit expireUnit) {
-        return lock(key, value, 0L, null, expire, expireUnit);
+        return lock(key, value, 1000L, TimeUnit.MILLISECONDS, expire, expireUnit);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class RedisLockImpl implements RedisService {
                     }
                 });
                 if (flag) {
-                    ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+                    ValueOperations<String, String> ops = redisTemplate.opsForValue();
                     ops.set(key, value, expire, TimeUnit.MILLISECONDS);
                     return Boolean.TRUE;
                 }
