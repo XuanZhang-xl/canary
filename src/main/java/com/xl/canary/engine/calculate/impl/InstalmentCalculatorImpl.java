@@ -147,7 +147,7 @@ public class InstalmentCalculatorImpl implements LoanSchemaCalculator {
         Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
         if (repaymentDate > today) {
             /**
-             *  TODO: 如果是银行贷款的模式, 提前还款的话是需要重新分期的, 这可以设置为一个可配置项
+             *  TODO: 如果是银行贷款的模式, 提前还款的话是需要重新分期的, 这可以设置为一个单独字段
              */
             partRepayEntry(instalmentEntity, entryInstalment);
         } else {

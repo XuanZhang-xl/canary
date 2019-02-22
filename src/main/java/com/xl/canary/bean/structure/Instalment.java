@@ -29,6 +29,11 @@ public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, S
     private long repaymentDate = -1L;
 
     /**
+     * 入账模式, 扩展字段, 未实现
+     */
+    private String entryMode;
+
+    /**
      * 当前Instalment反转
      */
     public void reverse() {
@@ -174,5 +179,13 @@ public class Instalment implements Map<LoanOrderElementEnum, Unit>, Cloneable, S
 
     public void setInstalment(Integer instalment) {
         this.instalment = instalment;
+    }
+
+    public String getEntryMode() {
+        return entryMode;
+    }
+
+    public void setEntryMode(String entryMode) {
+        this.entryMode = entryMode;
     }
 }

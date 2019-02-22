@@ -1,6 +1,8 @@
 package com.xl.canary.bean.structure;
 
+import com.xl.canary.enums.WeightEnum;
 import com.xl.canary.enums.loan.LoanOrderElementEnum;
+import com.xl.canary.utils.EssentialConstance;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -26,6 +28,43 @@ public class Unit implements List<Element>, Cloneable, Serializable {
             sum = sum.add(element.getAmount());
         }
         return sum;
+    }
+
+    /**
+     * 将百分比惩罚, 优惠整合, 获取占已付金额的百分比
+     * @return
+     */
+    public BigDecimal getCouponPercentInverse() {
+        BigDecimal percent = BigDecimal.ONE;
+        for (Element elementEntity : unitList) {
+            if (elementEntity instanceof CouponElement) {
+                CouponElement couponElement = (CouponElement) elementEntity;
+                if (couponElement.getWeight().equals(WeightEnum.PERCENT)) {
+                    percent = percent.add(couponElement.getAmount());
+                }
+            }
+        }
+        if (percent.compareTo(BigDecimal.ONE) != 0) {
+            percent = BigDecimal.ONE.divide(BigDecimal.ONE.subtract(percent), EssentialConstance.SCALE, EssentialConstance.UP);
+        }
+        return percent;
+    }
+
+    /**
+     * 将数量惩罚, 优惠整合
+     * @return
+     */
+    public BigDecimal getCouponNumber() {
+        BigDecimal number = BigDecimal.ZERO;
+        for (Element elementEntity : unitList) {
+            if (elementEntity instanceof CouponElement) {
+                CouponElement couponElement = (CouponElement) elementEntity;
+                if (couponElement.getWeight().equals(WeightEnum.NUMBER)) {
+                    number = number.add(couponElement.getAmount());
+                }
+            }
+        }
+        return number;
     }
 
 

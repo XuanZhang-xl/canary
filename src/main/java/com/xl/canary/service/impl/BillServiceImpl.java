@@ -149,29 +149,26 @@ public class BillServiceImpl implements BillService {
     @Override
     @SituationSource
     public Schema payLoanOrder(LoanOrderEntity loanOrder, PayOrderEntity payOrder) throws BaseException {
-        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategySchemas(loanOrder), SchemaTypeEnum.ENTRY);
-        return this.entrySchema(shouldPaySchemaForEntry, payOrder);
+        return this.entrySchema(this.loanOrderStrategySchemas(loanOrder), payOrder);
     }
 
     @Override
     @SituationSource
     public Schema payLoanOrder(List<LoanInstalmentEntity> instalmentEntities, PayOrderEntity payOrder) throws BaseException {
-        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategySchemas(instalmentEntities), SchemaTypeEnum.ENTRY);
-        return this.entrySchema(shouldPaySchemaForEntry, payOrder);
+        return this.entrySchema(this.loanOrderStrategySchemas(instalmentEntities), payOrder);
     }
 
     @Override
     @SituationSource
     public Schema payLoanOrder(LoanOrderEntity loanOrder, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException {
-        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), SchemaTypeEnum.ENTRY);
-        return this.entrySchema(shouldPaySchemaForEntry, payOrder);
+        return this.entrySchema(this.loanOrderStrategyCouponSchemas(loanOrder, couponEntities), payOrder);
     }
 
     @Override
     @SituationSource
     public Schema payLoanOrder(List<LoanInstalmentEntity> instalmentEntities, List<CouponEntity> couponEntities, PayOrderEntity payOrder) throws BaseException {
-        Schema shouldPaySchemaForEntry = this.mergeSchemas(this.loanOrderStrategyCouponSchemas(instalmentEntities, couponEntities), SchemaTypeEnum.ENTRY);
-        return this.entrySchema(shouldPaySchemaForEntry, payOrder);    }
+        return this.entrySchema(this.loanOrderStrategyCouponSchemas(instalmentEntities, couponEntities), payOrder);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -214,12 +211,23 @@ public class BillServiceImpl implements BillService {
     /**
      * 计算入账用schema
      * 传进来对应类型的schema就可以给出正确的入账schema
-     * @param shouldPaySchema
+     * @param schemas
      * @param payOrder
      * @return
      */
-    private Schema entrySchema(Schema shouldPaySchema, PayOrderEntity payOrder) throws LoanEntryException {
-        MixedSchema entrySchema = new MixedSchema(SchemaTypeEnum.ENTRY);
+    private Schema entrySchema(List<Schema> schemas, PayOrderEntity payOrder) throws SchemaException, LoanEntryException {
+        Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
+        // TODO
+        /**
+         * 优惠券/策略入账
+         */
+        Schema entrySchema = this.mergeSchemas(schemas, SchemaTypeEnum.ENTRY);
+
+        /**
+         * 剩余应还
+         */
+        Schema shouldPaySchema = this.mergeSchemas(schemas, SchemaTypeEnum.SHOULD_PAY);
+
         BigDecimal paid = payOrder.getEquivalentAmount().subtract(payOrder.getEntryAmount());
         /**
          * 入账schema逻辑
@@ -263,24 +271,34 @@ public class BillServiceImpl implements BillService {
                         entryInstalment.put(elementEnum, entryUnit);
                     }
 
-                    LoanOrderElementTypeEnum elementType = elementEnum.getLoanOrderElementType();
-                    // 这种类型要做特殊处理, 把之后的期数都一起入账
-                    // TODO: 可能有更好的处理方式
-                    if (LoanOrderElementTypeEnum.PRIVILEGE.equals(elementType)) {
-                        Integer totalInstalment = shouldPaySchema.size();
-                        for (Integer i = 1; i <= totalInstalment; i++) {
-                            if (BigDecimal.ZERO.compareTo(paid) >= 0) {
-                                break;
-                            }
-                            Instalment privilegeInstalment = shouldPaySchema.get(i);
-                            Unit privilegeUnit = privilegeInstalment.get(elementEnum);
-                            if (privilegeUnit != null && privilegeUnit.size() > 0) {
-                                paid = this.entryElement(privilegeUnit, entryUnit, paid, payOrder.getPayOrderId());
-                            }
-                        }
+                    long repaymentDate = TimeUtils.truncateToDay(instalment.getRepaymentDate());
+                    if (today < repaymentDate) {
+                        // 提前还款, 利息, 本金比例分配
+                        BigDecimal instalmentInterest = instalment.getElementAmount(LoanOrderElementEnum.INTEREST);
+                        BigDecimal instalmentPrincipal = instalment.getElementAmount(LoanOrderElementEnum.PRINCIPAL);
+
+
+
                     } else {
-                        // 其他种类正常入账就行
-                        paid = this.entryElement(unit, entryUnit, paid, payOrder.getPayOrderId());
+                        LoanOrderElementTypeEnum elementType = elementEnum.getLoanOrderElementType();
+                        // 这种类型要做特殊处理, 把之后的期数都一起入账
+                        // TODO: 可能有更好的处理方式
+                        if (LoanOrderElementTypeEnum.PRIVILEGE.equals(elementType)) {
+                            Integer totalInstalment = shouldPaySchema.size();
+                            for (Integer i = 1; i <= totalInstalment; i++) {
+                                if (BigDecimal.ZERO.compareTo(paid) >= 0) {
+                                    break;
+                                }
+                                Instalment privilegeInstalment = shouldPaySchema.get(i);
+                                Unit privilegeUnit = privilegeInstalment.get(elementEnum);
+                                if (privilegeUnit != null && privilegeUnit.size() > 0) {
+                                    paid = this.entryElement(privilegeUnit, entryUnit, paid, payOrder.getPayOrderId());
+                                }
+                            }
+                        } else {
+                            // 其他种类正常入账就行
+                            paid = this.entryElement(unit, entryUnit, paid, payOrder.getPayOrderId());
+                        }
                     }
                 }
             }
@@ -412,7 +430,8 @@ public class BillServiceImpl implements BillService {
      * 1. 把所有传进来的schema分成两类:  应还和已还(可以体现为减免等), 应还为正, 已还为负
      * 2. 用已还将应还抵消, 如果已还大于应还, 则直接抛异常(这里可优化), 如果小于等于, 正常扣掉已还就好
      *
-     * 输出的schema是应还的schema
+     * SchemaTypeEnum.SHOULD_PAY : 输出的schema是应还的schema
+     * SchemaTypeEnum.ENTRY : 输出的schema是全额还款时 入账优惠/策略后的已入账schema
      *
      * @param schemas
      * @return
@@ -422,6 +441,8 @@ public class BillServiceImpl implements BillService {
         if (!SchemaTypeEnum.REPAY_RELEVANT.contains(schemaType)) {
             throw new SchemaException("mergeSchemas方法仅支持SchemaTypeEnum.ENTRY与SchemaTypeEnum.SHOULD_PAY, 当前schema类型" + schemaType.name());
         }
+        long now = System.currentTimeMillis();
+
         // 应还schema
         Schema repaySchema = new MixedSchema(schemaType);
         Schema sourceSchema = getWriteOffTypeSchema(schemas, SchemaTypeEnum.WRITE_OFF_SOURCE);
@@ -431,7 +452,11 @@ public class BillServiceImpl implements BillService {
         for (Map.Entry<Integer, Instalment> instalmentEntry : destinationSchema.entrySet()) {
             Integer instalmentKey = instalmentEntry.getKey();
             Instalment instalment = instalmentEntry.getValue();
+            if (instalment.getRepaymentDate() > now) {
+                // 未出账单, 需要另外入账
+            }
             Instalment sourceInstalment = sourceSchema.get(instalmentKey);
+
             if (sourceInstalment == null) {
                 // 来源为空, 表示暂时没还, 需要还
                 repaySchema.put(instalmentKey, instalment);
@@ -459,6 +484,12 @@ public class BillServiceImpl implements BillService {
                     repayUnit = new Unit();
                     repayInstalment.put(elementKey, repayUnit);
                 }
+
+                //Element orderBaseElement = unit.get(0);
+                //unit.addAll(sourceUnit);
+                //BigDecimal couponPercentInverse = unit.getCouponPercentInverse();
+                //BigDecimal couponNumber = unit.getCouponNumber();
+
                 // unit中有部分还了
                 Element sourceElement = null;
                 Element element = null;
@@ -532,7 +563,6 @@ public class BillServiceImpl implements BillService {
             repayUnit.add(paidElement);
         }
     }
-
 
     private Schema getWriteOffTypeSchema(List<Schema> schemas, SchemaTypeEnum writeOffSource) throws SchemaException {
         Schema writeOffSchema = new Schema(writeOffSource);

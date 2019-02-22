@@ -23,13 +23,4 @@ public interface CouponCalculator extends SchemaCalculator {
      * @return   schema
      */
     Schema getCurrentSchema(List<? extends ISchemaEntity> schemaEntities, List<LoanInstalmentEntity> instalmentEntities) throws SchemaException, DateCalaulateException;
-
-    /**
-     * 根据比重获取实际的金额
-     * @param weight
-     * @param defaultAmount
-     * @param orderAmount
-     * @return
-     */
-    BigDecimal getApplyAmount(WeightEnum weight, BigDecimal defaultAmount, BigDecimal orderAmount);
 }
