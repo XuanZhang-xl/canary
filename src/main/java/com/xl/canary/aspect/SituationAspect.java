@@ -61,6 +61,9 @@ public class SituationAspect {
             }
         }
         // 返回的结果已经使用完situation, 在这儿加入变量毫无意义
-        return point.proceed();
+        Object proceed = point.proceed();
+        // 清除threadLocal
+        SituationHolder.clear();
+        return proceed;
     }
 }

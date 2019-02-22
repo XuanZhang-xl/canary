@@ -31,12 +31,12 @@ public class StrategyEntity extends AbstractConditionEntity implements ISchemaEn
     private String subject;
 
     /**
-     * 辅助字段, 用于计算schema, 决定优惠某一期, 空表示都有效
+     * 辅助字段, 用于计算schema, 决定优惠某一期, 不可为空
      */
     private Integer instalment;
 
     /**
-     * 辅助字段, 用于计算schema, 决定优惠某一元素, 空表示都有效
+     * 辅助字段, 用于计算schema, 决定优惠某一元素, 不可为空
      */
     private String element;
 

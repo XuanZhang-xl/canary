@@ -36,4 +36,11 @@ public class SituationHolder {
     public static Situation getSituation() {
         return SITUATION_HOLDER.get();
     }
+
+    /**
+     * 清除threadLocal
+     */
+    public static void clear() {
+        SITUATION_HOLDER.remove();
+    }
 }

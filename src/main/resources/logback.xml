@@ -69,7 +69,7 @@
     </logger>
     <!--输出sql-->
     <logger name="com.xl.canary.mapper" level="DEBUG"/>
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="stdout"/>
         <appender-ref ref="info_log" />
     </root>
