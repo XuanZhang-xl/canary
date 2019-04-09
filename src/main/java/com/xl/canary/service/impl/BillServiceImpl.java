@@ -40,6 +40,7 @@ import com.xl.canary.service.PayOrderService;
 import com.xl.canary.service.StrategyService;
 import com.xl.canary.utils.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -217,16 +218,12 @@ public class BillServiceImpl implements BillService {
      */
     private Schema entrySchema(List<Schema> schemas, PayOrderEntity payOrder) throws SchemaException, LoanEntryException {
         Long today = TimeUtils.truncateToDay(System.currentTimeMillis());
-        // TODO
         /**
          * 优惠券/策略入账
          */
-        Schema entrySchema = this.mergeSchemas(schemas, SchemaTypeEnum.ENTRY);
-
-        /**
-         * 剩余应还
-         */
-        Schema shouldPaySchema = this.mergeSchemas(schemas, SchemaTypeEnum.SHOULD_PAY);
+        Schema schema = this.mergeSchemas(schemas, SchemaTypeEnum.ENTRY);
+        Schema entrySchema = ((MixedSchema) schema).getEntrySchema();
+        Schema shouldPaySchema = ((MixedSchema) schema).getShouldPaySchema();
 
         BigDecimal paid = payOrder.getEquivalentAmount().subtract(payOrder.getEntryAmount());
         /**
@@ -276,7 +273,7 @@ public class BillServiceImpl implements BillService {
                         // 提前还款, 利息, 本金比例分配
                         BigDecimal instalmentInterest = instalment.getElementAmount(LoanOrderElementEnum.INTEREST);
                         BigDecimal instalmentPrincipal = instalment.getElementAmount(LoanOrderElementEnum.PRINCIPAL);
-
+                        // TODO
 
 
                     } else {
